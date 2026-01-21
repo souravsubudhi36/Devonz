@@ -6,6 +6,7 @@ import { PortDropdown } from './PortDropdown';
 import { ScreenshotSelector } from './ScreenshotSelector';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
+import { InspectorPanel } from './InspectorPanel';
 import type { ElementInfo } from './Inspector';
 
 type ResizeSide = 'left' | 'right' | null;
@@ -69,6 +70,10 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const [isDeviceModeOn, setIsDeviceModeOn] = useState(false);
   const [widthPercent, setWidthPercent] = useState<number>(37.5);
   const [currentWidth, setCurrentWidth] = useState<number>(0);
+
+  // Inspector panel state
+  const [inspectorElement, setInspectorElement] = useState<ElementInfo | null>(null);
+  const [isInspectorPanelVisible, setIsInspectorPanelVisible] = useState(false);
 
   const resizingState = useRef({
     isResizing: false,
@@ -636,6 +641,8 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
 
         navigator.clipboard.writeText(element.displayText).then(() => {
           setSelectedElement?.(element);
+          setInspectorElement(element);
+          setIsInspectorPanelVisible(true);
         });
       }
     };
@@ -649,6 +656,12 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     const newInspectorMode = !isInspectorMode;
     setIsInspectorMode(newInspectorMode);
 
+    if (!newInspectorMode) {
+      // Close inspector panel when deactivating inspector mode
+      setIsInspectorPanelVisible(false);
+      setInspectorElement(null);
+    }
+
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage(
         {
@@ -660,8 +673,50 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     }
   };
 
+  // Handler for style changes from InspectorPanel
+  const handleStyleChange = useCallback((property: string, value: string) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        {
+          type: 'INSPECTOR_EDIT_STYLE',
+          property,
+          value,
+        },
+        '*',
+      );
+    }
+  }, []);
+
+  // Handler for text changes from InspectorPanel
+  const handleTextChange = useCallback((text: string) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        {
+          type: 'INSPECTOR_EDIT_TEXT',
+          text,
+        },
+        '*',
+      );
+    }
+  }, []);
+
+  // Handler for closing inspector panel
+  const handleCloseInspectorPanel = useCallback(() => {
+    setIsInspectorPanelVisible(false);
+    setInspectorElement(null);
+  }, []);
+
   return (
     <div ref={containerRef} className={`w-full h-full flex flex-col relative`}>
+      {/* Inspector Panel */}
+      <InspectorPanel
+        selectedElement={inspectorElement}
+        isVisible={isInspectorPanelVisible}
+        onClose={handleCloseInspectorPanel}
+        onStyleChange={handleStyleChange}
+        onTextChange={handleTextChange}
+      />
+
       {isPortDropdownOpen && (
         <div className="z-iframe-overlay w-full h-full absolute" onClick={() => setIsPortDropdownOpen(false)} />
       )}
