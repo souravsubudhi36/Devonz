@@ -42,6 +42,9 @@ interface WorkspaceProps {
 
   /** The width of the workbench panel in pixels */
   width?: number;
+
+  /** Whether the workbench should take full width (when chat is hidden) */
+  fullWidth?: boolean;
 }
 
 const viewTransition = { ease: cubicEasingFn };
@@ -275,6 +278,7 @@ export const Workbench = memo(
     updateChatMestaData: _updateChatMestaData,
     setSelectedElement,
     width,
+    fullWidth,
   }: WorkspaceProps) => {
     renderLogger.trace('Workbench');
 
@@ -363,8 +367,18 @@ export const Workbench = memo(
     return (
       chatStarted &&
       showWorkbench && (
-        <div className="flex-shrink-0 h-full z-workbench" style={{ width: width || 'var(--workbench-width)' }}>
-          <div className="h-full flex flex-col bg-bolt-elements-background-depth-2 border-l border-bolt-elements-borderColor overflow-hidden">
+        <div
+          className={classNames('h-full z-workbench', {
+            'flex-grow': fullWidth,
+            'flex-shrink-0': !fullWidth,
+          })}
+          style={fullWidth ? undefined : { width: width || 'var(--workbench-width)' }}
+        >
+          <div
+            className={classNames('h-full flex flex-col bg-bolt-elements-background-depth-2 overflow-hidden', {
+              'border-l border-bolt-elements-borderColor': !fullWidth,
+            })}
+          >
             <div className="flex items-center px-3 py-2.5 border-b border-bolt-elements-borderColor gap-2 bg-bolt-elements-background-depth-2/80">
               <button
                 className={`${showChat ? 'i-ph:sidebar-simple-fill' : 'i-ph:sidebar-simple'} text-lg text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors mr-1`}
