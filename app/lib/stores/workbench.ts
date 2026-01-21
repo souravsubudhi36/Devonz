@@ -50,7 +50,8 @@ export class WorkbenchStore {
   unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
 
   /** The width of the workbench panel in pixels. Default is 50% of viewport. */
-  workbenchWidth: WritableAtom<number> = import.meta.hot?.data.workbenchWidth ?? atom(window.innerWidth * 0.5);
+  workbenchWidth: WritableAtom<number> =
+    import.meta.hot?.data.workbenchWidth ?? atom(typeof window !== 'undefined' ? window.innerWidth * 0.5 : 800);
 
   actionAlert: WritableAtom<ActionAlert | undefined> =
     import.meta.hot?.data.actionAlert ?? atom<ActionAlert | undefined>(undefined);
@@ -181,7 +182,7 @@ export class WorkbenchStore {
   setWorkbenchWidth(width: number) {
     // Clamp width between min and max values (300px to 80% of viewport)
     const minWidth = 300;
-    const maxWidth = window.innerWidth * 0.8;
+    const maxWidth = typeof window !== 'undefined' ? window.innerWidth * 0.8 : 1200;
     const clampedWidth = Math.max(minWidth, Math.min(maxWidth, width));
     this.workbenchWidth.set(clampedWidth);
   }
