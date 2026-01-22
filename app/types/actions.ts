@@ -1,6 +1,6 @@
 import type { Change } from 'diff';
 
-export type ActionType = 'file' | 'shell' | 'supabase';
+export type ActionType = 'file' | 'shell' | 'supabase' | 'plan' | 'task-update';
 
 export interface BaseAction {
   content: string;
@@ -30,7 +30,43 @@ export interface SupabaseAction extends BaseAction {
   projectId?: string;
 }
 
-export type BoltAction = FileAction | ShellAction | StartAction | BuildAction | SupabaseAction;
+/**
+ * Plan action - creates a structured task list before code execution
+ */
+export interface PlanAction extends BaseAction {
+  type: 'plan';
+
+  /** Title of the plan */
+  planTitle?: string;
+}
+
+/**
+ * Task data within a plan
+ */
+export interface PlanTaskData {
+  id: string;
+  title: string;
+  description?: string;
+  fileActions?: string[];
+}
+
+/**
+ * Task update action - updates the status of a task in the plan
+ */
+export interface TaskUpdateAction extends BaseAction {
+  type: 'task-update';
+  taskId: string;
+  taskStatus: 'not-started' | 'in-progress' | 'completed';
+}
+
+export type BoltAction =
+  | FileAction
+  | ShellAction
+  | StartAction
+  | BuildAction
+  | SupabaseAction
+  | PlanAction
+  | TaskUpdateAction;
 
 export type BoltActionData = BoltAction | BaseAction;
 

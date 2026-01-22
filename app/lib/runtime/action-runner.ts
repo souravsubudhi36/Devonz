@@ -1,11 +1,22 @@
 import type { WebContainer } from '@webcontainer/api';
 import { path as nodePath } from '~/utils/path';
 import { atom, map, type MapStore } from 'nanostores';
-import type { ActionAlert, BoltAction, DeployAlert, FileHistory, SupabaseAction, SupabaseAlert } from '~/types/actions';
+import type {
+  ActionAlert,
+  BoltAction,
+  DeployAlert,
+  FileHistory,
+  SupabaseAction,
+  SupabaseAlert,
+  PlanAction,
+  TaskUpdateAction,
+  PlanTaskData,
+} from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
 import type { ActionCallbackData } from './message-parser';
 import type { BoltShell } from '~/utils/shell';
+import { setPlan, updateTaskStatus, type PlanTask } from '~/lib/stores/plan';
 
 const logger = createScopedLogger('ActionRunner');
 
@@ -217,6 +228,16 @@ export class ActionRunner {
           await new Promise((resolve) => setTimeout(resolve, 2000));
 
           return;
+        }
+        case 'plan': {
+          // Handle plan action - parse and set up the plan
+          await this.#runPlanAction(action as PlanAction);
+          break;
+        }
+        case 'task-update': {
+          // Handle task status update
+          await this.#runTaskUpdateAction(action as TaskUpdateAction);
+          break;
         }
       }
 
@@ -741,5 +762,59 @@ export class ActionRunner {
       title: `Command Failed (exit code: ${exitCode})`,
       details: `Command: ${trimmedCommand}\n\nOutput: ${output || 'No output available'}${suggestion}`,
     };
+  }
+
+  /**
+   * Handle plan action - parse JSON task list and populate the plan store
+   */
+  async #runPlanAction(action: PlanAction): Promise<void> {
+    try {
+      const content = action.content.trim();
+
+      // Parse the JSON task list from the action content
+      const planData = JSON.parse(content) as { tasks: PlanTaskData[]; title?: string };
+
+      if (!planData.tasks || !Array.isArray(planData.tasks)) {
+        logger.error('[Plan] Invalid plan data: tasks array is required');
+        return;
+      }
+
+      // Convert to PlanTask format and set in store
+      const tasks: PlanTask[] = planData.tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        status: 'not-started' as const,
+        fileActions: task.fileActions,
+      }));
+
+      // Set the plan in the store
+      setPlan(tasks, action.planTitle || planData.title);
+
+      logger.info(`[Plan] Created plan with ${tasks.length} tasks`);
+    } catch (error) {
+      logger.error('[Plan] Failed to parse plan action:', error);
+    }
+  }
+
+  /**
+   * Handle task update action - update task status in the plan store
+   */
+  async #runTaskUpdateAction(action: TaskUpdateAction): Promise<void> {
+    try {
+      const { taskId, taskStatus } = action;
+
+      if (!taskId || !taskStatus) {
+        logger.error('[TaskUpdate] Missing taskId or taskStatus');
+        return;
+      }
+
+      // Update the task status in the store
+      updateTaskStatus(taskId, taskStatus);
+
+      logger.info(`[TaskUpdate] Updated task ${taskId} to status: ${taskStatus}`);
+    } catch (error) {
+      logger.error('[TaskUpdate] Failed to update task:', error);
+    }
   }
 }

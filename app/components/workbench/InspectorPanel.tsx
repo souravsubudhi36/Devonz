@@ -1,21 +1,5 @@
 import { useState, useCallback } from 'react';
-
-interface ElementInfo {
-  tagName: string;
-  className: string;
-  id: string;
-  textContent: string;
-  styles: Record<string, string>;
-  selector?: string;
-  rect: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    top: number;
-    left: number;
-  };
-}
+import type { ElementInfo } from './Inspector';
 
 interface InspectorPanelProps {
   selectedElement: ElementInfo | null;
@@ -40,6 +24,7 @@ export const InspectorPanel = ({
   const [editedStyles, setEditedStyles] = useState<Record<string, string>>({});
   const [editedText, setEditedText] = useState<string>('');
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+
   // Reset edited values when element changes
   const handleStyleChange = useCallback(
     (property: string, value: string) => {

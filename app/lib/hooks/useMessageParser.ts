@@ -28,7 +28,7 @@ const messageParser = new EnhancedStreamingMessageParser({
       workbenchStore.updateArtifact(data, { closed: true });
 
       // Only create one version per message (debounced)
-      const artifact = workbenchStore.artifacts.get()[data.artifactId];
+      const artifact = data.artifactId ? workbenchStore.artifacts.get()[data.artifactId] : undefined;
       const messageId = data.messageId || artifact?.id || '';
 
       // Skip if we've already versioned this message
@@ -47,8 +47,10 @@ const messageParser = new EnhancedStreamingMessageParser({
         clearTimeout(versionDebounceTimer);
       }
 
-      // Wait 500ms after last artifact closes before creating version
-      // This groups all artifacts from one message into a single version
+      /*
+       * Wait 500ms after last artifact closes before creating version
+       * This groups all artifacts from one message into a single version
+       */
       versionDebounceTimer = setTimeout(() => {
         if (!pendingVersionData) {
           return;

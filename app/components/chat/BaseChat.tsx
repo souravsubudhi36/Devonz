@@ -35,6 +35,7 @@ import type { DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import LlmErrorAlert from './LLMApiAlert';
 import { ResizeHandle } from '~/components/ui/ResizeHandle';
+import { PlanApprovalAlert } from './PlanApprovalAlert';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -439,6 +440,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       />
                     )}
                     {llmErrorAlert && <LlmErrorAlert alert={llmErrorAlert} clearAlert={() => clearLlmErrorAlert?.()} />}
+                    {/* Plan Approval Alert - shows when a plan is pending approval */}
+                    <PlanApprovalAlert
+                      postMessage={(message) => {
+                        sendMessage?.({} as any, message);
+                      }}
+                    />
                   </div>
                   {progressAnnotations && <ProgressCompilation data={progressAnnotations} />}
                   <ChatBox

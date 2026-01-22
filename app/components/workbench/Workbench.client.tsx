@@ -21,6 +21,7 @@ import { renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
 import { Versions } from './Versions';
+import { Plan } from './Plan';
 import useViewport from '~/lib/hooks';
 
 import { usePreviewStore } from '~/lib/stores/previews';
@@ -369,7 +370,7 @@ export const Workbench = memo(
       showWorkbench && (
         <div
           className={classNames('h-full z-workbench', {
-            'flex-grow': fullWidth,
+            'flex-grow': !!fullWidth,
             'flex-shrink-0': !fullWidth,
           })}
           style={fullWidth ? undefined : { width: width || 'var(--workbench-width)' }}
@@ -464,6 +465,8 @@ export const Workbench = memo(
                 }}
               />
             </div>
+            {/* Plan component - shows when planning is active */}
+            <Plan />
             <div className="relative flex-1 overflow-hidden">
               <View initial={{ x: '0%' }} animate={{ x: selectedView === 'code' ? '0%' : '-100%' }}>
                 <EditorPanel

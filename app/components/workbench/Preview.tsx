@@ -677,6 +677,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   // Handler for style changes from InspectorPanel
   const handleStyleChange = useCallback((property: string, value: string) => {
     console.log('[Preview] handleStyleChange:', property, value, 'iframe:', iframeRef.current);
+
     if (iframeRef.current?.contentWindow) {
       console.log('[Preview] Sending INSPECTOR_EDIT_STYLE to iframe');
       iframeRef.current.contentWindow.postMessage(

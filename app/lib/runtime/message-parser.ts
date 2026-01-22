@@ -1,4 +1,13 @@
-import type { ActionType, BoltAction, BoltActionData, FileAction, ShellAction, SupabaseAction } from '~/types/actions';
+import type {
+  ActionType,
+  BoltAction,
+  BoltActionData,
+  FileAction,
+  ShellAction,
+  SupabaseAction,
+  PlanAction,
+  TaskUpdateAction,
+} from '~/types/actions';
 import type { BoltArtifactData } from '~/types/artifact';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
@@ -373,11 +382,33 @@ export class StreamingMessageParser {
       }
 
       (actionAttributes as FileAction).filePath = filePath;
-    } else if (!['shell', 'start'].includes(actionType)) {
+    } else if (actionType === 'plan') {
+      // Plan action - extract optional title attribute
+      const planTitle = this.#extractAttribute(actionTag, 'title');
+
+      if (planTitle) {
+        (actionAttributes as PlanAction).planTitle = planTitle;
+      }
+    } else if (actionType === 'task-update') {
+      // Task update action - extract taskId and taskStatus attributes
+      const taskId = this.#extractAttribute(actionTag, 'taskId');
+      const taskStatus = this.#extractAttribute(actionTag, 'status') as TaskUpdateAction['taskStatus'];
+
+      if (!taskId) {
+        logger.warn('Task update requires a taskId');
+      }
+
+      if (!taskStatus) {
+        logger.warn('Task update requires a status');
+      }
+
+      (actionAttributes as TaskUpdateAction).taskId = taskId || '';
+      (actionAttributes as TaskUpdateAction).taskStatus = taskStatus || 'not-started';
+    } else if (!['shell', 'start', 'build'].includes(actionType)) {
       logger.warn(`Unknown action type '${actionType}'`);
     }
 
-    return actionAttributes as FileAction | ShellAction;
+    return actionAttributes as FileAction | ShellAction | PlanAction | TaskUpdateAction;
   }
 
   #extractAttribute(tag: string, attributeName: string): string | undefined {

@@ -13,6 +13,7 @@ export interface ElementInfo {
   id: string;
   textContent: string;
   styles: Record<string, string>; // Changed from CSSStyleDeclaration
+  selector?: string;
   rect: {
     x: number;
     y: number;
