@@ -160,12 +160,12 @@ ${value.content}
                   'no-store',
                   ...(summary
                     ? [
-                        {
-                          chatId: storedMessages.messages[snapshotIndex].id,
-                          type: 'chatSummary',
-                          summary,
-                        } satisfies ContextAnnotation,
-                      ]
+                      {
+                        chatId: storedMessages.messages[snapshotIndex].id,
+                        type: 'chatSummary',
+                        summary,
+                      } satisfies ContextAnnotation,
+                    ]
                     : []),
                 ],
               },
@@ -256,7 +256,7 @@ ${value.content}
     workbenchStore.setDocuments(mergedFiles);
 
     // Write files to WebContainer in parallel (for runtime)
-    const dirPromises: Promise<void>[] = [];
+    const dirPromises: Promise<string>[] = [];
     const filePromises: Promise<void>[] = [];
 
     Object.entries(validSnapshot.files).forEach(([key, value]) => {

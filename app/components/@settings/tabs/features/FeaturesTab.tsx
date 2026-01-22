@@ -6,6 +6,8 @@ import { useSettings } from '~/lib/hooks/useSettings';
 import { classNames } from '~/utils/classNames';
 import { toast } from 'react-toastify';
 import { PromptLibrary } from '~/lib/common/prompt-library';
+import { useStore } from '@nanostores/react';
+import { stagingStore, updateSettings as updateStagingSettings } from '~/lib/stores/staging';
 
 interface FeatureToggle {
   id: string;
@@ -121,6 +123,10 @@ export default function FeaturesTab() {
     promptId,
   } = useSettings();
 
+  // Staging settings from staging store
+  const stagingState = useStore(stagingStore);
+  const { settings: stagingSettings } = stagingState;
+
   // Enable features by default on first load
   React.useEffect(() => {
     // Only set defaults if values are undefined
@@ -178,6 +184,30 @@ export default function FeaturesTab() {
           break;
         }
 
+        case 'stagingEnabled': {
+          updateStagingSettings({ isEnabled: enabled });
+          toast.success(`Change confirmations ${enabled ? 'enabled' : 'disabled'}`);
+          break;
+        }
+
+        case 'stagingAutoApprove': {
+          updateStagingSettings({ autoApproveEnabled: enabled });
+          toast.success(`Auto-approve patterns ${enabled ? 'enabled' : 'disabled'}`);
+          break;
+        }
+
+        case 'stagingDeleteConfirmation': {
+          updateStagingSettings({ requireDeleteConfirmation: enabled });
+          toast.success(`Delete confirmation ${enabled ? 'required' : 'not required'}`);
+          break;
+        }
+
+        case 'stagingAutoCheckpoint': {
+          updateStagingSettings({ autoCheckpointOnAccept: enabled });
+          toast.success(`Auto-checkpoint ${enabled ? 'enabled' : 'disabled'}`);
+          break;
+        }
+
         default:
           break;
       }
@@ -229,7 +259,44 @@ export default function FeaturesTab() {
           'When enabled, the editor will automatically switch to show each file as the AI edits it. When disabled, you can stay in preview mode while the AI works.',
       },
     ],
-    beta: [],
+    beta: [
+      {
+        id: 'stagingEnabled',
+        title: 'Change Confirmations',
+        description: 'Review and approve file changes before they are applied',
+        icon: 'i-ph:git-diff',
+        enabled: stagingSettings.isEnabled,
+        beta: true,
+        tooltip: 'Shows a diff preview of changes and lets you accept or reject each file modification',
+      },
+      {
+        id: 'stagingAutoApprove',
+        title: 'Auto-Approve Safe Files',
+        description: 'Automatically approve changes to lock files, logs, etc.',
+        icon: 'i-ph:check-circle',
+        enabled: stagingSettings.autoApproveEnabled,
+        beta: true,
+        tooltip: 'Files like package-lock.json, pnpm-lock.yaml, and .log files are auto-approved',
+      },
+      {
+        id: 'stagingDeleteConfirmation',
+        title: 'Require Delete Confirmation',
+        description: 'Always ask for confirmation before deleting files',
+        icon: 'i-ph:trash',
+        enabled: stagingSettings.requireDeleteConfirmation,
+        beta: true,
+        tooltip: 'Even auto-approved patterns will require confirmation for deletions',
+      },
+      {
+        id: 'stagingAutoCheckpoint',
+        title: 'Auto-Checkpoint Before Accept',
+        description: 'Create a version checkpoint before accepting changes',
+        icon: 'i-ph:clock-counter-clockwise',
+        enabled: stagingSettings.autoCheckpointOnAccept,
+        beta: true,
+        tooltip: 'Allows you to restore to before the changes were applied',
+      },
+    ],
   };
 
   return (

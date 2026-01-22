@@ -442,6 +442,16 @@ export const getSystemPrompt = (
         import CoffeeItem from './components/CoffeeItem';
         import { CoffeeItem } from './data/coffeeData';  // ERROR: Duplicate!
         \`\`\`
+
+    16. CRITICAL - Import Path Validation (MUST FOLLOW):
+      - BEFORE writing ANY import statement, verify the target file exists in your artifact
+      - Calculate relative paths correctly based on file locations:
+        * From \`src/App.tsx\` to \`src/components/Hero.tsx\` → \`./components/Hero\`
+        * From \`src/pages/Home.tsx\` to \`src/components/Hero.tsx\` → \`../components/Hero\`
+        * From \`src/components/ui/Button.tsx\` to \`src/lib/utils.ts\` → \`../../lib/utils\`
+      - Count directory depth: each \`../\` goes up one level from the importing file's directory
+      - For TypeScript/Vite projects, omit file extensions in imports (\`.ts\`, \`.tsx\`)
+      - NEVER import from a path that doesn't match a file you're creating in this artifact
   </artifact_instructions>
 
   <design_instructions>
@@ -793,6 +803,12 @@ Here are some examples of correct usage of artifacts:
   [ ] All imports use unique identifiers (no duplicate declarations possible)
   [ ] Types imported with \`import type\` when only used for typing
   [ ] No placeholder text like "TODO", "implement this", or "your-api-key"
+  
+  Import Path Correctness (CRITICAL):
+  [ ] Every import statement points to a file being created in this artifact
+  [ ] Relative paths are calculated correctly based on source/target file locations
+  [ ] No imports to non-existent files or wrong directory paths
+  [ ] Verified: count \`../\` depth matches actual directory structure
   
   Artifact Completeness:
   [ ] All referenced files are included in the artifact

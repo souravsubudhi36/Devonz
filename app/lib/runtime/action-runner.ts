@@ -17,6 +17,13 @@ import { unreachable } from '~/utils/unreachable';
 import type { ActionCallbackData } from './message-parser';
 import type { BoltShell } from '~/utils/shell';
 import { setPlan, updateTaskStatus, type PlanTask } from '~/lib/stores/plan';
+import {
+  stagingStore,
+  stageChange,
+  matchesAutoApprovePattern,
+  queueCommand,
+  type ChangeType,
+} from '~/lib/stores/staging';
 
 const logger = createScopedLogger('ActionRunner');
 
@@ -273,6 +280,21 @@ export class ActionRunner {
       unreachable('Expected shell action');
     }
 
+    // Check if staging is enabled - queue command instead of running
+    const stagingState = stagingStore.get();
+
+    if (stagingState.settings.isEnabled) {
+      queueCommand({
+        type: 'shell',
+        command: action.content,
+        artifactId: 'pending-artifact',
+        title: `Shell: ${action.content.substring(0, 40)}${action.content.length > 40 ? '...' : ''}`,
+      });
+      logger.info(`Queued shell command for staging: ${action.content.substring(0, 50)}...`);
+
+      return;
+    }
+
     const shell = this.#shellTerminal();
     await shell.ready();
 
@@ -303,6 +325,21 @@ export class ActionRunner {
   async #runStartAction(action: ActionState) {
     if (action.type !== 'start') {
       unreachable('Expected shell action');
+    }
+
+    // Check if staging is enabled - queue command instead of running
+    const stagingState = stagingStore.get();
+
+    if (stagingState.settings.isEnabled) {
+      queueCommand({
+        type: 'start',
+        command: action.content,
+        artifactId: 'pending-artifact',
+        title: `Start: ${action.content.substring(0, 40)}${action.content.length > 40 ? '...' : ''}`,
+      });
+      logger.info(`Queued start command for staging: ${action.content.substring(0, 50)}...`);
+
+      return;
     }
 
     if (!this.#shellTerminal) {
@@ -337,6 +374,63 @@ export class ActionRunner {
     const webcontainer = await this.#webcontainer;
     const relativePath = nodePath.relative(webcontainer.workdir, action.filePath);
 
+    // Check if staging is enabled and if this file should be staged
+    const stagingState = stagingStore.get();
+    const shouldStage = stagingState.settings.isEnabled && !this.#shouldAutoApprove(action.filePath);
+
+    if (shouldStage) {
+      // Read original content if file exists (for modify detection)
+      let originalContent: string | null = null;
+      let changeType: ChangeType = 'create';
+
+      try {
+        originalContent = await webcontainer.fs.readFile(relativePath, 'utf-8');
+        changeType = 'modify';
+      } catch {
+        // File doesn't exist, this is a create
+        changeType = 'create';
+      }
+
+      // Stage the change instead of writing directly
+      stageChange({
+        filePath: action.filePath,
+        type: changeType,
+        originalContent,
+        newContent: action.content,
+        actionId: (action as any).id ?? `action-${Date.now()}`,
+        description: `${changeType === 'create' ? 'Create' : 'Modify'} ${relativePath}`,
+      });
+
+      logger.debug(`File change staged: ${relativePath} (${changeType})`);
+
+      return;
+    }
+
+    // Direct write path (staging disabled or auto-approved)
+    await this.#writeFileDirect(action, webcontainer, relativePath);
+  }
+
+  /**
+   * Check if a file should be auto-approved (bypass staging)
+   */
+  #shouldAutoApprove(filePath: string): boolean {
+    const { settings } = stagingStore.get();
+
+    if (!settings.autoApproveEnabled) {
+      return false;
+    }
+
+    return matchesAutoApprovePattern(filePath, settings.autoApprovePatterns);
+  }
+
+  /**
+   * Write file directly to WebContainer (used when staging is bypassed)
+   */
+  async #writeFileDirect(action: ActionState, webcontainer: WebContainer, relativePath: string) {
+    if (action.type !== 'file') {
+      unreachable('Expected file action');
+    }
+
     let folder = nodePath.dirname(relativePath);
 
     // remove trailing slashes
@@ -356,6 +450,52 @@ export class ActionRunner {
       logger.debug(`File written ${relativePath}`);
     } catch (error) {
       logger.error('Failed to write file\n\n', error);
+    }
+  }
+
+  /**
+   * Apply a staged change (called when user accepts)
+   * This is a public method that can be called from outside
+   */
+  async applyAcceptedChange(filePath: string, content: string): Promise<boolean> {
+    try {
+      const webcontainer = await this.#webcontainer;
+      const relativePath = nodePath.relative(webcontainer.workdir, filePath);
+
+      let folder = nodePath.dirname(relativePath);
+      folder = folder.replace(/\/+$/g, '');
+
+      if (folder !== '.') {
+        await webcontainer.fs.mkdir(folder, { recursive: true });
+      }
+
+      await webcontainer.fs.writeFile(relativePath, content);
+      logger.info(`Accepted change applied: ${relativePath}`);
+
+      return true;
+    } catch (error) {
+      logger.error(`Failed to apply accepted change: ${filePath}`, error);
+
+      return false;
+    }
+  }
+
+  /**
+   * Delete a file (for staged deletions)
+   */
+  async deleteFile(filePath: string): Promise<boolean> {
+    try {
+      const webcontainer = await this.#webcontainer;
+      const relativePath = nodePath.relative(webcontainer.workdir, filePath);
+
+      await webcontainer.fs.rm(relativePath);
+      logger.info(`File deleted: ${relativePath}`);
+
+      return true;
+    } catch (error) {
+      logger.error(`Failed to delete file: ${filePath}`, error);
+
+      return false;
     }
   }
 

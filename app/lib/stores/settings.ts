@@ -5,6 +5,15 @@ import type { TabVisibilityConfig, TabWindowConfig, UserTabConfig } from '~/comp
 import { DEFAULT_TAB_CONFIG } from '~/components/@settings/core/constants';
 import { toggleTheme } from './theme';
 import { create } from 'zustand';
+import {
+  acceptAllWithCheckpoint,
+  rejectAllChanges as rejectAllStagingChanges,
+  openDiffModal,
+  selectNextChange,
+  selectPreviousChange,
+  hasPendingChanges,
+  pendingChanges,
+} from './staging';
 
 export interface Shortcut {
   key: string;
@@ -21,6 +30,11 @@ export interface Shortcut {
 export interface Shortcuts {
   toggleTheme: Shortcut;
   toggleTerminal: Shortcut;
+  acceptAllChanges: Shortcut;
+  rejectAllChanges: Shortcut;
+  openDiffPreview: Shortcut;
+  nextChange: Shortcut;
+  previousChange: Shortcut;
 }
 
 export const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
@@ -47,6 +61,62 @@ export const shortcutsStore = map<Shortcuts>({
     },
     description: 'Toggle terminal',
     isPreventDefault: true,
+  },
+  acceptAllChanges: {
+    key: 'Enter',
+    ctrlOrMetaKey: true,
+    shiftKey: true,
+    action: () => {
+      if (hasPendingChanges.get()) {
+        acceptAllWithCheckpoint();
+      }
+    },
+    description: 'Accept all pending changes',
+    isPreventDefault: true,
+  },
+  rejectAllChanges: {
+    key: 'Backspace',
+    ctrlOrMetaKey: true,
+    shiftKey: true,
+    action: () => {
+      if (hasPendingChanges.get()) {
+        rejectAllStagingChanges();
+      }
+    },
+    description: 'Reject all pending changes',
+    isPreventDefault: true,
+  },
+  openDiffPreview: {
+    key: 'd',
+    ctrlOrMetaKey: true,
+    shiftKey: true,
+    action: () => {
+      const pending = pendingChanges.get();
+
+      if (pending.length > 0) {
+        openDiffModal(pending[0].filePath);
+      }
+    },
+    description: 'Open diff preview for first pending change',
+    isPreventDefault: true,
+  },
+  nextChange: {
+    key: ']',
+    ctrlOrMetaKey: false,
+    action: () => {
+      selectNextChange();
+    },
+    description: 'Navigate to next pending change',
+    isPreventDefault: false,
+  },
+  previousChange: {
+    key: '[',
+    ctrlOrMetaKey: false,
+    action: () => {
+      selectPreviousChange();
+    },
+    description: 'Navigate to previous pending change',
+    isPreventDefault: false,
   },
 });
 

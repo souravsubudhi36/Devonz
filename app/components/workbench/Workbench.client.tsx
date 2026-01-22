@@ -22,6 +22,8 @@ import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
 import { Versions } from './Versions';
 import { Plan } from './Plan';
+import { StagedChangesPanel } from './StagedChangesPanel';
+import { DiffPreviewModal } from './DiffPreviewModal';
 import useViewport from '~/lib/hooks';
 
 import { usePreviewStore } from '~/lib/stores/previews';
@@ -467,6 +469,10 @@ export const Workbench = memo(
             </div>
             {/* Plan component - shows when planning is active */}
             <Plan />
+            {/* Staged changes panel - shows pending file changes */}
+            <StagedChangesPanel />
+            {/* Diff preview modal - for reviewing individual changes */}
+            <DiffPreviewModal />
             <div className="relative flex-1 overflow-hidden">
               <View initial={{ x: '0%' }} animate={{ x: selectedView === 'code' ? '0%' : '-100%' }}>
                 <EditorPanel

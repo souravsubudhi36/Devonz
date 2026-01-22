@@ -46,25 +46,23 @@ export default (options: PromptOptions) => {
 
   CRITICAL: Use Supabase for databases by default, unless specified otherwise.
 
-  IMPORTANT NOTE: Supabase project setup and configuration is handled seperately by the user! ${
-    supabase
+  IMPORTANT NOTE: Supabase project setup and configuration is handled seperately by the user! ${supabase
       ? !supabase.isConnected
         ? 'You are not connected to Supabase. Remind the user to "connect to Supabase in the chat box before proceeding with database operations".'
         : !supabase.hasSelectedProject
           ? 'Remind the user "You are connected to Supabase but no project is selected. Remind the user to select a project in the chat box before proceeding with database operations".'
           : ''
       : ''
-  } 
+    } 
   IMPORTANT: Create a .env file if it doesnt exist and include the following variables:
-  ${
-    supabase?.isConnected &&
-    supabase?.hasSelectedProject &&
-    supabase?.credentials?.supabaseUrl &&
-    supabase?.credentials?.anonKey
+  ${supabase?.isConnected &&
+      supabase?.hasSelectedProject &&
+      supabase?.credentials?.supabaseUrl &&
+      supabase?.credentials?.anonKey
       ? `VITE_SUPABASE_URL=${supabase.credentials.supabaseUrl}
       VITE_SUPABASE_ANON_KEY=${supabase.credentials.anonKey}`
       : 'SUPABASE_URL=your_supabase_url\nSUPABASE_ANON_KEY=your_supabase_anon_key'
-  }
+    }
   NEVER modify any Supabase configuration or \`.env\` files.
 
   CRITICAL DATA PRESERVATION AND SAFETY REQUIREMENTS:
@@ -263,8 +261,12 @@ export default (options: PromptOptions) => {
     3. Import Strategy: Avoid duplicate identifiers
        - Types: use \`Type\` suffix or \`import type\`
        - Components: use descriptive names like \`ProductCard\`
-    4. Order: config → utils → components → pages
-    5. Final Action: MUST end with \`<boltAction type="start">npm run dev</boltAction>\`
+    4. Import Path Validation: Verify all imports resolve to files in artifact
+       - From \`src/App.tsx\` to \`src/components/Hero.tsx\` → \`./components/Hero\`
+       - From \`src/pages/Home.tsx\` to \`src/components/Hero.tsx\` → \`../components/Hero\`
+       - Count \`../\` depth correctly based on file locations
+    5. Order: config → utils → components → pages
+    6. Final Action: MUST end with \`<boltAction type="start">npm run dev</boltAction>\`
 
   Create a single, comprehensive artifact for each project:
   - Use \`<boltArtifact>\` tags with \`title\` and \`id\` attributes
@@ -598,6 +600,11 @@ Examples:
   [ ] All imports use unique identifiers (no duplicate declarations)
   [ ] Types imported with \`import type\` when only used for typing
   [ ] No placeholder text like "TODO" or "your-api-key"
+  
+  Import Path Correctness (CRITICAL):
+  [ ] Every import points to a file in this artifact
+  [ ] Relative paths calculated correctly (count \`../\` depth)
+  [ ] No imports to non-existent files
   
   Artifact Completeness:
   [ ] All referenced files included in artifact
