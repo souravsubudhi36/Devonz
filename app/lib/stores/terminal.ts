@@ -28,6 +28,13 @@ export class TerminalStore {
   async attachBoltTerminal(terminal: ITerminal) {
     try {
       const wc = await this.#webcontainer;
+
+      if (!wc) {
+        terminal.write(coloredText.red('WebContainer not available\n'));
+
+        return;
+      }
+
       await this.#boltTerminal.init(wc, terminal);
     } catch (error: any) {
       terminal.write(coloredText.red('Failed to spawn bolt shell\n\n') + error.message);
@@ -37,7 +44,15 @@ export class TerminalStore {
 
   async attachTerminal(terminal: ITerminal) {
     try {
-      const shellProcess = await newShellProcess(await this.#webcontainer, terminal);
+      const wc = await this.#webcontainer;
+
+      if (!wc) {
+        terminal.write(coloredText.red('WebContainer not available\n'));
+
+        return;
+      }
+
+      const shellProcess = await newShellProcess(wc, terminal);
       this.#terminals.push({ terminal, process: shellProcess });
     } catch (error: any) {
       terminal.write(coloredText.red('Failed to spawn shell\n\n') + error.message);

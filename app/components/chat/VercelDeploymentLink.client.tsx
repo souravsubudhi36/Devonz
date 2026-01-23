@@ -1,6 +1,7 @@
 import { useStore } from '@nanostores/react';
 import { vercelConnection } from '~/lib/stores/vercel';
 import { chatId } from '~/lib/persistence/useChatHistory';
+import { vercelApi } from '~/lib/api/vercel-client';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { useEffect, useState } from 'react';
 
@@ -26,21 +27,14 @@ export function VercelDeploymentLink() {
       setIsLoading(true);
 
       try {
-        // Fetch projects directly from the API
-        const projectsResponse = await fetch('https://api.vercel.com/v9/projects', {
-          headers: {
-            Authorization: `Bearer ${connection.token}`,
-            'Content-Type': 'application/json',
-          },
-          cache: 'no-store',
-        });
+        // Fetch projects via proxy (bypasses CORS)
+        const projectsResult = await vercelApi.get<{ projects: any[] }>('/v9/projects', connection.token);
 
-        if (!projectsResponse.ok) {
-          throw new Error(`Failed to fetch projects: ${projectsResponse.status}`);
+        if (!projectsResult.success || !projectsResult.data) {
+          throw new Error(projectsResult.error || 'Failed to fetch projects');
         }
 
-        const projectsData = (await projectsResponse.json()) as any;
-        const projects = projectsData.projects || [];
+        const projects = projectsResult.data.projects || [];
 
         // Extract the chat number from currentChatId
         const chatNumber = currentChatId.split('-')[0];
@@ -49,17 +43,11 @@ export function VercelDeploymentLink() {
         const project = projects.find((p: { name: string | string[] }) => p.name.includes(`bolt-diy-${chatNumber}`));
 
         if (project) {
-          // Fetch project details including deployments
-          const projectDetailsResponse = await fetch(`https://api.vercel.com/v9/projects/${project.id}`, {
-            headers: {
-              Authorization: `Bearer ${connection.token}`,
-              'Content-Type': 'application/json',
-            },
-            cache: 'no-store',
-          });
+          // Fetch project details via proxy
+          const projectDetailsResult = await vercelApi.get<any>(`/v9/projects/${project.id}`, connection.token);
 
-          if (projectDetailsResponse.ok) {
-            const projectDetails = (await projectDetailsResponse.json()) as any;
+          if (projectDetailsResult.success && projectDetailsResult.data) {
+            const projectDetails = projectDetailsResult.data;
 
             // Try to get URL from production aliases first
             if (projectDetails.targets?.production?.alias && projectDetails.targets.production.alias.length > 0) {
@@ -80,19 +68,13 @@ export function VercelDeploymentLink() {
           }
 
           // If no aliases or project details failed, try fetching deployments
-          const deploymentsResponse = await fetch(
-            `https://api.vercel.com/v6/deployments?projectId=${project.id}&limit=1`,
-            {
-              headers: {
-                Authorization: `Bearer ${connection.token}`,
-                'Content-Type': 'application/json',
-              },
-              cache: 'no-store',
-            },
+          const deploymentsResult = await vercelApi.get<{ deployments: any[] }>(
+            `/v6/deployments?projectId=${project.id}&limit=1`,
+            connection.token,
           );
 
-          if (deploymentsResponse.ok) {
-            const deploymentsData = (await deploymentsResponse.json()) as any;
+          if (deploymentsResult.success && deploymentsResult.data) {
+            const deploymentsData = deploymentsResult.data;
 
             if (deploymentsData.deployments && deploymentsData.deployments.length > 0) {
               setDeploymentUrl(`https://${deploymentsData.deployments[0].url}`);

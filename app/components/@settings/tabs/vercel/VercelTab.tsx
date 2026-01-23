@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { useStore } from '@nanostores/react';
 import { logStore } from '~/lib/stores/logs';
+import { vercelApi } from '~/lib/api/vercel-client';
 import type { VercelUserResponse } from '~/types/vercel';
 import { classNames } from '~/utils/classNames';
 import { Button } from '~/components/ui/Button';
@@ -62,20 +63,13 @@ export default function VercelTab() {
         icon: 'i-ph:arrows-clockwise',
         action: async (projectId: string) => {
           try {
-            const response = await fetch(`https://api.vercel.com/v1/deployments`, {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${connection.token}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                name: projectId,
-                target: 'production',
-              }),
+            const result = await vercelApi.post<{ id: string }>('/v1/deployments', connection.token, {
+              name: projectId,
+              target: 'production',
             });
 
-            if (!response.ok) {
-              throw new Error('Failed to redeploy project');
+            if (!result.success) {
+              throw new Error(result.error || 'Failed to redeploy project');
             }
 
             toast.success('Project redeployment initiated');
@@ -144,15 +138,10 @@ export default function VercelTab() {
         icon: 'i-ph:trash',
         action: async (projectId: string) => {
           try {
-            const response = await fetch(`https://api.vercel.com/v1/projects/${projectId}`, {
-              method: 'DELETE',
-              headers: {
-                Authorization: `Bearer ${connection.token}`,
-              },
-            });
+            const result = await vercelApi.delete(`/v1/projects/${projectId}`, connection.token);
 
-            if (!response.ok) {
-              throw new Error('Failed to delete project');
+            if (!result.success) {
+              throw new Error(result.error || 'Failed to delete project');
             }
 
             toast.success('Project deleted successfully');
@@ -217,23 +206,14 @@ export default function VercelTab() {
         throw new Error('Token is required');
       }
 
-      // First test the token directly with Vercel API
-      const testResponse = await fetch('https://api.vercel.com/v2/user', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'User-Agent': 'bolt.diy-app',
-        },
-      });
+      // Test the token via proxy (bypasses CORS)
+      const result = await vercelApi.testConnection(token);
 
-      if (!testResponse.ok) {
-        if (testResponse.status === 401) {
-          throw new Error('Invalid Vercel token');
-        }
-
-        throw new Error(`Vercel API error: ${testResponse.status}`);
+      if (!result.success || !result.data) {
+        throw new Error(result.error || 'Invalid Vercel token');
       }
 
-      const userData = (await testResponse.json()) as VercelUserResponse;
+      const userData = result.data as VercelUserResponse;
 
       // Set cookies for server-side API access
       Cookies.set('VITE_VERCEL_ACCESS_TOKEN', token, { expires: 365 });

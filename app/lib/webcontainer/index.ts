@@ -1,6 +1,6 @@
 import { WebContainer } from '@webcontainer/api';
 import { WORK_DIR_NAME } from '~/utils/constants';
-import { cleanStackTrace } from '~/utils/stacktrace';
+import { getPreviewErrorHandler } from '~/utils/previewErrorHandler';
 
 interface WebContainerContext {
   loaded: boolean;
@@ -32,8 +32,6 @@ if (!import.meta.env.SSR) {
       .then(async (webcontainer) => {
         webcontainerContext.loaded = true;
 
-        const { workbenchStore } = await import('~/lib/stores/workbench');
-
         const response = await fetch('/inspector-script.js');
         const inspectorScript = await response.text();
         await webcontainer.setPreviewScript(inspectorScript);
@@ -42,18 +40,18 @@ if (!import.meta.env.SSR) {
         webcontainer.on('preview-message', (message) => {
           console.log('WebContainer preview message:', message);
 
-          // Handle both uncaught exceptions and unhandled promise rejections
-          if (message.type === 'PREVIEW_UNCAUGHT_EXCEPTION' || message.type === 'PREVIEW_UNHANDLED_REJECTION') {
-            const isPromise = message.type === 'PREVIEW_UNHANDLED_REJECTION';
-            const title = isPromise ? 'Unhandled Promise Rejection' : 'Uncaught Exception';
-            workbenchStore.actionAlert.set({
-              type: 'preview',
-              title,
-              description: 'message' in message ? message.message : 'Unknown error',
-              content: `Error occurred at ${message.pathname}${message.search}${message.hash}\nPort: ${message.port}\n\nStack trace:\n${cleanStackTrace(message.stack || '')}`,
-              source: 'preview',
-            });
-          }
+          // Use the preview error handler for cooldown and deduplication
+          getPreviewErrorHandler().handlePreviewMessage(
+            message as {
+              type: string;
+              message?: string;
+              stack?: string;
+              pathname?: string;
+              search?: string;
+              hash?: string;
+              port?: number;
+            },
+          );
         });
 
         return webcontainer;

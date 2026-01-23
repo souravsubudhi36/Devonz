@@ -592,6 +592,13 @@ export class FilesStore {
   async #init() {
     const webcontainer = await this.#webcontainer;
 
+    // Guard against undefined webcontainer (SSR or failed boot)
+    if (!webcontainer || !webcontainer.internal) {
+      console.warn('[FilesStore] WebContainer not available, skipping init');
+
+      return;
+    }
+
     // Clean up any files that were previously deleted
     this.#cleanupDeletedFiles();
 

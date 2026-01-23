@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useStore } from '@nanostores/react';
 import { logStore } from '~/lib/stores/logs';
 import { classNames } from '~/utils/classNames';
+import { vercelApi } from '~/lib/api/vercel-client';
 import {
   vercelConnection,
   isConnecting,
@@ -74,20 +75,24 @@ export default function VercelConnection() {
     isConnecting.set(true);
 
     try {
-      const response = await fetch('https://api.vercel.com/v2/user', {
-        headers: {
-          Authorization: `Bearer ${connection.token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Use the proxy to test connection
+      const result = await vercelApi.testConnection(connection.token);
 
-      if (!response.ok) {
-        throw new Error('Invalid token or unauthorized');
+      if (!result.success || !result.data?.user) {
+        throw new Error(result.error || 'Invalid token or unauthorized');
       }
 
-      const userData = (await response.json()) as any;
+      // Normalize the user data to match VercelUser type
+      const userData = result.data.user;
+
       updateVercelConnection({
-        user: userData.user || userData, // Handle both possible structures
+        user: {
+          id: userData.id,
+          username: userData.username,
+          email: userData.email,
+          name: userData.name || '',
+          avatar: userData.avatar,
+        },
         token: connection.token,
       });
 

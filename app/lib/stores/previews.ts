@@ -169,6 +169,13 @@ export class PreviewsStore {
   async #init() {
     const webcontainer = await this.#webcontainer;
 
+    // Guard against undefined webcontainer (SSR or failed boot)
+    if (!webcontainer || typeof webcontainer.on !== 'function') {
+      console.warn('[Preview] WebContainer not available, skipping init');
+
+      return;
+    }
+
     // Listen for server ready events
     webcontainer.on('server-ready', (port, url) => {
       console.log('[Preview] Server ready on port:', port, url);

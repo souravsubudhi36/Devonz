@@ -3,6 +3,7 @@ import type { ActionAlert } from '~/types/actions';
 import { classNames } from '~/utils/classNames';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { resetTerminalErrorDetector } from '~/utils/terminalErrorDetector';
+import { resetPreviewErrorHandler } from '~/utils/previewErrorHandler';
 
 interface Props {
   alert: ActionAlert;
@@ -21,12 +22,12 @@ export default function ChatAlert({ alert, clearAlert, postMessage }: Props) {
 
   const handleAskBolt = () => {
     /*
-     * For terminal errors:
-     * 1. Reset error detector so the same error can be caught again after fix
-     * 2. Interrupt any running process (Ctrl+C)
-     * This ensures the terminal is ready when Bolt sends fix commands
+     * Reset error handlers so the same error can be caught again after fix.
+     * For terminal errors, also interrupt any running process (Ctrl+C).
      */
-    if (!isPreview) {
+    if (isPreview) {
+      resetPreviewErrorHandler();
+    } else {
       resetTerminalErrorDetector();
       workbenchStore.interruptTerminal();
     }

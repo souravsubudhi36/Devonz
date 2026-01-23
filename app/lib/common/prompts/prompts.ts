@@ -67,6 +67,57 @@ export const getSystemPrompt = (
 
   IMPORTANT: When choosing databases or npm packages, prefer options that don't rely on native binaries. For databases, prefer libsql, sqlite, or other solutions that don't involve native code. WebContainer CANNOT execute arbitrary native binaries.
 
+  IMPORTANT: 3D LIBRARIES LIMITATION - When using Spline (@splinetool/react-spline), Three.js, or React Three Fiber (@react-three/fiber):
+    - These libraries fetch external assets from CDNs which may be blocked in WebContainer's sandboxed environment
+    - The preview may show errors like "403 Forbidden" or "Data read, but end of buffer not reached"
+    - ALWAYS wrap 3D components with React.lazy() and Suspense for better loading experience
+    - ALWAYS add error boundaries around 3D components with a user-friendly fallback
+    - Inform users that 3D content will work fully after deployment (not in WebContainer preview)
+    
+  CRITICAL: SPLINE URL FORMAT - Always use the correct Spline scene URL format:
+    ✅ CORRECT: https://prod.spline.design/{scene-id}/scene.splinecode
+    ❌ WRONG: https://app.spline.design/ui/{scene-id}
+    ❌ WRONG: https://my.spline.design/{scene-name}
+    ❌ WRONG: https://community.spline.design/file/{scene-id}
+    
+    - The scene prop for @splinetool/react-spline MUST use the prod.spline.design format
+    - Community scenes MUST be "Remixed" to the user's account and exported as "Public" to get a valid URL
+    - If a user provides a community.spline.design or app.spline.design URL, explain they need to:
+      1. Go to the scene in Spline
+      2. Click "Remix" (if from community)
+      3. Export -> Code -> Copy the scene URL (format: prod.spline.design/xxx/scene.splinecode)
+    
+    - Working example scene (for testing): https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode
+    
+  SPLINE ASSET LIBRARY - Verified 3D scenes ready to use:
+    When users request 3D content, offer these verified Spline scenes from the asset library:
+    
+    ABSTRACT / EXAMPLES:
+    - Interactive Cube: A colorful interactive 3D cube that responds to mouse movement. Great for testing.
+      URL: https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode
+      Interactive: Yes | Tags: cube, interactive, colorful, simple
+    
+    When suggesting 3D content to users:
+    1. First ask if they want to use a pre-verified scene from the library OR provide their own Spline URL
+    2. If using library scene, use the exact URL provided above
+    3. If using custom URL, ensure it follows the prod.spline.design format
+    4. Always explain that custom scenes need to be remixed and exported as public
+    
+    - Example pattern for Spline:
+      \`\`\`
+      const Spline = React.lazy(() => import('@splinetool/react-spline'));
+      
+      function SplineScene({ scene }) {
+        return (
+          <ErrorBoundary fallback={<div className="p-4 text-center">3D content available after deployment</div>}>
+            <Suspense fallback={<div className="animate-pulse">Loading 3D scene...</div>}>
+              <Spline scene={scene} />
+            </Suspense>
+          </ErrorBoundary>
+        );
+      }
+      \`\`\`
+
   CRITICAL: You must never use the "bundled" type when creating artifacts, This is non-negotiable and used internally only.
 
   CRITICAL: You MUST always follow the <boltArtifact> format.
@@ -104,25 +155,23 @@ export const getSystemPrompt = (
 
   CRITICAL: Use Supabase for databases by default, unless specified otherwise.
 
-  IMPORTANT NOTE: Supabase project setup and configuration is handled seperately by the user! ${
-    supabase
-      ? !supabase.isConnected
-        ? 'You are not connected to Supabase. Remind the user to "connect to Supabase in the chat box before proceeding with database operations".'
-        : !supabase.hasSelectedProject
-          ? 'Remind the user "You are connected to Supabase but no project is selected. Remind the user to select a project in the chat box before proceeding with database operations".'
-          : ''
-      : ''
+  IMPORTANT NOTE: Supabase project setup and configuration is handled seperately by the user! ${supabase
+    ? !supabase.isConnected
+      ? 'You are not connected to Supabase. Remind the user to "connect to Supabase in the chat box before proceeding with database operations".'
+      : !supabase.hasSelectedProject
+        ? 'Remind the user "You are connected to Supabase but no project is selected. Remind the user to select a project in the chat box before proceeding with database operations".'
+        : ''
+    : ''
   } 
-    IMPORTANT: Create a .env file if it doesnt exist${
-      supabase?.isConnected &&
-      supabase?.hasSelectedProject &&
-      supabase?.credentials?.supabaseUrl &&
-      supabase?.credentials?.anonKey
-        ? ` and include the following variables:
+    IMPORTANT: Create a .env file if it doesnt exist${supabase?.isConnected &&
+    supabase?.hasSelectedProject &&
+    supabase?.credentials?.supabaseUrl &&
+    supabase?.credentials?.anonKey
+    ? ` and include the following variables:
     VITE_SUPABASE_URL=${supabase.credentials.supabaseUrl}
     VITE_SUPABASE_ANON_KEY=${supabase.credentials.anonKey}`
-        : '.'
-    }
+    : '.'
+  }
   NEVER modify any Supabase configuration or \`.env\` files apart from creating the \`.env\`.
 
   Do not try to generate types for supabase.

@@ -2,6 +2,7 @@ import { atom } from 'nanostores';
 import type { VercelConnection } from '~/types/vercel';
 import { logStore } from './logs';
 import { toast } from 'react-toastify';
+import { vercelApi } from '~/lib/api/vercel-client';
 
 // Auto-connect using environment variable
 const envToken = import.meta.env?.VITE_VERCEL_ACCESS_TOKEN;
@@ -74,23 +75,18 @@ export async function autoConnectVercel() {
     console.log('Setting isConnecting to true');
     isConnecting.set(true);
 
-    // Test the connection
-    console.log('Making API call to Vercel');
+    // Test the connection via proxy (bypasses CORS)
+    console.log('Making API call to Vercel via proxy');
 
-    const response = await fetch('https://api.vercel.com/v2/user', {
-      headers: {
-        Authorization: `Bearer ${envToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const result = await vercelApi.testConnection(envToken);
 
-    console.log('Vercel API response status:', response.status);
+    console.log('Vercel API response:', result.success);
 
-    if (!response.ok) {
-      throw new Error(`Vercel API error: ${response.status}`);
+    if (!result.success || !result.data) {
+      throw new Error(result.error || 'Vercel API error');
     }
 
-    const userData = (await response.json()) as any;
+    const userData = result.data as any;
     console.log('Vercel API response userData:', userData);
 
     // Update connection
@@ -145,39 +141,28 @@ export async function fetchVercelStats(token: string) {
   try {
     isFetchingStats.set(true);
 
-    const projectsResponse = await fetch('https://api.vercel.com/v9/projects', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    // Fetch projects via proxy (bypasses CORS)
+    const projectsResult = await vercelApi.get<{ projects: any[] }>('/v9/projects', token);
 
-    if (!projectsResponse.ok) {
-      throw new Error(`Failed to fetch projects: ${projectsResponse.status}`);
+    if (!projectsResult.success || !projectsResult.data) {
+      throw new Error(projectsResult.error || 'Failed to fetch projects');
     }
 
-    const projectsData = (await projectsResponse.json()) as any;
-    const projects = projectsData.projects || [];
+    const projects = projectsResult.data.projects || [];
 
     // Fetch latest deployment for each project
     const projectsWithDeployments = await Promise.all(
       projects.map(async (project: any) => {
         try {
-          const deploymentsResponse = await fetch(
-            `https://api.vercel.com/v6/deployments?projectId=${project.id}&limit=1`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            },
+          const deploymentsResult = await vercelApi.get<{ deployments: any[] }>(
+            `/v6/deployments?projectId=${project.id}&limit=1`,
+            token,
           );
 
-          if (deploymentsResponse.ok) {
-            const deploymentsData = (await deploymentsResponse.json()) as any;
+          if (deploymentsResult.success && deploymentsResult.data) {
             return {
               ...project,
-              latestDeployments: deploymentsData.deployments || [],
+              latestDeployments: deploymentsResult.data.deployments || [],
             };
           }
 

@@ -48,6 +48,35 @@ export interface DetectedError {
  * Ordered by specificity - more specific patterns first
  */
 const ERROR_PATTERNS: ErrorPattern[] = [
+    // esbuild errors (X ERROR format)
+    {
+        pattern: /X\s+ERROR\s+(.+?)(?:\n|$)/i,
+        type: 'build',
+        severity: 'error',
+        title: 'Build Error',
+        extractDetails: (match, fullOutput) => {
+            // Get more context for esbuild errors (includes file path and suggestion)
+            const errorIdx = fullOutput.indexOf(match[0]);
+            const contextEnd = Math.min(fullOutput.length, errorIdx + 800);
+
+            return fullOutput.slice(errorIdx, contextEnd).trim();
+        },
+    },
+
+    // JSX syntax errors
+    {
+        pattern: /The character "(.+?)" is not valid inside a JSX element/i,
+        type: 'syntax',
+        severity: 'error',
+        title: 'JSX Syntax Error',
+        extractDetails: (match, fullOutput) => {
+            const errorIdx = fullOutput.indexOf(match[0]);
+            const contextEnd = Math.min(fullOutput.length, errorIdx + 600);
+
+            return fullOutput.slice(Math.max(0, errorIdx - 50), contextEnd).trim();
+        },
+    },
+
     // Vite specific errors
     {
         pattern: /\[vite\]\s*(?:Internal server error|Error):\s*(.+?)(?:\n|$)/i,
@@ -214,6 +243,19 @@ const ERROR_PATTERNS: ErrorPattern[] = [
         type: 'build',
         severity: 'error',
         title: 'Build Error',
+    },
+    {
+        pattern: /Failed to scan for dependencies/i,
+        type: 'build',
+        severity: 'error',
+        title: 'Dependency Scan Failed',
+        extractDetails: (_match, fullOutput) => {
+            // Get context around the error
+            const errorIdx = fullOutput.indexOf('Failed to scan');
+            const contextEnd = Math.min(fullOutput.length, errorIdx + 300);
+
+            return fullOutput.slice(Math.max(0, errorIdx - 50), contextEnd).trim();
+        },
     },
 
     // Port in use
