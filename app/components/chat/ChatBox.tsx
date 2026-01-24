@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
 import { PROVIDER_LIST } from '~/utils/constants';
-import { ModelSelector } from '~/components/chat/ModelSelector';
-import { APIKeyManager } from './APIKeyManager';
+import { CombinedModelSelector } from '~/components/chat/CombinedModelSelector';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import FilePreview from './FilePreview';
 import { SendButton } from './SendButton.client';
@@ -63,11 +62,45 @@ interface ChatBoxProps {
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
+  // Check if current provider has API key set
+  const hasApiKey = props.provider && props.apiKeys[props.provider.name];
+  const isLocalProvider = props.provider && LOCAL_PROVIDERS.includes(props.provider.name);
+  const [isEnvKeySet, setIsEnvKeySet] = useState(false);
+  const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
+
+  // Check if API key is set via environment variable
+  const checkEnvApiKey = useCallback(async () => {
+    if (!props.provider?.name) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/check-env-key?provider=${encodeURIComponent(props.provider.name)}`);
+      const data = await response.json();
+      setIsEnvKeySet((data as { isSet: boolean }).isSet);
+    } catch (error) {
+      setIsEnvKeySet(false);
+    }
+  }, [props.provider?.name]);
+
+  useEffect(() => {
+    checkEnvApiKey();
+  }, [checkEnvApiKey]);
+
+  // API key is available if set via UI or environment variable
+  const hasApiKeyAvailable = hasApiKey || isEnvKeySet;
+
   return (
     <div
       className={classNames(
-        'relative bg-bolt-elements-background-depth-2/80 backdrop-blur-xl p-3 rounded-xl border border-bolt-elements-borderColor w-full max-w-chat mx-auto z-prompt shadow-lg shadow-black/5',
+        'relative p-4 rounded-xl w-full max-w-chat mx-auto z-prompt',
+        'border border-[#3d5a7f]/40',
+        'shadow-xl shadow-[#1e3a5f]/20',
       )}
+      style={{
+        background: 'linear-gradient(145deg, rgba(30, 58, 95, 0.15), rgba(26, 26, 26, 0.95))',
+        backdropFilter: 'blur(24px)',
+      }}
     >
       <svg className={classNames(styles.PromptEffectContainer)}>
         <defs>
@@ -80,51 +113,77 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             gradientUnits="userSpaceOnUse"
             gradientTransform="rotate(-45)"
           >
-            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#3b82f6" stopOpacity="60%"></stop>
-            <stop offset="50%" stopColor="#60a5fa" stopOpacity="60%"></stop>
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0%"></stop>
+            <stop offset="0%" stopColor="#3d5a7f" stopOpacity="0%"></stop>
+            <stop offset="40%" stopColor="#3d5a7f" stopOpacity="40%"></stop>
+            <stop offset="50%" stopColor="#4d6a8f" stopOpacity="40%"></stop>
+            <stop offset="100%" stopColor="#3d5a7f" stopOpacity="0%"></stop>
           </linearGradient>
           <linearGradient id="shine-gradient">
             <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#ffffff" stopOpacity="60%"></stop>
-            <stop offset="50%" stopColor="#ffffff" stopOpacity="60%"></stop>
+            <stop offset="40%" stopColor="#ffffff" stopOpacity="40%"></stop>
+            <stop offset="50%" stopColor="#ffffff" stopOpacity="40%"></stop>
             <stop offset="100%" stopColor="white" stopOpacity="0%"></stop>
           </linearGradient>
         </defs>
         <rect className={classNames(styles.PromptEffectLine)} pathLength="100" strokeLinecap="round"></rect>
         <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
       </svg>
-      <div>
+
+      {/* Model Selector - Hidden trigger, dropdown controlled by button */}
+      <div className="mb-3">
         <ClientOnly>
           {() => (
-            <div className={props.isModelSettingsCollapsed ? 'hidden' : ''}>
-              <ModelSelector
-                key={props.provider?.name + ':' + props.modelList.length}
-                model={props.model}
-                setModel={props.setModel}
-                modelList={props.modelList}
-                provider={props.provider}
-                setProvider={props.setProvider}
-                providerList={props.providerList || (PROVIDER_LIST as ProviderInfo[])}
-                apiKeys={props.apiKeys}
-                modelLoading={props.isModelLoading}
-              />
-              {(props.providerList || []).length > 0 &&
-                props.provider &&
-                !LOCAL_PROVIDERS.includes(props.provider.name) && (
-                  <APIKeyManager
-                    provider={props.provider}
-                    apiKey={props.apiKeys[props.provider.name] || ''}
-                    setApiKey={(key) => {
-                      props.onApiKeysChange(props.provider.name, key);
-                    }}
-                  />
-                )}
+            <div className="flex items-center gap-3 flex-wrap justify-end">
+              {/* Hidden Model Selector - dropdown only */}
+              <div className="flex-1 min-w-[200px]">
+                <CombinedModelSelector
+                  key={props.provider?.name + ':' + props.modelList.length}
+                  model={props.model}
+                  setModel={props.setModel}
+                  modelList={props.modelList}
+                  provider={props.provider}
+                  setProvider={props.setProvider}
+                  providerList={props.providerList || (PROVIDER_LIST as ProviderInfo[])}
+                  apiKeys={props.apiKeys}
+                  modelLoading={props.isModelLoading}
+                  isOpen={isModelSelectorOpen}
+                  onOpenChange={setIsModelSelectorOpen}
+                  hideTrigger={true}
+                />
+              </div>
+
+              {/* API Key Status - Compact inline display */}
+              {props.provider && !isLocalProvider && (
+                <div className="flex items-center gap-2 text-xs shrink-0">
+                  {hasApiKeyAvailable ? (
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 text-green-400">
+                      <div className="i-ph:check-circle-fill text-sm" />
+                      <span className="whitespace-nowrap">{hasApiKey ? 'API Key Set' : 'ENV Key'}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-yellow-500/10 text-yellow-400">
+                        <div className="i-ph:warning-circle-fill text-sm" />
+                        <span className="whitespace-nowrap">No API Key</span>
+                      </div>
+                      <a
+                        href={`https://console.cloud.google.com/apis/credentials`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 px-2 py-1 rounded-md text-cyan-400 hover:bg-cyan-400/10 transition-colors whitespace-nowrap"
+                      >
+                        <span>Get API Key</span>
+                        <div className="i-ph:arrow-square-out text-xs" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </ClientOnly>
       </div>
+
       <FilePreview
         files={props.uploadedFiles}
         imageDataList={props.imageDataList}
@@ -288,18 +347,15 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               </IconButton>
             )}
             <IconButton
-              title="Model Settings"
+              title="Select Model"
               className={classNames('transition-all flex items-center gap-1', {
-                'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
-                  props.isModelSettingsCollapsed,
-                'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
-                  !props.isModelSettingsCollapsed,
+                'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': isModelSelectorOpen,
+                'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault': !isModelSelectorOpen,
               })}
-              onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
+              onClick={() => setIsModelSelectorOpen(!isModelSelectorOpen)}
               disabled={!props.providerList || props.providerList.length === 0}
             >
-              <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
-              {props.isModelSettingsCollapsed ? <span className="text-xs">{props.model}</span> : <span />}
+              <div className="i-ph:robot text-lg" />
             </IconButton>
           </div>
           {props.input.length > 3 ? (

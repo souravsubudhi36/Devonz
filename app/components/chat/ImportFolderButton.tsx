@@ -9,10 +9,11 @@ import { classNames } from '~/utils/classNames';
 
 interface ImportFolderButtonProps {
   className?: string;
+  style?: React.CSSProperties;
   importChat?: (description: string, messages: Message[]) => Promise<void>;
 }
 
-export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ className, importChat }) => {
+export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ className, style, importChat }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,6 +132,7 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
           'transition-all duration-200 ease-in-out',
           className,
         )}
+        style={style}
         disabled={isLoading}
       >
         <span className="i-ph:upload-simple w-4 h-4" />

@@ -171,14 +171,15 @@ ${escapeBoltTags(file.content)}
         variant="default"
         size="lg"
         className={classNames(
-          'gap-2 bg-bolt-elements-background-depth-1',
-          'text-bolt-elements-textPrimary',
-          'hover:bg-bolt-elements-background-depth-2',
-          'border border-bolt-elements-borderColor',
+          'gap-2',
+          'text-gray-300 hover:text-white',
+          'border border-[#333333] hover:border-purple-500/50',
           'h-10 px-4 py-2 min-w-[120px] justify-center',
           'transition-all duration-200 ease-in-out',
+          'hover:shadow-[0_0_12px_rgba(168,85,247,0.15)]',
           className,
         )}
+        style={{ backgroundColor: '#2a2a2a' }}
         disabled={!ready || loading}
       >
         Clone a repo
@@ -190,16 +191,17 @@ ${escapeBoltTags(file.content)}
 
       {/* Provider Selection Dialog */}
       {isDialogOpen && !selectedProvider && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-950 rounded-xl shadow-xl border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor max-w-md w-full">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div
+            className="rounded-xl shadow-2xl border border-[#333333] max-w-md w-full"
+            style={{ backgroundColor: '#1a1a1a' }}
+          >
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
-                  Choose Repository Provider
-                </h3>
+                <h3 className="text-lg font-semibold text-white">Choose Repository Provider</h3>
                 <button
                   onClick={() => setIsDialogOpen(false)}
-                  className="p-2 rounded-lg bg-transparent hover:bg-bolt-elements-background-depth-1 dark:hover:bg-bolt-elements-background-depth-1 text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary dark:hover:text-bolt-elements-textPrimary transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="p-2 rounded-lg bg-transparent hover:bg-[#2a2a2a] text-gray-400 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <X className="w-5 h-5 transition-transform duration-200 hover:rotate-90" />
                 </button>
@@ -208,38 +210,32 @@ ${escapeBoltTags(file.content)}
               <div className="space-y-3">
                 <button
                   onClick={() => setSelectedProvider('github')}
-                  className="w-full p-4 rounded-lg bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 hover:bg-bolt-elements-background-depth-2 dark:hover:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive dark:hover:border-bolt-elements-borderColorActive transition-all duration-200 text-left group"
+                  className="w-full p-4 rounded-lg border border-[#333333] hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+                  style={{ backgroundColor: '#2a2a2a' }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 dark:group-hover:bg-blue-500/30 transition-colors">
-                      <Github className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+                      <Github className="w-6 h-6 text-purple-400" />
                     </div>
                     <div>
-                      <div className="font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
-                        GitHub
-                      </div>
-                      <div className="text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary">
-                        Clone from GitHub repositories
-                      </div>
+                      <div className="font-medium text-white">GitHub</div>
+                      <div className="text-sm text-gray-400">Clone from GitHub repositories</div>
                     </div>
                   </div>
                 </button>
 
                 <button
                   onClick={() => setSelectedProvider('gitlab')}
-                  className="w-full p-4 rounded-lg bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-1 hover:bg-bolt-elements-background-depth-2 dark:hover:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive dark:hover:border-bolt-elements-borderColorActive transition-all duration-200 text-left group"
+                  className="w-full p-4 rounded-lg border border-[#333333] hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+                  style={{ backgroundColor: '#2a2a2a' }}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-orange-500/10 dark:bg-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/20 dark:group-hover:bg-orange-500/30 transition-colors">
-                      <GitBranch className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                    <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
+                      <GitBranch className="w-6 h-6 text-orange-400" />
                     </div>
                     <div>
-                      <div className="font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
-                        GitLab
-                      </div>
-                      <div className="text-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary">
-                        Clone from GitLab repositories
-                      </div>
+                      <div className="font-medium text-white">GitLab</div>
+                      <div className="text-sm text-gray-400">Clone from GitLab repositories</div>
                     </div>
                   </div>
                 </button>

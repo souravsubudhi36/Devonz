@@ -14,9 +14,9 @@ import { getApiKeysFromCookies } from './APIKeyManager';
 import Cookies from 'js-cookie';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import styles from './BaseChat.module.scss';
-import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
+import { LeftActionPanel } from '~/components/chat/LeftActionPanel';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
-import GitCloneButton from './GitCloneButton';
+import RightIconPanel from './RightIconPanel';
 import type { ProviderInfo } from '~/types/model';
 import StarterTemplates from './StarterTemplates';
 import type { ActionAlert, SupabaseAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
@@ -369,7 +369,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               {!chatStarted && (
                 <div id="intro" className="mt-[16vh] max-w-2xl mx-auto text-center px-4 lg:px-0">
                   <h1 className="text-4xl lg:text-5xl font-semibold text-bolt-elements-textPrimary mb-4 animate-fade-in tracking-tight">
-                    Bolt
+                    Devonz
                   </h1>
                   <p className="text-base lg:text-lg mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200">
                     Build anything with AI. Just describe what you want.
@@ -448,70 +448,85 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     />
                   </div>
                   {progressAnnotations && <ProgressCompilation data={progressAnnotations} />}
-                  <ChatBox
-                    isModelSettingsCollapsed={isModelSettingsCollapsed}
-                    setIsModelSettingsCollapsed={setIsModelSettingsCollapsed}
-                    provider={provider}
-                    setProvider={setProvider}
-                    providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
-                    model={model}
-                    setModel={setModel}
-                    modelList={modelList}
-                    apiKeys={apiKeys}
-                    isModelLoading={isModelLoading}
-                    onApiKeysChange={onApiKeysChange}
-                    uploadedFiles={uploadedFiles}
-                    setUploadedFiles={setUploadedFiles}
-                    imageDataList={imageDataList}
-                    setImageDataList={setImageDataList}
-                    textareaRef={textareaRef}
-                    input={input}
-                    handleInputChange={handleInputChange}
-                    handlePaste={handlePaste}
-                    TEXTAREA_MIN_HEIGHT={TEXTAREA_MIN_HEIGHT}
-                    TEXTAREA_MAX_HEIGHT={TEXTAREA_MAX_HEIGHT}
-                    isStreaming={isStreaming}
-                    handleStop={handleStop}
-                    handleSendMessage={handleSendMessage}
-                    enhancingPrompt={enhancingPrompt}
-                    enhancePrompt={enhancePrompt}
-                    isListening={isListening}
-                    startListening={startListening}
-                    stopListening={stopListening}
-                    chatStarted={chatStarted}
-                    exportChat={exportChat}
-                    qrModalOpen={qrModalOpen}
-                    setQrModalOpen={setQrModalOpen}
-                    handleFileUpload={handleFileUpload}
-                    chatMode={chatMode}
-                    setChatMode={setChatMode}
-                    designScheme={designScheme}
-                    setDesignScheme={setDesignScheme}
-                    selectedElement={selectedElement}
-                    setSelectedElement={setSelectedElement}
-                  />
+
+                  {/* Action Buttons Row - Above ChatBox */}
+                  {!chatStarted && (
+                    <div className="flex justify-center gap-3 mb-4 max-w-chat mx-auto w-full">
+                      <LeftActionPanel importChat={importChat} />
+                    </div>
+                  )}
+
+                  {/* 3-Column Layout Wrapper */}
+                  <div className="flex items-center justify-center gap-4 lg:gap-6 w-full">
+                    {/* Center Column - ChatBox */}
+                    <div className="w-full max-w-chat">
+                      <ChatBox
+                        isModelSettingsCollapsed={isModelSettingsCollapsed}
+                        setIsModelSettingsCollapsed={setIsModelSettingsCollapsed}
+                        provider={provider}
+                        setProvider={setProvider}
+                        providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
+                        model={model}
+                        setModel={setModel}
+                        modelList={modelList}
+                        apiKeys={apiKeys}
+                        isModelLoading={isModelLoading}
+                        onApiKeysChange={onApiKeysChange}
+                        uploadedFiles={uploadedFiles}
+                        setUploadedFiles={setUploadedFiles}
+                        imageDataList={imageDataList}
+                        setImageDataList={setImageDataList}
+                        textareaRef={textareaRef}
+                        input={input}
+                        handleInputChange={handleInputChange}
+                        handlePaste={handlePaste}
+                        TEXTAREA_MIN_HEIGHT={TEXTAREA_MIN_HEIGHT}
+                        TEXTAREA_MAX_HEIGHT={TEXTAREA_MAX_HEIGHT}
+                        isStreaming={isStreaming}
+                        handleStop={handleStop}
+                        handleSendMessage={handleSendMessage}
+                        enhancingPrompt={enhancingPrompt}
+                        enhancePrompt={enhancePrompt}
+                        isListening={isListening}
+                        startListening={startListening}
+                        stopListening={stopListening}
+                        chatStarted={chatStarted}
+                        exportChat={exportChat}
+                        qrModalOpen={qrModalOpen}
+                        setQrModalOpen={setQrModalOpen}
+                        handleFileUpload={handleFileUpload}
+                        chatMode={chatMode}
+                        setChatMode={setChatMode}
+                        designScheme={designScheme}
+                        setDesignScheme={setDesignScheme}
+                        selectedElement={selectedElement}
+                        setSelectedElement={setSelectedElement}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Framework Icons Row - Below ChatBox */}
+                  {!chatStarted && (
+                    <div className="flex justify-center mt-4 max-w-chat mx-auto w-full">
+                      <RightIconPanel />
+                    </div>
+                  )}
                 </div>
               </StickToBottom>
-              <div className="flex flex-col justify-center">
-                {!chatStarted && (
-                  <div className="flex justify-center gap-2">
-                    {ImportButtons(importChat)}
-                    <GitCloneButton importChat={importChat} />
-                  </div>
-                )}
-                <div className="flex flex-col gap-5">
-                  {!chatStarted &&
-                    ExamplePrompts((event, messageInput) => {
-                      if (isStreaming) {
-                        handleStop?.();
-                        return;
-                      }
+              {/* Example Prompts - Below ChatBox */}
+              {!chatStarted && (
+                <div className="flex flex-col items-center gap-4 px-4 mt-4 max-w-xl mx-auto">
+                  {ExamplePrompts((event, messageInput) => {
+                    if (isStreaming) {
+                      handleStop?.();
 
-                      handleSendMessage?.(event, messageInput);
-                    })}
-                  {!chatStarted && <StarterTemplates />}
+                      return;
+                    }
+
+                    handleSendMessage?.(event, messageInput);
+                  })}
                 </div>
-              </div>
+              )}
             </div>
           )}
 
