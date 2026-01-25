@@ -2,7 +2,7 @@
 
 Devonz is an AI-powered development agent that helps you build full-stack applications through natural language conversation. Originally built upon [bolt.diy](https://github.com/stackblitz-labs/bolt.diy), Devonz focuses on speed, efficiency, and a streamlined development experience.
 
-![Devonz Screenshot](https://github.com/user-attachments/assets/e4c3067d-2539-4b5e-abab-d129d90b51dc)
+![v2](https://github.com/user-attachments/assets/e4c3067d-2539-4b5e-abab-d129d90b51dc)
 
 ---
 
