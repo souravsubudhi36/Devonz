@@ -7,11 +7,42 @@
 @use 'components/editor.scss';
 @use 'components/toast.scss';
 
+@import 'diff-view.css';
+
 html,
 body {
   height: 100%;
   width: 100%;
   background-color: var(--bolt-elements-bg-depth-1);
+}
+
+/* Global dark scrollbar styling for the entire app */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444444 #141414;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #141414;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #444444;
+  border-radius: 5px;
+  border: 2px solid #141414;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #555555;
+}
+
+*::-webkit-scrollbar-corner {
+  background: #141414;
 }
 
 :root {
@@ -27,21 +58,18 @@ body {
 
   // WebKit scrollbar styling
   &::-webkit-scrollbar {
-    width: 2px;
-    height: 4px;
+    width: 10px;
+    height: 10px;
   }
 
   &::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--modern-scrollbar-track-background, #141414);
   }
 
   &::-webkit-scrollbar-thumb {
     // Use CSS variables for colors
     background-color: var(--modern-scrollbar-thumb-background);
-    border-radius: 9999px; // pill shape
-    border: 2px solid transparent; // for padding-like effect
-    background-clip: content-box;
-    transition: background-color 0.2s ease-in-out; // Add transition
+    border-radius: 5px;
   }
 
   &::-webkit-scrollbar-thumb:hover {
@@ -49,10 +77,14 @@ body {
     background-color: var(--modern-scrollbar-thumb-backgroundHover);
   }
 
+  &::-webkit-scrollbar-corner {
+    background: var(--modern-scrollbar-track-background, #141414);
+  }
+
   // Firefox support
   scrollbar-width: thin;
   // Use CSS variables for Firefox colors
-  scrollbar-color: var(--modern-scrollbar-thumb-backgroundHover) transparent; // Use hover color for thumb for consistency
+  scrollbar-color: var(--modern-scrollbar-thumb-background) var(--modern-scrollbar-track-background, #141414);
 }
 
 .modern-scrollbar-invert {

@@ -667,7 +667,7 @@ export const StagedChangesPanel = memo(() => {
             className="overflow-hidden"
           >
             {/* Change list */}
-            <div className="max-h-64 overflow-y-auto py-2">
+            <div className="max-h-64 overflow-y-auto py-2 dark-scrollbar" style={{ scrollbarColor: '#444444 #141414' }}>
               <ChangeGroup
                 title="New Files"
                 icon="i-ph:plus-circle"

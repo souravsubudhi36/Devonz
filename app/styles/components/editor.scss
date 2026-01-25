@@ -149,4 +149,31 @@ html[data-theme='dark'] {
 
 .cm-scroller {
   background-color: #0b0d13 !important;
+
+  /* Dark scrollbar for CodeMirror editor */
+  scrollbar-width: thin;
+  scrollbar-color: #444444 #141414;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #141414;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #444444;
+    border-radius: 5px;
+    border: 2px solid #141414;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #555555;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: #141414;
+  }
 }

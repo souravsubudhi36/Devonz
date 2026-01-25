@@ -203,10 +203,16 @@ const DiffLineRow = memo(({ line }: DiffLineRowProps) => {
   return (
     <div className={classNames('flex text-sm font-mono', bgColor)}>
       {/* Line numbers */}
-      <div className="w-12 flex-shrink-0 text-right pr-2 text-bolt-elements-textTertiary select-none border-r border-bolt-elements-borderColor">
+      <div
+        className="w-12 flex-shrink-0 text-right pr-2 select-none border-r border-[#333]"
+        style={{ backgroundColor: '#141414', color: '#6b7280' }}
+      >
         {line.lineNumberBefore ?? ''}
       </div>
-      <div className="w-12 flex-shrink-0 text-right pr-2 text-bolt-elements-textTertiary select-none border-r border-bolt-elements-borderColor">
+      <div
+        className="w-12 flex-shrink-0 text-right pr-2 select-none border-r border-[#333]"
+        style={{ backgroundColor: '#141414', color: '#6b7280' }}
+      >
         {line.lineNumberAfter ?? ''}
       </div>
 
@@ -214,7 +220,7 @@ const DiffLineRow = memo(({ line }: DiffLineRowProps) => {
       <div className={classNames('w-6 flex-shrink-0 text-center select-none', lineColor)}>{prefix}</div>
 
       {/* Content */}
-      <div className={classNames('flex-1 px-2 whitespace-pre overflow-x-auto', lineColor)}>{line.content || ' '}</div>
+      <div className={classNames('flex-1 px-2 whitespace-pre', lineColor)}>{line.content || ' '}</div>
     </div>
   );
 });
@@ -250,16 +256,19 @@ const DiffContent = memo(({ change }: DiffContentProps) => {
   return (
     <div className="flex flex-col h-full">
       {/* Stats bar */}
-      <div className="flex items-center gap-4 px-4 py-2 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2">
+      <div
+        className="flex items-center gap-4 px-4 py-2"
+        style={{ backgroundColor: '#141414', borderBottom: '1px solid #333' }}
+      >
         <span className="text-sm text-green-400">+{stats.added} additions</span>
         <span className="text-sm text-red-400">-{stats.removed} deletions</span>
-        <span className="text-sm text-bolt-elements-textTertiary">
+        <span className="text-sm" style={{ color: '#6b7280' }}>
           {diffLines.filter((l) => l.type === 'unchanged').length} unchanged
         </span>
       </div>
 
       {/* Diff lines */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto diff-modal-content" style={{ backgroundColor: '#1a1a1a' }}>
         {diffLines.map((line, index) => (
           <DiffLineRow key={`${index}-${line.type}-${line.content.slice(0, 20)}`} line={line} />
         ))}
@@ -414,7 +423,10 @@ export const DiffPreviewModal = memo(() => {
                 exit="closed"
                 variants={modalVariants}
               >
-                <div className="w-[90vw] max-w-5xl h-[85vh] bg-bolt-elements-background-depth-1 rounded-lg shadow-xl border border-bolt-elements-borderColor flex flex-col focus:outline-none">
+                <div
+                  className="w-[90vw] max-w-5xl h-[85vh] rounded-lg shadow-xl flex flex-col focus:outline-none"
+                  style={{ backgroundColor: '#1a1a1a', borderColor: '#333', borderWidth: '1px', borderStyle: 'solid' }}
+                >
                   {/* Accessibility: Hidden title and description for screen readers */}
                   <VisuallyHidden.Root asChild>
                     <RadixDialog.Title>
@@ -433,13 +445,20 @@ export const DiffPreviewModal = memo(() => {
                   </VisuallyHidden.Root>
 
                   {/* Header */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 rounded-t-lg">
+                  <div
+                    className="flex items-center justify-between px-4 py-3 rounded-t-lg"
+                    style={{ backgroundColor: '#141414', borderBottom: '1px solid #333' }}
+                  >
                     <div className="flex items-center gap-3">
                       {/* File icon and path */}
                       <div className={classNames('w-5 h-5', getFileIcon(change.filePath))} />
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-bolt-elements-textPrimary">{fileName}</span>
-                        <span className="text-xs text-bolt-elements-textTertiary">{change.filePath}</span>
+                        <span className="text-sm font-medium" style={{ color: '#ffffff' }}>
+                          {fileName}
+                        </span>
+                        <span className="text-xs" style={{ color: '#6b7280' }}>
+                          {change.filePath}
+                        </span>
                       </div>
 
                       {/* Change type badge */}
@@ -457,7 +476,7 @@ export const DiffPreviewModal = memo(() => {
                     <div className="flex items-center gap-2">
                       {position.total > 1 && (
                         <>
-                          <span className="text-sm text-bolt-elements-textTertiary">
+                          <span className="text-sm" style={{ color: '#6b7280' }}>
                             {position.current} of {position.total}
                           </span>
                           <IconButton
@@ -470,14 +489,14 @@ export const DiffPreviewModal = memo(() => {
                             onClick={() => selectNextChange()}
                             title="Next change (])"
                           />
-                          <div className="w-px h-6 bg-bolt-elements-borderColor mx-2" />
+                          <div className="w-px h-6 mx-2" style={{ backgroundColor: '#333' }} />
                         </>
                       )}
                       <IconButton
                         icon="i-ph:x"
                         onClick={handleClose}
                         title="Close (Escape)"
-                        className="text-bolt-elements-textTertiary hover:text-bolt-elements-textSecondary"
+                        style={{ color: '#6b7280' }}
                       />
                     </div>
                   </div>
@@ -488,25 +507,28 @@ export const DiffPreviewModal = memo(() => {
                   </div>
 
                   {/* Footer with actions */}
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 rounded-b-lg">
+                  <div
+                    className="flex items-center justify-between px-4 py-3 rounded-b-lg"
+                    style={{ backgroundColor: '#141414', borderTop: '1px solid #333' }}
+                  >
                     {/* Keyboard hints */}
-                    <div className="flex items-center gap-4 text-xs text-bolt-elements-textTertiary">
+                    <div className="flex items-center gap-4 text-xs" style={{ color: '#6b7280' }}>
                       <span>
-                        <kbd className="px-1.5 py-0.5 bg-bolt-elements-background-depth-3 rounded text-bolt-elements-textSecondary">
+                        <kbd className="px-1.5 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#9ca3af' }}>
                           ←
                         </kbd>{' '}
                         /{' '}
-                        <kbd className="px-1.5 py-0.5 bg-bolt-elements-background-depth-3 rounded text-bolt-elements-textSecondary">
+                        <kbd className="px-1.5 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#9ca3af' }}>
                           →
                         </kbd>{' '}
                         Navigate
                       </span>
                       <span>
-                        <kbd className="px-1.5 py-0.5 bg-bolt-elements-background-depth-3 rounded text-bolt-elements-textSecondary">
+                        <kbd className="px-1.5 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#9ca3af' }}>
                           Ctrl
                         </kbd>
                         +
-                        <kbd className="px-1.5 py-0.5 bg-bolt-elements-background-depth-3 rounded text-bolt-elements-textSecondary">
+                        <kbd className="px-1.5 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#9ca3af' }}>
                           Enter
                         </kbd>{' '}
                         Accept
@@ -516,7 +538,12 @@ export const DiffPreviewModal = memo(() => {
                     {/* Action buttons */}
                     <div className="flex items-center gap-2">
                       {position.total > 1 && (
-                        <Button variant="ghost" onClick={handleSkip} disabled={isProcessing}>
+                        <Button
+                          variant="ghost"
+                          onClick={handleSkip}
+                          disabled={isProcessing}
+                          style={{ backgroundColor: '#333', color: '#9ca3af' }}
+                        >
                           Skip
                         </Button>
                       )}
