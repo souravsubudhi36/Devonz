@@ -17,7 +17,7 @@ describe('sidebarStore', () => {
     it('should toggle from closed to open', () => {
       sidebarStore.open.set(false);
       expect(sidebarStore.open.get()).toBe(false);
-      
+
       sidebarStore.open.set(true);
       expect(sidebarStore.open.get()).toBe(true);
     });
@@ -25,7 +25,7 @@ describe('sidebarStore', () => {
     it('should toggle from open to closed', () => {
       sidebarStore.open.set(true);
       expect(sidebarStore.open.get()).toBe(true);
-      
+
       sidebarStore.open.set(false);
       expect(sidebarStore.open.get()).toBe(false);
     });
@@ -40,9 +40,9 @@ describe('sidebarStore', () => {
 
       const currentValue = sidebarStore.open.get();
       sidebarStore.open.set(!currentValue);
-      
+
       expect(notifiedValue).toBe(!currentValue);
-      
+
       // Cleanup
       unsubscribe();
       sidebarStore.open.set(currentValue); // Reset to original

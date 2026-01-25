@@ -103,8 +103,10 @@ line 3`;
 
   describe('edge cases', () => {
     it('should handle string with only whitespace', () => {
-      // Each line is trimmed to empty, joined with \n, trimStart removes leading empty,
-      // then trailing newline removed - results in empty string
+      /*
+       * Each line is trimmed to empty, joined with \n, trimStart removes leading empty,
+       * then trailing newline removed - results in empty string
+       */
       expect(stripIndents('   \n   \n   ')).toBe('');
     });
 
@@ -123,6 +125,7 @@ line 3`;
       // The function splits on \n, so \r\n becomes \r at end of line which is trimmed
       const input = '  line1\r\n  line2\n  line3';
       const result = stripIndents(input);
+
       // After trimming each line, \r is removed, and lines are joined with \n only
       expect(result).toBe('line1\nline2\nline3');
     });
@@ -133,6 +136,7 @@ line 3`;
           console.log('world');
         }
       `;
+
       // Note: inner content is also stripped since we strip each line
       expect(result).toBe("function hello() {\nconsole.log('world');\n}");
     });

@@ -23,10 +23,10 @@ describe('themeStore', () => {
     it('should toggle between themes', () => {
       const initialTheme = themeStore.get();
       const newTheme = initialTheme === 'dark' ? 'light' : 'dark';
-      
+
       themeStore.set(newTheme);
       expect(themeStore.get()).toBe(newTheme);
-      
+
       themeStore.set(initialTheme);
       expect(themeStore.get()).toBe(initialTheme);
     });
@@ -41,9 +41,9 @@ describe('themeStore', () => {
 
       const newTheme = themeStore.get() === 'dark' ? 'light' : 'dark';
       themeStore.set(newTheme);
-      
+
       expect(notifiedTheme).toBe(newTheme);
-      
+
       unsubscribe();
     });
   });

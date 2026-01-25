@@ -107,6 +107,7 @@ describe('createSampler', () => {
     expect(fn).toHaveBeenCalledTimes(1);
 
     vi.advanceTimersByTime(100);
+
     // No trailing call since args were already used
     expect(fn).toHaveBeenCalledTimes(1);
   });

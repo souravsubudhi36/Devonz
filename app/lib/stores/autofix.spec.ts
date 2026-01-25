@@ -143,6 +143,7 @@ describe('autoFixStore', () => {
         message: 'first',
         content: 'content',
       });
+
       const result = startAutoFix({
         source: 'terminal',
         type: 'error',
@@ -172,8 +173,11 @@ describe('autoFixStore', () => {
 
     it('should add to fixHistory on success', () => {
       recordFixAttempt(true);
-      // After success, history might be cleared by resetAutoFix
-      // Just verify it was tracked
+
+      /*
+       * After success, history might be cleared by resetAutoFix
+       * Just verify it was tracked
+       */
       expect(autoFixStore.get().currentRetries).toBe(0); // Reset on success
     });
 
@@ -218,6 +222,7 @@ describe('autoFixStore', () => {
     it('should preserve currentError for retry', () => {
       const errorBefore = autoFixStore.get().currentError;
       markFixFailed();
+
       // Error is preserved for potential retry
       expect(autoFixStore.get().currentError).toEqual(errorBefore);
     });

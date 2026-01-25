@@ -20,10 +20,12 @@ describe('logStore', () => {
   describe('logSystem', () => {
     it('should add system log entry', () => {
       logStore.logSystem('Test system message', { component: 'TestComponent' });
+
       const logs = logStore.getLogs();
       const logEntries = Object.values(logs);
 
       expect(logEntries.length).toBeGreaterThan(0);
+
       const lastLog = logEntries[logEntries.length - 1];
       expect(lastLog.category).toBe('system');
     });
@@ -31,6 +33,7 @@ describe('logStore', () => {
     it('should include timestamp', () => {
       const before = Date.now();
       logStore.logSystem('Test message');
+
       const after = Date.now();
 
       const logs = logStore.getLogs();
@@ -116,6 +119,7 @@ describe('logStore', () => {
 
     it('should be safe to call when empty', () => {
       logStore.clearLogs();
+
       const logs = logStore.getLogs();
       expect(Object.keys(logs).length).toBe(0);
     });
@@ -129,6 +133,7 @@ describe('logStore', () => {
 
       const logs = logStore.getLogs();
       const logEntries = Object.values(logs);
+
       // Should either have all logs or be truncated to a reasonable limit
       expect(logEntries.length).toBeLessThanOrEqual(1000);
     });

@@ -36,6 +36,7 @@ describe('fileUtils', () => {
 
     it('should generate unique ids', () => {
       const ids = new Set<string>();
+
       for (let i = 0; i < 100; i++) {
         ids.add(generateId());
       }
