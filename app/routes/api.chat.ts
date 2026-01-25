@@ -14,6 +14,18 @@ import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 import type { DesignScheme } from '~/types/design-scheme';
 import { MCPService } from '~/lib/services/mcpService';
 import { StreamRecoveryManager } from '~/lib/.server/llm/stream-recovery';
+import {
+  getAgentToolSet,
+  getAgentToolSetWithoutExecute,
+  shouldUseAgentMode,
+  getAgentSystemPrompt,
+  initializeAgentSession,
+  incrementAgentIteration,
+  getAgentIterationWarning,
+  processAgentToolInvocations,
+  processAgentToolCall,
+  isAgentToolName,
+} from '~/lib/services/agentChatIntegration';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -48,7 +60,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     },
   });
 
-  const { messages, files, promptId, contextOptimization, supabase, chatMode, designScheme, maxLLMSteps } =
+  const { messages, files, promptId, contextOptimization, supabase, chatMode, designScheme, maxLLMSteps, agentMode } =
     await request.json<{
       messages: Messages;
       files: any;
@@ -65,7 +77,11 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         };
       };
       maxLLMSteps: number;
+      agentMode?: boolean;
     }>();
+
+  // Determine if agent mode should be active for this request
+  const useAgentMode = shouldUseAgentMode({ agentMode });
 
   const cookieHeader = request.headers.get('Cookie');
   const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
@@ -99,7 +115,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         let summary: string | undefined = undefined;
         let messageSliceId = 0;
 
-        const processedMessages = await mcpService.processToolInvocations(messages, dataStream);
+        // Process MCP tool invocations first
+        let processedMessages = await mcpService.processToolInvocations(messages, dataStream);
+
+        // Process agent tool invocations when agent mode is enabled
+        if (useAgentMode) {
+          processedMessages = await processAgentToolInvocations(processedMessages, dataStream);
+        }
 
         if (processedMessages.length > 3) {
           messageSliceId = processedMessages.length - 3;
@@ -207,15 +229,59 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           // logger.debug('Code Files Selected');
         }
 
+        // Merge MCP tools with agent tools when agent mode is enabled
+        let combinedTools = mcpService.toolsWithoutExecute;
+
+        if (useAgentMode) {
+          logger.info('🤖 Agent mode enabled - merging agent tools');
+          const agentTools = getAgentToolSetWithoutExecute();
+          const agentToolNames = Object.keys(agentTools);
+          const mcpToolNames = Object.keys(mcpService.toolsWithoutExecute);
+          logger.info(`🔧 MCP tools available: ${mcpToolNames.length} - [${mcpToolNames.join(', ')}]`);
+          logger.info(`🔧 Agent tools available: ${agentToolNames.length} - [${agentToolNames.join(', ')}]`);
+          combinedTools = { ...mcpService.toolsWithoutExecute, ...agentTools };
+          logger.info(`🔧 Combined tools total: ${Object.keys(combinedTools).length}`);
+
+          // Initialize agent session for this chat
+          initializeAgentSession();
+
+          // Notify about agent mode activation
+          dataStream.writeData({
+            type: 'progress',
+            label: 'agent',
+            status: 'in-progress',
+            order: progressCounter++,
+            message: 'Agent Mode Active',
+          } satisfies ProgressAnnotation);
+        }
+
         const options: StreamingOptions = {
           supabaseConnection: supabase,
           toolChoice: 'auto',
-          tools: mcpService.toolsWithoutExecute,
+          tools: combinedTools,
           maxSteps: maxLLMSteps,
+          agentMode: useAgentMode,
+          agentSystemPrompt: useAgentMode ? getAgentSystemPrompt() : undefined,
           onStepFinish: ({ toolCalls }) => {
             // add tool call annotations for frontend processing
             toolCalls.forEach((toolCall) => {
-              mcpService.processToolCall(toolCall, dataStream);
+              // Check if it's an agent tool first
+              if (useAgentMode && isAgentToolName(toolCall.toolName)) {
+                processAgentToolCall(toolCall, dataStream);
+
+                // Increment iteration counter for agent mode
+                incrementAgentIteration();
+
+                // Check for iteration warning
+                const warning = getAgentIterationWarning();
+
+                if (warning) {
+                  logger.warn('Agent iteration warning:', warning);
+                }
+              } else {
+                // Process as MCP tool
+                mcpService.processToolCall(toolCall, dataStream);
+              }
             });
           },
           onFinish: async ({ text: content, finishReason, usage }) => {

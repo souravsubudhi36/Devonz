@@ -1,6 +1,7 @@
 import { convertToCoreMessages, streamText as _streamText, type Message } from 'ai';
 import { MAX_TOKENS, PROVIDER_COMPLETION_LIMITS, isReasoningModel, type FileMap } from './constants';
 import { getSystemPrompt } from '~/lib/common/prompts/prompts';
+import { AGENT_MODE_FULL_SYSTEM_PROMPT } from '~/lib/agent/prompts';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, MODIFICATIONS_TAG_NAME, PROVIDER_LIST, WORK_DIR } from '~/utils/constants';
 import type { IProviderSetting } from '~/types/model';
 import { PromptLibrary } from '~/lib/common/prompt-library';
@@ -22,6 +23,8 @@ export interface StreamingOptions extends Omit<Parameters<typeof _streamText>[0]
       supabaseUrl?: string;
     };
   };
+  agentMode?: boolean;
+  agentSystemPrompt?: string;
 }
 
 const logger = createScopedLogger('stream-text');
@@ -266,19 +269,19 @@ ${projectMemoryContent}
   const filteredOptions =
     isReasoning && options
       ? Object.fromEntries(
-        Object.entries(options).filter(
-          ([key]) =>
-            ![
-              'temperature',
-              'topP',
-              'presencePenalty',
-              'frequencyPenalty',
-              'logprobs',
-              'topLogprobs',
-              'logitBias',
-            ].includes(key),
-        ),
-      )
+          Object.entries(options).filter(
+            ([key]) =>
+              ![
+                'temperature',
+                'topP',
+                'presencePenalty',
+                'frequencyPenalty',
+                'logprobs',
+                'topLogprobs',
+                'logitBias',
+              ].includes(key),
+          ),
+        )
       : options || {};
 
   // DEBUG: Log filtered options
@@ -297,6 +300,27 @@ ${projectMemoryContent}
       2,
     ),
   );
+
+  // AGENT MODE: Replace system prompt entirely when agent mode is enabled
+  // This ensures the AI uses agent tools instead of artifacts
+  if (options?.agentMode) {
+    logger.info('🤖 Agent Mode: Using agent-specific system prompt (replacing standard prompt)');
+    systemPrompt = AGENT_MODE_FULL_SYSTEM_PROMPT(WORK_DIR);
+
+    // Add context files if available
+    if (chatMode === 'build' && contextFiles && contextOptimization) {
+      const codeContext = createFilesContext(contextFiles, true);
+      systemPrompt = `${systemPrompt}
+
+<context_buffer>
+Below are the current project files loaded into context:
+---
+${codeContext}
+---
+</context_buffer>
+`;
+    }
+  }
 
   const streamParams = {
     model: provider.getModelInstance({
