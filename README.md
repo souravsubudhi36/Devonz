@@ -88,10 +88,12 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 
 ### Quick Start
 
+> **Note**: The first load can take up to 2 minutes before you see the main chat interface. Please be patient while all dependencies are compiled.
+
 1. **Clone the Repository**:
 
    ```bash
-   git clone -b stable https://github.com/zebbern/Devonz.git
+   git clone https://github.com/zebbern/Devonz.git
    cd Devonz
    ```
 
