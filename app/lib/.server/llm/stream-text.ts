@@ -229,7 +229,7 @@ export async function streamText(props: {
   for (const memoryPath of projectMemoryPaths) {
     const memoryFile = files?.[memoryPath];
 
-    if (memoryFile?.content && typeof memoryFile.content === 'string' && memoryFile.content.trim().length > 0) {
+    if (memoryFile?.type === 'file' && memoryFile.content && memoryFile.content.trim().length > 0) {
       projectMemoryContent = memoryFile.content;
       logger.info(`Loaded project memory from: ${memoryPath}`);
       break;
