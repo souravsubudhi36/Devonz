@@ -17,7 +17,6 @@ import ProviderCard from './ProviderCard';
 import ModelCard from './ModelCard';
 import { OLLAMA_API_URL } from './types';
 import type { OllamaModel, LMStudioModel } from './types';
-import { Cpu, Server, BookOpen, Activity, PackageOpen, Monitor, Loader2, RotateCw, ExternalLink } from 'lucide-react';
 
 // Type definitions
 type ViewMode = 'dashboard' | 'guide' | 'status';
@@ -313,7 +312,7 @@ export default function LocalProvidersTab() {
                   boxShadow: '0 0 0 1px rgba(139, 92, 246, 0.3)',
                 }}
               >
-                <Cpu className="w-6 h-6 text-purple-500" />
+                <div className="i-ph:cpu w-6 h-6 text-purple-500" />
               </div>
               <div>
                 <h2 className="text-2xl font-semibold text-white">Local AI Providers</h2>
@@ -331,11 +330,11 @@ export default function LocalProvidersTab() {
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setViewMode('guide')} className="gap-2">
-                  <BookOpen className="w-4 h-4" />
+                  <div className="i-ph:book-open w-4 h-4" />
                   Setup Guide
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setViewMode('status')} className="gap-2">
-                  <Activity className="w-4 h-4" />
+                  <div className="i-ph:activity w-4 h-4" />
                   Status
                 </Button>
               </div>
@@ -361,7 +360,7 @@ export default function LocalProvidersTab() {
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <PackageOpen className="w-5 h-5 text-purple-500" />
+                          <div className="i-ph:package w-5 h-5 text-purple-500" />
                           <h3 className="text-lg font-semibold text-bolt-elements-textPrimary">Installed Models</h3>
                         </div>
                         <Button
@@ -372,9 +371,9 @@ export default function LocalProvidersTab() {
                           className="bg-transparent hover:bg-bolt-elements-background-depth-2"
                         >
                           {isLoadingModels ? (
-                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            <div className="i-ph:spinner w-4 h-4 animate-spin mr-2" />
                           ) : (
-                            <RotateCw className="w-4 h-4 mr-2" />
+                            <div className="i-ph:arrows-clockwise w-4 h-4 mr-2" />
                           )}
                           Refresh
                         </Button>
@@ -389,7 +388,7 @@ export default function LocalProvidersTab() {
                         </div>
                       ) : ollamaModels.length === 0 ? (
                         <div className="text-center py-8">
-                          <PackageOpen className="w-16 h-16 mx-auto text-bolt-elements-textTertiary mb-4" />
+                          <div className="i-ph:package w-16 h-16 mx-auto text-bolt-elements-textTertiary mb-4" />
                           <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-2">
                             No Models Installed
                           </h3>
@@ -402,7 +401,7 @@ export default function LocalProvidersTab() {
                               className="text-purple-500 hover:underline inline-flex items-center gap-1"
                             >
                               ollama.com/library
-                              <ExternalLink className="w-3 h-3" />
+                              <div className="i-ph:arrow-square-out w-3 h-3" />
                             </a>{' '}
                             to browse available models
                           </p>
@@ -418,7 +417,7 @@ export default function LocalProvidersTab() {
                               rel="noopener noreferrer"
                               className="flex items-center justify-center gap-2"
                             >
-                              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 flex-shrink-0" />
+                              <div className="i-ph:arrow-square-out w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 flex-shrink-0" />
                               <span className="flex-1 text-center font-medium">Browse Models</span>
                             </a>
                           </Button>
@@ -445,7 +444,7 @@ export default function LocalProvidersTab() {
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Monitor className="w-5 h-5 text-blue-500" />
+                          <div className="i-ph:monitor w-5 h-5 text-blue-500" />
                           <h3 className="text-lg font-semibold text-bolt-elements-textPrimary">Available Models</h3>
                         </div>
                         <Button
@@ -456,9 +455,9 @@ export default function LocalProvidersTab() {
                           className="bg-transparent hover:bg-bolt-elements-background-depth-2"
                         >
                           {isLoadingLMStudioModels ? (
-                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                            <div className="i-ph:spinner w-4 h-4 animate-spin mr-2" />
                           ) : (
-                            <RotateCw className="w-4 h-4 mr-2" />
+                            <div className="i-ph:arrows-clockwise w-4 h-4 mr-2" />
                           )}
                           Refresh
                         </Button>
@@ -473,7 +472,7 @@ export default function LocalProvidersTab() {
                         </div>
                       ) : lmStudioModels.length === 0 ? (
                         <div className="text-center py-8">
-                          <Monitor className="w-16 h-16 mx-auto text-bolt-elements-textTertiary mb-4" />
+                          <div className="i-ph:monitor w-16 h-16 mx-auto text-bolt-elements-textTertiary mb-4" />
                           <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-2">
                             No Models Available
                           </h3>
@@ -492,7 +491,7 @@ export default function LocalProvidersTab() {
                               rel="noopener noreferrer"
                               className="flex items-center justify-center gap-2"
                             >
-                              <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 flex-shrink-0" />
+                              <div className="i-ph:arrow-square-out w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 flex-shrink-0" />
                               <span className="flex-1 text-center font-medium">Get LM Studio</span>
                             </a>
                           </Button>
@@ -513,16 +512,16 @@ export default function LocalProvidersTab() {
                                   </div>
                                   <div className="flex items-center gap-4 text-xs text-bolt-elements-textSecondary">
                                     <div className="flex items-center gap-1">
-                                      <Server className="w-3 h-3" />
+                                      <div className="i-ph:server w-3 h-3" />
                                       <span>{model.object}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                      <Activity className="w-3 h-3" />
+                                      <div className="i-ph:activity w-3 h-3" />
                                       <span>Owned by: {model.owned_by}</span>
                                     </div>
                                     {model.created && (
                                       <div className="flex items-center gap-1">
-                                        <Activity className="w-3 h-3" />
+                                        <div className="i-ph:activity w-3 h-3" />
                                         <span>Created: {new Date(model.created * 1000).toLocaleDateString()}</span>
                                       </div>
                                     )}
@@ -543,7 +542,7 @@ export default function LocalProvidersTab() {
           {filteredProviders.length === 0 && (
             <Card className="bg-bolt-elements-background-depth-2">
               <CardContent className="p-8 text-center">
-                <Server className="w-16 h-16 mx-auto text-bolt-elements-textTertiary mb-4" />
+                <div className="i-ph:server w-16 h-16 mx-auto text-bolt-elements-textTertiary mb-4" />
                 <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-2">
                   No Local Providers Available
                 </h3>
