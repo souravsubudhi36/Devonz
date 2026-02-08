@@ -318,27 +318,8 @@ async function getErrors(params: GetErrorsParams): Promise<ToolExecutionResult<G
       }
     }
 
-    // Get errors from preview error handler
-    try {
-      const previewHandler = getPreviewErrorHandler();
-      const previewErrors = previewHandler.getErrors();
-
-      for (const err of previewErrors) {
-        if (!source || err.source === source) {
-          errors.push({
-            source: err.source || 'preview',
-            type: err.type || 'unknown',
-            message: err.message,
-            file: err.file,
-            line: err.line,
-            column: err.column,
-            content: err.content,
-          });
-        }
-      }
-    } catch {
-      // Preview handler may not be available
-    }
+    // Note: PreviewErrorHandler doesn't expose a getErrors() method.
+    // Preview errors are captured via autoFixStore when they occur.
 
     logger.debug(`Retrieved errors`, { count: errors.length, source });
 
@@ -505,7 +486,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: ['path'],
     },
-    execute: readFile,
+    execute: readFile as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 
   devonz_write_file: {
@@ -526,7 +507,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: ['path', 'content'],
     },
-    execute: writeFile,
+    execute: writeFile as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 
   devonz_list_directory: {
@@ -576,7 +557,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: ['command'],
     },
-    execute: runCommand,
+    execute: runCommand as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 
   devonz_get_errors: {
@@ -627,7 +608,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: ['query'],
     },
-    execute: searchCode,
+    execute: searchCode as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 };
 
