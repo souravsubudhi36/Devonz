@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Button } from '~/components/ui/Button';
 import { classNames } from '~/utils/classNames';
-import { Database, Trash2, RefreshCw, Clock, HardDrive, CheckCircle } from 'lucide-react';
 
 interface CacheEntry {
   key: string;
@@ -230,13 +229,13 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-bolt-elements-item-contentAccent" />
+          <div className="i-ph:database w-4 h-4 text-bolt-elements-item-contentAccent" />
           <h3 className="text-sm font-medium text-bolt-elements-textPrimary">GitHub Cache Management</h3>
         </div>
 
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={refreshCacheData} disabled={isLoading}>
-            <RefreshCw className={classNames('w-3 h-3', isLoading ? 'animate-spin' : '')} />
+            <div className={classNames('i-ph:arrows-clockwise w-3 h-3', isLoading ? 'animate-spin' : '')} />
           </Button>
         </div>
       </div>
@@ -245,7 +244,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="bg-bolt-elements-background-depth-2 p-3 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
-              <HardDrive className="w-3 h-3 text-bolt-elements-textSecondary" />
+              <div className="i-ph:hard-drive w-3 h-3 text-bolt-elements-textSecondary" />
               <span className="text-xs font-medium text-bolt-elements-textSecondary">Total Size</span>
             </div>
             <p className="text-sm font-semibold text-bolt-elements-textPrimary">
@@ -255,7 +254,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
 
           <div className="bg-bolt-elements-background-depth-2 p-3 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
-              <Database className="w-3 h-3 text-bolt-elements-textSecondary" />
+              <div className="i-ph:database w-3 h-3 text-bolt-elements-textSecondary" />
               <span className="text-xs font-medium text-bolt-elements-textSecondary">Entries</span>
             </div>
             <p className="text-sm font-semibold text-bolt-elements-textPrimary">{cacheStats.totalEntries}</p>
@@ -263,7 +262,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
 
           <div className="bg-bolt-elements-background-depth-2 p-3 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
-              <Clock className="w-3 h-3 text-bolt-elements-textSecondary" />
+              <div className="i-ph:clock w-3 h-3 text-bolt-elements-textSecondary" />
               <span className="text-xs font-medium text-bolt-elements-textSecondary">Oldest</span>
             </div>
             <p className="text-xs text-bolt-elements-textSecondary">
@@ -273,7 +272,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
 
           <div className="bg-bolt-elements-background-depth-2 p-3 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
-              <CheckCircle className="w-3 h-3 text-bolt-elements-textSecondary" />
+              <div className="i-ph:check-circle w-3 h-3 text-bolt-elements-textSecondary" />
               <span className="text-xs font-medium text-bolt-elements-textSecondary">Status</span>
             </div>
             <p className="text-xs text-green-600 dark:text-green-400">
@@ -311,7 +310,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
                   disabled={isLoading}
                   className="ml-2"
                 >
-                  <Trash2 className="w-3 h-3 text-red-500" />
+                  <div className="i-ph:trash w-3 h-3 text-red-500" />
                 </Button>
               </div>
             ))}
@@ -327,7 +326,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
           disabled={isLoading}
           className="flex items-center gap-1"
         >
-          <Clock className="w-3 h-3" />
+          <div className="i-ph:clock w-3 h-3" />
           <span className="text-xs">Clear Expired</span>
         </Button>
 
@@ -338,7 +337,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
           disabled={isLoading}
           className="flex items-center gap-1"
         >
-          <RefreshCw className="w-3 h-3" />
+          <div className="i-ph:arrows-clockwise w-3 h-3" />
           <span className="text-xs">Compact</span>
         </Button>
 
@@ -350,7 +349,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
             disabled={isLoading}
             className="flex items-center gap-1 text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
           >
-            <Trash2 className="w-3 h-3" />
+            <div className="i-ph:trash w-3 h-3" />
             <span className="text-xs">Clear All</span>
           </Button>
         )}
@@ -358,7 +357,7 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
 
       {lastClearTime && (
         <div className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded text-xs text-green-700 dark:text-green-400">
-          <CheckCircle className="w-3 h-3" />
+          <div className="i-ph:check-circle w-3 h-3" />
           <span>Cache cleared successfully at {new Date(lastClearTime).toLocaleTimeString()}</span>
         </div>
       )}
