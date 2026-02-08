@@ -203,7 +203,7 @@ export function getAgentStatusText(): string {
       return 'Thinking...';
     case 'executing':
       return 'Executing...';
-    case 'awaiting_approval':
+    case 'waiting_for_approval':
       return 'Awaiting Approval';
     case 'completed':
       return 'Completed';
