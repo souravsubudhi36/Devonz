@@ -25,7 +25,7 @@ import type { ToolCallAnnotation } from '~/types/context';
  * content and MCP server responses, which could be controlled by malicious actors.
  * Sanitization is critical here.
  */
-const SHIKI_PURIFY_CONFIG: DOMPurify.Config = {
+const SHIKI_PURIFY_CONFIG = {
   ALLOWED_TAGS: ['pre', 'code', 'span'],
   ALLOWED_ATTR: ['class', 'style', 'tabindex'],
   ALLOW_DATA_ATTR: false,
