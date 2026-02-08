@@ -6,7 +6,6 @@ import { GitHubRepositoryCard } from './GitHubRepositoryCard';
 import type { GitHubRepoInfo } from '~/types/GitHub';
 import { useGitHubConnection, useGitHubStats } from '~/lib/hooks';
 import { classNames } from '~/utils/classNames';
-import { Search, RefreshCw, GitBranch, Calendar, Filter } from 'lucide-react';
 
 interface GitHubRepositorySelectorProps {
   onClone?: (repoUrl: string, branch?: string) => void;
@@ -159,10 +158,10 @@ export function GitHubRepositorySelector({ onClone, className }: GitHubRepositor
   if (!repositories.length) {
     return (
       <div className="text-center p-8">
-        <GitBranch className="w-12 h-12 text-bolt-elements-textTertiary mx-auto mb-4" />
+        <div className="i-ph:git-branch size-12 text-bolt-elements-textTertiary mx-auto mb-4" />
         <p className="text-bolt-elements-textSecondary mb-4">No repositories found</p>
         <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
-          <RefreshCw className={classNames('w-4 h-4 mr-2', { 'animate-spin': isRefreshing })} />
+          <div className={classNames('i-ph:arrows-clockwise size-4 mr-2', { 'animate-spin': isRefreshing })} />
           Refresh
         </Button>
       </div>
@@ -191,7 +190,7 @@ export function GitHubRepositorySelector({ onClone, className }: GitHubRepositor
           size="sm"
           className="flex items-center gap-2"
         >
-          <RefreshCw className={classNames('w-4 h-4', { 'animate-spin': isRefreshing })} />
+          <div className={classNames('i-ph:arrows-clockwise size-4', { 'animate-spin': isRefreshing })} />
           Refresh
         </Button>
       </div>
@@ -206,7 +205,7 @@ export function GitHubRepositorySelector({ onClone, className }: GitHubRepositor
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-bolt-elements-textTertiary" />
+          <div className="i-ph:magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 size-4 text-bolt-elements-textTertiary" />
           <input
             type="text"
             placeholder="Search repositories..."
@@ -218,7 +217,7 @@ export function GitHubRepositorySelector({ onClone, className }: GitHubRepositor
 
         {/* Sort */}
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-bolt-elements-textTertiary" />
+          <div className="i-ph:calendar size-4 text-bolt-elements-textTertiary" />
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
@@ -233,7 +232,7 @@ export function GitHubRepositorySelector({ onClone, className }: GitHubRepositor
 
         {/* Filter */}
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-bolt-elements-textTertiary" />
+          <div className="i-ph:funnel size-4 text-bolt-elements-textTertiary" />
           <select
             value={filterBy}
             onChange={(e) => setFilterBy(e.target.value as FilterOption)}
