@@ -8,6 +8,19 @@
  * 
  * It's declared globally to avoid import/export issues across the codebase.
  */
+
+/**
+ * Cloudflare context type for Remix loaders/actions.
+ * Augments the default AppLoadContext to include cloudflare.env bindings.
+ */
+declare module '@remix-run/node' {
+  interface AppLoadContext {
+    cloudflare?: {
+      env?: Env;
+    };
+  }
+}
+
 declare global {
   /**
    * Server environment variables interface.
