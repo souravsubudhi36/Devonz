@@ -1,6 +1,6 @@
 import { type ActionFunctionArgs, json } from '@remix-run/node';
 import crypto from 'crypto';
-import type { NetlifySiteInfo } from '~/types/netlify';
+import type { NetlifySiteInfo, NetlifySite, NetlifyDeployResponse } from '~/types/netlify';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('NetlifyDeploy');
@@ -41,7 +41,7 @@ export async function action({ request }: ActionFunctionArgs) {
         return json({ error: 'Failed to create site' }, { status: 400 });
       }
 
-      const newSite = (await createSiteResponse.json()) as any;
+      const newSite = (await createSiteResponse.json()) as Pick<NetlifySite, 'id' | 'name' | 'url'>;
       targetSiteId = newSite.id;
       siteInfo = {
         id: newSite.id,
@@ -59,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
         });
 
         if (siteResponse.ok) {
-          const existingSite = (await siteResponse.json()) as any;
+          const existingSite = (await siteResponse.json()) as Pick<NetlifySite, 'id' | 'name' | 'url'>;
           siteInfo = {
             id: existingSite.id,
             name: existingSite.name,
@@ -90,7 +90,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return json({ error: 'Failed to create site' }, { status: 400 });
         }
 
-        const newSite = (await createSiteResponse.json()) as any;
+        const newSite = (await createSiteResponse.json()) as Pick<NetlifySite, 'id' | 'name' | 'url'>;
         targetSiteId = newSite.id;
         siteInfo = {
           id: newSite.id,
@@ -133,7 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
       return json({ error: 'Failed to create deployment' }, { status: 400 });
     }
 
-    const deploy = (await deployResponse.json()) as any;
+    const deploy = (await deployResponse.json()) as NetlifyDeployResponse;
     let retryCount = 0;
     const maxRetries = 60;
 
@@ -145,7 +145,7 @@ export async function action({ request }: ActionFunctionArgs) {
         },
       });
 
-      const status = (await statusResponse.json()) as any;
+      const status = (await statusResponse.json()) as NetlifyDeployResponse;
 
       if (status.state === 'prepared' || status.state === 'uploaded') {
         // Upload all files regardless of required array

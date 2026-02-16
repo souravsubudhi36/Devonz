@@ -8,6 +8,7 @@ export interface NetlifySite {
   created_at: string;
   updated_at: string;
   state?: string;
+  plan?: string;
   branch?: string;
   custom_domain?: string;
   build_settings: {
@@ -54,6 +55,8 @@ export interface NetlifyDeploy {
 export interface NetlifyBuild {
   id: string;
   deploy_id: string;
+  name?: string;
+  state?: string;
   sha?: string;
   done: boolean;
   error?: string;
@@ -82,6 +85,28 @@ export interface NetlifyConnection {
   user: NetlifyUser | null;
   token: string;
   stats?: NetlifyStats;
+}
+
+export interface NetlifyEnvVar {
+  key: string;
+  scopes?: string[];
+  values?: Array<{ value: string; context?: string }>;
+}
+
+export interface NetlifyFunction {
+  id: string;
+  name: string;
+  sha?: string;
+}
+
+export interface NetlifyDeployResponse {
+  id: string;
+  state: string;
+  required?: string[];
+  ssl_url?: string;
+  url?: string;
+  error_message?: string;
+  summary?: { status?: string };
 }
 
 export interface NetlifySiteInfo {
