@@ -34,7 +34,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
     throw new Error(`Repository not found: ${repo}`);
   }
 
-  const repoData = (await repoResponse.json()) as any;
+  const repoData = (await repoResponse.json()) as { default_branch: string };
   const defaultBranch = repoData.default_branch;
 
   // Get the tree recursively
@@ -50,10 +50,12 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
     throw new Error(`Failed to fetch repository tree: ${treeResponse.status}`);
   }
 
-  const treeData = (await treeResponse.json()) as any;
+  const treeData = (await treeResponse.json()) as {
+    tree: Array<{ path: string; type: string; sha: string; size?: number }>;
+  };
 
   // Filter for files only (not directories) and limit size
-  const files = treeData.tree.filter((item: any) => {
+  const files = treeData.tree.filter((item: { type: string; path: string; size?: number }) => {
     if (item.type !== 'blob') {
       return false;
     }
@@ -69,7 +71,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
       item.path.endsWith('pnpm-lock.yaml');
 
     // For non-lock files, limit size to 100KB
-    if (!isLockFile && item.size >= 100000) {
+    if (!isLockFile && (item.size ?? 0) >= 100000) {
       return false;
     }
 
@@ -82,7 +84,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
 
   for (let i = 0; i < files.length; i += batchSize) {
     const batch = files.slice(i, i + batchSize);
-    const batchPromises = batch.map(async (file: any) => {
+    const batchPromises = batch.map(async (file: { path: string; sha: string }) => {
       try {
         const contentResponse = await fetch(`${baseUrl}/repos/${repo}/contents/${file.path}`, {
           headers: {
@@ -97,7 +99,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
           return null;
         }
 
-        const contentData = (await contentResponse.json()) as any;
+        const contentData = (await contentResponse.json()) as { content: string; encoding?: string };
         const content = atob(contentData.content.replace(/\s/g, ''));
 
         return {
@@ -140,7 +142,7 @@ async function fetchRepoContentsZip(repo: string, githubToken?: string) {
     throw new Error(`GitHub API error: ${releaseResponse.status} - ${releaseResponse.statusText}`);
   }
 
-  const releaseData = (await releaseResponse.json()) as any;
+  const releaseData = (await releaseResponse.json()) as { tag_name?: string; zipball_url: string };
   const zipballUrl = releaseData.zipball_url;
 
   // Fetch the zipball

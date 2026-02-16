@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useStore } from '@nanostores/react';
 import { logStore } from '~/lib/stores/logs';
+import type { SupabaseUser, SupabaseStats } from '~/types/supabase';
 import {
   supabaseConnection,
   isConnecting,
@@ -82,7 +83,12 @@ export function useSupabaseConnection() {
         }),
       });
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as {
+        error?: string;
+        user?: SupabaseUser;
+        token?: string;
+        stats?: SupabaseStats;
+      };
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to connect');

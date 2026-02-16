@@ -642,7 +642,7 @@ export const CombinedModelSelector = ({
                   <span
                     className="text-sm"
                     dangerouslySetInnerHTML={{
-                      __html: (p as any).highlightedName || p.name,
+                      __html: (p as { highlightedName?: string }).highlightedName || p.name,
                     }}
                   />
                   {provider?.name === p.name && <span className="i-ph:check ml-auto text-[#8badd4]" />}
@@ -676,7 +676,7 @@ export const CombinedModelSelector = ({
                       <div
                         className="text-sm truncate"
                         dangerouslySetInnerHTML={{
-                          __html: (m as any).highlightedLabel || m.label,
+                          __html: (m as { highlightedLabel?: string }).highlightedLabel || m.label,
                         }}
                       />
                       {m.maxTokenAllowed > 0 && (

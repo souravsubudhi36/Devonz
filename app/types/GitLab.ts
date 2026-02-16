@@ -4,6 +4,8 @@ export interface GitLabUserResponse {
   username: string;
   name: string;
   avatar_url: string;
+  avatarUrl?: string;
+  profile_image_url?: string;
   web_url: string;
   created_at: string;
   bio: string;
