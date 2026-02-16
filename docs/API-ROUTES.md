@@ -1,0 +1,196 @@
+# API Routes
+
+> All server endpoints in Devonz, documented by category.
+
+---
+
+## Overview
+
+Devonz uses Remix file-based routing. All API endpoints are in `app/routes/api.*.ts`. Routes export:
+
+- `action()` — Handles POST/PUT/DELETE requests
+- `loader()` — Handles GET requests
+
+---
+
+## Chat & AI
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/chat` | POST | Main chat endpoint — streams LLM responses with tool calls, file operations, and agent mode |
+| `/api/enhancer` | POST | Enhances user prompts via LLM for better code generation results |
+| `/api/llmcall` | POST | Generic LLM call endpoint for non-chat use cases |
+
+### `/api/chat` Details
+
+The primary endpoint. Accepts:
+
+```json
+{
+  "messages": [{ "role": "user", "content": "..." }],
+  "files": {},
+  "promptId": "optional-prompt-id",
+  "contextOptimization": true,
+  "chatMode": "build",
+  "designScheme": { "palette": {}, "features": [], "font": [] },
+  "supabase": { "isConnected": false },
+  "maxLLMSteps": 5,
+  "agentMode": false
+}
+```
+
+Validated with Zod. Returns a data stream with:
+
+- LLM text chunks
+- Tool call results (agent mode)
+- Progress annotations
+- Context annotations
+- Error information
+
+---
+
+## LLM Provider Management
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/models` | GET | List all available models across all configured providers |
+| `/api/models/:provider` | GET | List models for a specific provider |
+| `/api/configured-providers` | GET | List which providers have API keys configured |
+| `/api/check-env-key` | GET | Check if a specific environment variable is set |
+| `/api/export-api-keys` | GET | Export API keys (for backup) |
+
+---
+
+## MCP (Model Context Protocol)
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/mcp-check` | GET | Check MCP server availability and health |
+| `/api/mcp-update-config` | POST | Update MCP server configuration |
+
+---
+
+## Git Operations
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/git-info` | GET | Get current git repository information |
+| `/api/git-proxy/*` | GET/POST | Proxy for git operations (clone, fetch, push) |
+
+---
+
+## GitHub Integration
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/github-user` | GET | Get authenticated GitHub user info |
+| `/api/github-branches` | GET | List branches for a GitHub repository |
+| `/api/github-stats` | GET | Get GitHub repository statistics |
+| `/api/github-template` | GET | Clone/template a GitHub repository |
+
+---
+
+## GitLab Integration
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/gitlab-projects` | GET | List GitLab projects |
+| `/api/gitlab-branches` | GET | List branches for a GitLab project |
+
+---
+
+## Deployment
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/vercel-deploy` | GET/POST | Deploy to Vercel / check deployment status |
+| `/api/vercel-user` | GET | Get authenticated Vercel user info |
+| `/api/vercel-domains` | GET | List Vercel domains |
+| `/api/vercel-proxy` | GET | Proxy requests to Vercel API |
+| `/api/netlify-deploy` | POST | Deploy to Netlify |
+| `/api/netlify-user` | GET | Get authenticated Netlify user info |
+
+---
+
+## Supabase
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/supabase` | GET/POST | Supabase project management |
+| `/api/supabase-user` | GET | Get Supabase user info |
+| `/api/supabase/query` | POST | Execute Supabase queries |
+| `/api/supabase/variables` | POST | Manage Supabase environment variables |
+
+---
+
+## System & Diagnostics
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/health` | GET | Health check endpoint |
+| `/api/system/diagnostics` | GET | System diagnostics (memory, CPU, etc.) |
+| `/api/system/disk-info` | GET | Disk usage information |
+| `/api/system/git-info` | GET | Git installation and version info |
+| `/api/update` | GET | Check for application updates |
+| `/api/bug-report` | POST | Submit bug reports |
+
+---
+
+## Utility
+
+| Endpoint | Method | Purpose |
+| -------- | ------ | ------- |
+| `/api/spline-proxy` | GET/POST | Proxy for Spline 3D assets |
+
+---
+
+## Page Routes
+
+| Route | Component | Purpose |
+| ----- | --------- | ------- |
+| `/` | `_index.tsx` | Landing page with chat interface |
+| `/chat/:id` | `chat.$id.tsx` | Chat page with specific conversation loaded |
+| `/git` | `git.tsx` | Git operations page |
+
+---
+
+## Authentication Pattern
+
+Most API routes read credentials from **cookies** (set by the client-side settings panel):
+
+```typescript
+const cookieHeader = request.headers.get('Cookie') || '';
+const apiKeys = JSON.parse(cookies['apiKeys'] || '{}');
+const providerSettings = JSON.parse(cookies['providers'] || '{}');
+```
+
+There is no server-side session management — all auth state lives in browser cookies.
+
+---
+
+## Error Handling Pattern
+
+API routes follow this pattern:
+
+```typescript
+export async function action({ request }: ActionFunctionArgs) {
+  // 1. Parse request body
+  const rawBody = await request.json();
+
+  // 2. Validate with Zod
+  const parsed = schema.safeParse(rawBody);
+  if (!parsed.success) {
+    return new Response(JSON.stringify({ error: 'Invalid request', details: parsed.error.issues }), {
+      status: 400,
+    });
+  }
+
+  // 3. Execute business logic
+  try {
+    const result = await doSomething(parsed.data);
+    return new Response(JSON.stringify(result));
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+  }
+}
+```

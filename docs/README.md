@@ -1,0 +1,72 @@
+# Devonz Documentation
+
+> AI-powered browser-based coding assistant built with Remix, React, and WebContainer API.
+
+---
+
+## Quick Links
+
+| Document | Description |
+|----------|-------------|
+| [Getting Started](GETTING-STARTED.md) | Setup, environment variables, run commands |
+| [Architecture](ARCHITECTURE.md) | System design, layers, data flow |
+| [Components](COMPONENTS.md) | Component hierarchy, patterns, conventions |
+| [State Management](STATE-MANAGEMENT.md) | Stores, hooks, data flow patterns |
+| [API Routes](API-ROUTES.md) | All server endpoints documented |
+| [LLM Providers](LLM-PROVIDERS.md) | Provider system, adding new providers |
+| [Agent Mode](AGENT-MODE.md) | Autonomous agent orchestration & tools |
+| [Styling Guidelines](STYLING-GUIDELINES.md) | Dark theme, colors, CSS patterns |
+| [Deployment](DEPLOYMENT.md) | Vercel, Netlify, GitHub, GitLab integrations |
+| [Contributing](CONTRIBUTING.md) | Code style, testing, PR process |
+
+---
+
+## Tech Stack at a Glance
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Remix v2.15 + React 18 |
+| Build | Vite 5.4 |
+| Language | TypeScript (strict) |
+| Styling | UnoCSS + SCSS + Radix UI |
+| State | Nanostores |
+| AI/LLM | Vercel AI SDK v4.3 (19 providers) |
+| Editor | CodeMirror 6 |
+| Terminal | xterm.js 5.5 |
+| Runtime | WebContainer API |
+| Testing | Vitest + Testing Library |
+| Package Manager | pnpm 9.14 |
+
+---
+
+## Project Structure
+
+```
+bolt.diy/
+├── app/
+│   ├── components/       # React components (9 groups)
+│   ├── lib/              # Core logic (stores, services, agent, LLM)
+│   ├── routes/           # Remix routes (pages + ~35 API endpoints)
+│   ├── styles/           # Global SCSS + CSS
+│   ├── types/            # Shared TypeScript types
+│   ├── utils/            # Utility functions
+│   ├── root.tsx          # App root layout
+│   ├── entry.client.tsx  # Client entry
+│   └── entry.server.tsx  # Server entry
+├── docs/                 # This documentation
+├── icons/                # Custom SVG icons (UnoCSS collection)
+├── public/               # Static assets
+├── scripts/              # Build/clean scripts
+├── supabase/             # Supabase config
+└── types/                # Global type declarations
+```
+
+---
+
+## Conventions
+
+- **Path alias**: `~/` → `./app/` (enforced by ESLint — no `../` imports)
+- **Client-only files**: `.client.tsx` suffix for browser-only components
+- **Scoped logging**: `createScopedLogger('Name')` used throughout
+- **Validation**: Zod schemas for all API request bodies
+- **Theming**: CSS custom properties (`--bolt-elements-*`) + `data-theme` attribute
