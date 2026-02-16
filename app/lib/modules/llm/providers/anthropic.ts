@@ -68,12 +68,14 @@ export default class AnthropicProvider extends BaseProvider {
       },
     });
 
-    const res = (await response.json()) as any;
+    const res = (await response.json()) as {
+      data: Array<{ id: string; type: string; display_name?: string; max_tokens?: number }>;
+    };
     const staticModelIds = this.staticModels.map((m) => m.name);
 
-    const data = res.data.filter((model: any) => model.type === 'model' && !staticModelIds.includes(model.id));
+    const data = res.data.filter((model) => model.type === 'model' && !staticModelIds.includes(model.id));
 
-    return data.map((m: any) => {
+    return data.map((m) => {
       // Get accurate context window from Anthropic API
       let contextWindow = 32000; // default fallback
 

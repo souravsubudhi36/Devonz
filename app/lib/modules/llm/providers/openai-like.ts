@@ -46,9 +46,9 @@ export default class OpenAILikeProvider extends BaseProvider {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const res = (await response.json()) as any;
+      const res = (await response.json()) as { data: Array<{ id: string }> };
 
-      return res.data.map((model: any) => ({
+      return res.data.map((model) => ({
         name: model.id,
         label: model.id,
         provider: this.name,

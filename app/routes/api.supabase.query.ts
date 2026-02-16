@@ -15,7 +15,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    const { projectId, query } = (await request.json()) as any;
+    const { projectId, query } = (await request.json()) as { projectId: string; query: string };
     logger.debug('Executing query:', { projectId, query });
 
     const response = await fetch(`https://api.supabase.com/v1/projects/${projectId}/database/query`, {

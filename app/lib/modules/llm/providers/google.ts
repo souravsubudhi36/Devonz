@@ -62,21 +62,23 @@ export default class GoogleProvider extends BaseProvider {
       throw new Error(`Failed to fetch models from Google API: ${response.status} ${response.statusText}`);
     }
 
-    const res = (await response.json()) as any;
+    const res = (await response.json()) as {
+      models?: Array<{ name: string; displayName?: string; outputTokenLimit?: number; inputTokenLimit?: number }>;
+    };
 
     if (!res.models || !Array.isArray(res.models)) {
       throw new Error('Invalid response format from Google API');
     }
 
     // Filter out models with very low token limits and experimental/unstable models
-    const data = res.models.filter((model: any) => {
+    const data = res.models.filter((model) => {
       const hasGoodTokenLimit = (model.outputTokenLimit || 0) > 8000;
       const isStable = !model.name.includes('exp') || model.name.includes('flash-exp');
 
       return hasGoodTokenLimit && isStable;
     });
 
-    return data.map((m: any) => {
+    return data.map((m) => {
       const modelName = m.name.replace('models/', '');
 
       // Get accurate context window from Google API

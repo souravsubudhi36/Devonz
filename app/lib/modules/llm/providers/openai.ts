@@ -73,17 +73,17 @@ export default class OpenAIProvider extends BaseProvider {
       },
     });
 
-    const res = (await response.json()) as any;
+    const res = (await response.json()) as { data: Array<{ id: string; object?: string; context_length?: number }> };
     const staticModelIds = this.staticModels.map((m) => m.name);
 
     const data = res.data.filter(
-      (model: any) =>
+      (model) =>
         model.object === 'model' &&
         (model.id.startsWith('gpt-') || model.id.startsWith('o') || model.id.startsWith('chatgpt-')) &&
         !staticModelIds.includes(model.id),
     );
 
-    return data.map((m: any) => {
+    return data.map((m) => {
       // Get accurate context window from OpenAI API
       let contextWindow = 32000; // default fallback
 

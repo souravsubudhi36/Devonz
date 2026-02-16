@@ -69,11 +69,13 @@ export default class HyperbolicProvider extends BaseProvider {
       },
     });
 
-    const res = (await response.json()) as any;
+    const res = (await response.json()) as {
+      data: Array<{ id: string; object?: string; supports_chat?: boolean; context_length?: number }>;
+    };
 
-    const data = res.data.filter((model: any) => model.object === 'model' && model.supports_chat);
+    const data = res.data.filter((model) => model.object === 'model' && model.supports_chat);
 
-    return data.map((m: any) => ({
+    return data.map((m) => ({
       name: m.id,
       label: `${m.id} - context ${m.context_length ? Math.floor(m.context_length / 1000) + 'k' : 'N/A'}`,
       provider: this.name,

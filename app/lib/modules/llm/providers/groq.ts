@@ -58,13 +58,15 @@ export default class GroqProvider extends BaseProvider {
       },
     });
 
-    const res = (await response.json()) as any;
+    const res = (await response.json()) as {
+      data: Array<{ id: string; object?: string; active?: boolean; context_window?: number; owned_by?: string }>;
+    };
 
     const data = res.data.filter(
-      (model: any) => model.object === 'model' && model.active && model.context_window > 8000,
+      (model) => model.object === 'model' && model.active && (model.context_window ?? 0) > 8000,
     );
 
-    return data.map((m: any) => ({
+    return data.map((m) => ({
       name: m.id,
       label: `${m.id} - context ${m.context_window ? Math.floor(m.context_window / 1000) + 'k' : 'N/A'} [ by ${m.owned_by}]`,
       provider: this.name,
