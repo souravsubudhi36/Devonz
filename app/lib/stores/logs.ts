@@ -11,19 +11,19 @@ export interface LogEntry {
   message: string;
   details?: Record<string, any>;
   category:
-  | 'system'
-  | 'provider'
-  | 'user'
-  | 'error'
-  | 'api'
-  | 'auth'
-  | 'database'
-  | 'network'
-  | 'performance'
-  | 'settings'
-  | 'task'
-  | 'update'
-  | 'feature';
+    | 'system'
+    | 'provider'
+    | 'user'
+    | 'error'
+    | 'api'
+    | 'auth'
+    | 'database'
+    | 'network'
+    | 'performance'
+    | 'settings'
+    | 'task'
+    | 'update'
+    | 'feature';
   subCategory?: string;
   duration?: number;
   statusCode?: number;
@@ -250,11 +250,11 @@ class LogStore {
     const errorDetails =
       error instanceof Error
         ? {
-          name: error.name,
-          message: error.message,
-          stack: error.stack,
-          ...details,
-        }
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            ...details,
+          }
         : { error, ...details };
 
     return this._addLog(message, 'error', 'error', errorDetails);

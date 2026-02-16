@@ -203,10 +203,12 @@ function CodeBlock({ className, code, language = 'shell', maxLines }: CodeBlockP
   const displayCode = useMemo(() => {
     if (maxLines && code) {
       const lines = code.split('\n');
+
       if (lines.length > maxLines) {
         return lines.slice(0, maxLines).join('\n') + `\n... (${lines.length - maxLines} more lines)`;
       }
     }
+
     return code;
   }, [code, maxLines]);
 
@@ -289,6 +291,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
 
             // Get diff stats from staging store or action content
             const stagedChange = getChangeForFile(filePath);
+
             if (stagedChange) {
               diffStats = calculateDiffStats(stagedChange.originalContent, stagedChange.newContent);
               fileContent = stagedChange.newContent;
@@ -308,7 +311,8 @@ const ActionList = memo(({ actions }: ActionListProps) => {
             actionLabel = 'Start Application';
           }
 
-          const hasExpandableContent = (type === 'file' && fileContent) || ((type === 'shell' || type === 'start') && content);
+          const hasExpandableContent =
+            (type === 'file' && fileContent) || ((type === 'shell' || type === 'start') && content);
 
           return (
             <motion.div
@@ -365,9 +369,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
 
                 {/* File name */}
                 {type === 'file' && fileName && (
-                  <span className="text-xs font-medium text-bolt-elements-textPrimary truncate">
-                    {fileName}
-                  </span>
+                  <span className="text-xs font-medium text-bolt-elements-textPrimary truncate">{fileName}</span>
                 )}
 
                 {/* Edit icon for modified files */}
@@ -378,12 +380,8 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                 {/* Diff stats badge - positioned on the right */}
                 {type === 'file' && diffStats && (diffStats.linesAdded > 0 || diffStats.linesRemoved > 0) && (
                   <span className="flex items-center gap-1 text-xs ml-auto">
-                    {diffStats.linesAdded > 0 && (
-                      <span className="text-green-400">+{diffStats.linesAdded}</span>
-                    )}
-                    {diffStats.linesRemoved > 0 && (
-                      <span className="text-red-400">-{diffStats.linesRemoved}</span>
-                    )}
+                    {diffStats.linesAdded > 0 && <span className="text-green-400">+{diffStats.linesAdded}</span>}
+                    {diffStats.linesRemoved > 0 && <span className="text-red-400">-{diffStats.linesRemoved}</span>}
                   </span>
                 )}
 
@@ -413,12 +411,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   >
                     <div className="mt-1.5 p-2 rounded-md bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor max-h-[200px] overflow-auto">
                       {type === 'file' && fileContent ? (
-                        <CodeBlock
-                          code={fileContent}
-                          language={syntaxLanguage}
-                          maxLines={25}
-                          className="opacity-90"
-                        />
+                        <CodeBlock code={fileContent} language={syntaxLanguage} maxLines={25} className="opacity-90" />
                       ) : (
                         <ShellCodeBlock classsName="opacity-80" code={content || ''} />
                       )}

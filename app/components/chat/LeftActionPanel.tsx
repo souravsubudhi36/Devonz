@@ -112,10 +112,6 @@ export function LeftActionPanel({ importChat }: LeftActionPanelProps) {
       {/* Clone a Repo Button - Primary/Highlighted */}
       <div className="flex h-10">
         <GitCloneButton
-         
-         
-         
-       
           importChat={importChat}
           className={primaryButtonClass}
           style={{ width: '100%', height: '100%' }}

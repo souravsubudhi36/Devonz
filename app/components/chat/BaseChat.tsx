@@ -537,6 +537,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                             handleStop?.();
                             return;
                           }
+
                           handleSendMessage?.(event, messageInput);
                         }}
                       />

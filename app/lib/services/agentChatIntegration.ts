@@ -10,19 +10,10 @@ import { formatDataStreamPart, convertToCoreMessages } from 'ai';
 import { z } from 'zod';
 import { createScopedLogger } from '~/utils/logger';
 import { AGENT_SYSTEM_PROMPT, AGENT_SYSTEM_PROMPT_COMPACT } from '~/lib/agent/prompts';
-import {
-  agentToolDefinitions,
-  executeAgentTool,
-  isAgentTool,
-  getAgentToolNames,
-} from './agentToolsService';
+import { agentToolDefinitions, executeAgentTool, isAgentTool, getAgentToolNames } from './agentToolsService';
 import { getAgentOrchestrator } from './agentOrchestratorService';
 import { isAgentModeEnabled, getAgentModeSettings } from '~/lib/stores/agentMode';
-import {
-  TOOL_EXECUTION_APPROVAL,
-  TOOL_EXECUTION_DENIED,
-  TOOL_EXECUTION_ERROR,
-} from '~/utils/constants';
+import { TOOL_EXECUTION_APPROVAL, TOOL_EXECUTION_DENIED, TOOL_EXECUTION_ERROR } from '~/utils/constants';
 import type { ToolCallAnnotation } from '~/types/context';
 
 const logger = createScopedLogger('AgentChatIntegration');
@@ -57,6 +48,7 @@ export function getAgentToolSet(): ToolSet {
             } else {
               zodType = z.string();
             }
+
             break;
           case 'number':
             zodType = z.number();
@@ -109,6 +101,7 @@ export function getAgentToolSet(): ToolSet {
   }
 
   agentToolSetCache = toolSet;
+
   return toolSet;
 }
 
@@ -131,6 +124,7 @@ export function getAgentToolSetWithoutExecute(): ToolSet {
   }
 
   agentToolSetWithoutExecuteCache = toolSetWithoutExecute;
+
   return toolSetWithoutExecute;
 }
 
@@ -161,10 +155,7 @@ export function getAgentSystemPrompt(compact: boolean = false): string {
 /**
  * Enhance system prompt with agent capabilities when agent mode is enabled
  */
-export function enhanceSystemPromptWithAgentMode(
-  basePrompt: string,
-  options?: { compact?: boolean },
-): string {
+export function enhanceSystemPromptWithAgentMode(basePrompt: string, options?: { compact?: boolean }): string {
   const agentPrompt = getAgentSystemPrompt(options?.compact);
 
   return `${basePrompt}
@@ -314,6 +305,7 @@ export async function processAgentToolInvocation(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Agent tool invocation failed: ${toolName}`, { error: errorMessage });
+
     return {
       success: false,
       error: errorMessage,
@@ -354,6 +346,7 @@ export function initializeAgentSession(task?: string): void {
 export function endAgentSession(): string {
   const orchestrator = getAgentOrchestrator();
   orchestrator.endSession();
+
   return orchestrator.getSessionSummary();
 }
 

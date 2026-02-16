@@ -146,6 +146,7 @@ class VersionsStore {
       // Dynamic import to avoid circular dependencies
       const { requestPreviewScreenshot } = await import('~/components/workbench/Preview');
       const screenshot = await requestPreviewScreenshot({ width: 320, height: 200 }, 5000);
+
       return screenshot || undefined;
     } catch (error) {
       console.warn('Failed to capture preview thumbnail:', error);

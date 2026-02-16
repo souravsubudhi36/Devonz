@@ -21,10 +21,7 @@ const logger = createScopedLogger('SnapshotUtils');
  * @param chatSummary Optional summary of the chat for this snapshot
  * @returns Promise that resolves when snapshot is saved, or rejects on error
  */
-export async function takeGlobalSnapshot(
-  chatIndex?: string,
-  chatSummary?: string,
-): Promise<void> {
+export async function takeGlobalSnapshot(chatIndex?: string, chatSummary?: string): Promise<void> {
   const currentChatId = chatId.get();
   const database = db;
 

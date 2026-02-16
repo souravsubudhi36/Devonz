@@ -34,6 +34,7 @@ export type BaseActionState = BoltAction & {
   abort: () => void;
   executed: boolean;
   abortSignal: AbortSignal;
+
   /** ID of the message that created this action - used for rewind on reject */
   messageId?: string;
 };

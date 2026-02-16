@@ -5,6 +5,7 @@ interface UseConnectionTestOptions {
   testEndpoint: string;
   serviceName: string;
   getUserIdentifier?: (data: any) => string;
+
   /** Optional function to get the current auth token */
   getToken?: () => string | null;
 }
@@ -32,7 +33,7 @@ export function useConnectionTest({
       const token = getToken?.();
 
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        headers.Authorization = `Bearer ${token}`;
       }
 
       const response = await fetch(testEndpoint, {

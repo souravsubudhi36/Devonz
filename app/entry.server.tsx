@@ -25,6 +25,7 @@ export default async function handleRequest(
       {
         [callbackName]: () => {
           shellRendered = true;
+
           const body = new PassThrough();
           const head = renderHeadToString({ request, remixContext, Head });
 
@@ -63,6 +64,7 @@ export default async function handleRequest(
         },
         onError(error: unknown) {
           responseStatusCode = 500;
+
           if (shellRendered) {
             console.error(error);
           }

@@ -76,6 +76,7 @@ export class AgentOrchestrator {
     this.state.sessionEndTime = Date.now();
     logger.info('Session ended', this.getSessionSummary());
     this.notifyStatusChange('completed');
+
     return this.getState();
   }
 
@@ -90,6 +91,7 @@ export class AgentOrchestrator {
     if (this.state.status === 'error') {
       return false;
     }
+
     return this.state.iteration < this.state.maxIterations;
   }
 
@@ -102,6 +104,7 @@ export class AgentOrchestrator {
     if (!isAgentTool(toolName)) {
       const error = `Unknown agent tool: ${toolName}`;
       logger.error(error);
+
       return { success: false, error };
     }
 
@@ -166,6 +169,7 @@ export class AgentOrchestrator {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error('Tool execution failed', { toolName, error: errorMessage });
+
       return { success: false, error: errorMessage };
     }
   }
@@ -198,6 +202,7 @@ export class AgentOrchestrator {
     try {
       const approved = await this.options.onApprovalNeeded(request);
       this.state.pendingApproval = undefined;
+
       return approved;
     } catch {
       this.state.pendingApproval = undefined;
@@ -209,6 +214,7 @@ export class AgentOrchestrator {
     this.state.iteration++;
     logger.debug('Iteration incremented', { iteration: this.state.iteration });
     this.options.onIterationComplete?.(this.state.iteration, this.getState());
+
     return this.canContinue();
   }
 
@@ -299,6 +305,7 @@ export async function runAgentTask(
 ): Promise<AgentExecutionState> {
   const orchestrator = getAgentOrchestrator({}, options);
   orchestrator.startSession(task);
+
   return orchestrator.endSession();
 }
 

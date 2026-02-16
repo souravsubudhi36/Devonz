@@ -922,10 +922,10 @@ class DebugLogger {
           remoteUrl: gitInfoTyped.local?.remoteUrl,
           lastCommit: gitInfoTyped.local
             ? {
-              message: 'Latest commit',
-              date: gitInfoTyped.local.commitTime,
-              author: gitInfoTyped.local.author,
-            }
+                message: 'Latest commit',
+                date: gitInfoTyped.local.commitTime,
+                author: gitInfoTyped.local.author,
+              }
             : undefined,
         };
       }
@@ -977,10 +977,10 @@ class DebugLogger {
       firstContentfulPaint: paintEntries.find((entry) => entry.name === 'first-contentful-paint')?.startTime,
       memoryUsage: (performance as any).memory
         ? {
-          used: (performance as any).memory.usedJSHeapSize,
-          total: (performance as any).memory.totalJSHeapSize,
-          limit: (performance as any).memory.jsHeapSizeLimit,
-        }
+            used: (performance as any).memory.usedJSHeapSize,
+            total: (performance as any).memory.totalJSHeapSize,
+            limit: (performance as any).memory.jsHeapSizeLimit,
+          }
         : undefined,
       timing,
     };
@@ -1180,16 +1180,16 @@ function createDebugSummary(data: DebugLogData): string {
     '=== GIT INFORMATION ===',
     data.appInfo.gitInfo
       ? [
-        `Branch: ${data.appInfo.gitInfo.branch}`,
-        `Commit: ${data.appInfo.gitInfo.commit.substring(0, 8)}`,
-        `Working Directory: ${data.appInfo.gitInfo.isDirty ? 'Dirty' : 'Clean'}`,
-        data.appInfo.gitInfo.remoteUrl ? `Remote: ${data.appInfo.gitInfo.remoteUrl}` : '',
-        data.appInfo.gitInfo.lastCommit
-          ? `Last Commit: ${data.appInfo.gitInfo.lastCommit.message.substring(0, 50)}...`
-          : '',
-      ]
-        .filter(Boolean)
-        .join('\n')
+          `Branch: ${data.appInfo.gitInfo.branch}`,
+          `Commit: ${data.appInfo.gitInfo.commit.substring(0, 8)}`,
+          `Working Directory: ${data.appInfo.gitInfo.isDirty ? 'Dirty' : 'Clean'}`,
+          data.appInfo.gitInfo.remoteUrl ? `Remote: ${data.appInfo.gitInfo.remoteUrl}` : '',
+          data.appInfo.gitInfo.lastCommit
+            ? `Last Commit: ${data.appInfo.gitInfo.lastCommit.message.substring(0, 50)}...`
+            : '',
+        ]
+          .filter(Boolean)
+          .join('\n')
       : 'Git information not available',
     '',
     '=== SESSION STATISTICS ===',

@@ -13,8 +13,10 @@
  * - Auto-fix integration for code errors
  */
 
-// NOTE: workbenchStore is imported lazily inside showAlert() to avoid circular dependency
-// webcontainer/index.ts -> previewErrorHandler.ts -> workbench.ts -> webcontainer/index.ts
+/*
+ * NOTE: workbenchStore is imported lazily inside showAlert() to avoid circular dependency
+ * webcontainer/index.ts -> previewErrorHandler.ts -> workbench.ts -> webcontainer/index.ts
+ */
 import { cleanStackTrace } from '~/utils/stacktrace';
 import { createScopedLogger } from '~/utils/logger';
 import {
@@ -195,8 +197,10 @@ class PreviewErrorHandler {
 
     const content = contentParts.join('\n');
 
-    // Check if we should trigger auto-fix instead of showing alert
-    // Auto-fixable errors are typically code issues (SyntaxError, TypeError, ReferenceError, etc.)
+    /*
+     * Check if we should trigger auto-fix instead of showing alert
+     * Auto-fixable errors are typically code issues (SyntaxError, TypeError, ReferenceError, etc.)
+     */
     const isAutoFixable = this.#isAutoFixableError(errorMessage);
     const canAutoFix = isAutoFixable && shouldContinueFix() && globalPreviewAutoFixCallback;
 
@@ -232,8 +236,10 @@ class PreviewErrorHandler {
       logger.warn('Max auto-fix retries exceeded for preview error, showing alert to user');
     }
 
-    // Lazy import to avoid circular dependency:
-    // webcontainer/index.ts -> previewErrorHandler.ts -> workbench.ts -> webcontainer/index.ts
+    /*
+     * Lazy import to avoid circular dependency:
+     * webcontainer/index.ts -> previewErrorHandler.ts -> workbench.ts -> webcontainer/index.ts
+     */
     const { workbenchStore } = await import('~/lib/stores/workbench');
 
     workbenchStore.actionAlert.set({

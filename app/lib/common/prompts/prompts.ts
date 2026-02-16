@@ -166,23 +166,25 @@ export const getSystemPrompt = (
 
   CRITICAL: Use Supabase for databases by default, unless specified otherwise.
 
-  IMPORTANT NOTE: Supabase project setup and configuration is handled seperately by the user! ${supabase
-    ? !supabase.isConnected
-      ? 'You are not connected to Supabase. Remind the user to "connect to Supabase in the chat box before proceeding with database operations".'
-      : !supabase.hasSelectedProject
-        ? 'Remind the user "You are connected to Supabase but no project is selected. Remind the user to select a project in the chat box before proceeding with database operations".'
-        : ''
-    : ''
+  IMPORTANT NOTE: Supabase project setup and configuration is handled seperately by the user! ${
+    supabase
+      ? !supabase.isConnected
+        ? 'You are not connected to Supabase. Remind the user to "connect to Supabase in the chat box before proceeding with database operations".'
+        : !supabase.hasSelectedProject
+          ? 'Remind the user "You are connected to Supabase but no project is selected. Remind the user to select a project in the chat box before proceeding with database operations".'
+          : ''
+      : ''
   } 
-    IMPORTANT: Create a .env file if it doesnt exist${supabase?.isConnected &&
-    supabase?.hasSelectedProject &&
-    supabase?.credentials?.supabaseUrl &&
-    supabase?.credentials?.anonKey
-    ? ` and include the following variables:
+    IMPORTANT: Create a .env file if it doesnt exist${
+      supabase?.isConnected &&
+      supabase?.hasSelectedProject &&
+      supabase?.credentials?.supabaseUrl &&
+      supabase?.credentials?.anonKey
+        ? ` and include the following variables:
     VITE_SUPABASE_URL=${supabase.credentials.supabaseUrl}
     VITE_SUPABASE_ANON_KEY=${supabase.credentials.anonKey}`
-    : '.'
-  }
+        : '.'
+    }
   NEVER modify any Supabase configuration or \`.env\` files apart from creating the \`.env\`.
 
   Do not try to generate types for supabase.

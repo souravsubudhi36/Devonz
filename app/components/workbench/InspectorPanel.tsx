@@ -126,7 +126,9 @@ export const InspectorPanel = ({
 
   // Copy all computed styles to clipboard
   const handleCopyAllStyles = useCallback(async () => {
-    if (!selectedElement) return;
+    if (!selectedElement) {
+      return;
+    }
 
     const selector = selectedElement.selector || selectedElement.tagName.toLowerCase();
     const styles = getRelevantStyles(selectedElement.styles);
@@ -134,6 +136,7 @@ export const InspectorPanel = ({
     if (Object.keys(styles).length === 0) {
       setCopyFeedback('No styles to copy');
       setTimeout(() => setCopyFeedback(null), 2000);
+
       return;
     }
 
@@ -359,10 +362,7 @@ export const InspectorPanel = ({
         )}
 
         {activeTab === 'box' && (
-          <BoxModelEditor
-            boxModel={selectedElement.boxModel || null}
-            onValueChange={handleStyleChange}
-          />
+          <BoxModelEditor boxModel={selectedElement.boxModel || null} onValueChange={handleStyleChange} />
         )}
 
         {activeTab === 'ai' && (
@@ -375,10 +375,7 @@ export const InspectorPanel = ({
         )}
 
         {activeTab === 'tree' && (
-          <ElementTreeNavigator
-            hierarchy={selectedElement.hierarchy || null}
-            onSelectElement={onSelectFromTree}
-          />
+          <ElementTreeNavigator hierarchy={selectedElement.hierarchy || null} onSelectElement={onSelectFromTree} />
         )}
 
         {activeTab === 'colors' && (
@@ -399,7 +396,8 @@ export const InspectorPanel = ({
           <div className="space-y-2 p-2 rounded-lg border border-green-500/30 bg-green-500/5">
             <div className="flex items-center justify-between text-xs">
               <span className="text-green-400 font-medium">
-                {accumulatedBulkChanges.length} bulk {accumulatedBulkChanges.length === 1 ? 'change' : 'changes'} pending
+                {accumulatedBulkChanges.length} bulk {accumulatedBulkChanges.length === 1 ? 'change' : 'changes'}{' '}
+                pending
               </span>
               <button
                 onClick={onClearBulkChanges}
@@ -445,13 +443,15 @@ export const InspectorPanel = ({
                 } else {
                   onRevert?.();
                 }
+
                 setEditedStyles({});
                 setEditedText('');
               }}
-              className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${bulkTarget
-                ? 'border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 hover:border-purple-500/50'
-                : 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50'
-                }`}
+              className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border transition-colors ${
+                bulkTarget
+                  ? 'border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 hover:border-purple-500/50'
+                  : 'border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50'
+              }`}
             >
               <div className="i-ph:arrow-counter-clockwise w-3.5 h-3.5" />
               {bulkTarget ? `Revert All ${bulkTarget.label}` : 'Revert Changes'}

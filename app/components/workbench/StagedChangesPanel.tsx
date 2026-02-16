@@ -485,9 +485,11 @@ export const StagedChangesPanel = memo(() => {
         } else {
           toast.success('Preview mode: changes applied temporarily');
 
-          // If config files were changed, trigger hard refresh after a delay
-          // Config files (tailwind.config, vite.config, etc.) require a full page reload
-          // because Vite's HMR cannot properly handle config changes
+          /*
+           * If config files were changed, trigger hard refresh after a delay
+           * Config files (tailwind.config, vite.config, etc.) require a full page reload
+           * because Vite's HMR cannot properly handle config changes
+           */
           if (result.requiresHardRefresh) {
             // Wait for WebContainer to process the file changes
             await new Promise((resolve) => setTimeout(resolve, 500));
@@ -529,12 +531,15 @@ export const StagedChangesPanel = memo(() => {
       // Execute pending commands after files are applied
       await executePendingCommands();
 
-      // Take a snapshot after changes are applied to persist the new file state
-      // This ensures the files are saved even when staging mode delays writes
+      /*
+       * Take a snapshot after changes are applied to persist the new file state
+       * This ensures the files are saved even when staging mode delays writes
+       */
       try {
         await takeDelayedSnapshot(150); // 150ms delay for WebContainer sync
       } catch (snapshotError) {
         console.error('[StagedChangesPanel] Failed to take snapshot after accept:', snapshotError);
+
         // Don't show toast for snapshot errors - files are still applied
       }
     } finally {
@@ -564,8 +569,10 @@ export const StagedChangesPanel = memo(() => {
 
       clearPendingCommands();
 
-      // Trigger rewind to remove rejected changes from chat history
-      // This ensures the AI won't see the rejected content in subsequent requests
+      /*
+       * Trigger rewind to remove rejected changes from chat history
+       * This ensures the AI won't see the rejected content in subsequent requests
+       */
       if (lastAcceptedId) {
         toast.info('Rewinding chat to remove rejected changes from history...');
 
@@ -578,8 +585,10 @@ export const StagedChangesPanel = memo(() => {
           window.location.search = searchParams.toString();
         }, 500);
       } else {
-        // No previous accepted message - this was the first response
-        // Just show a warning that chat history couldn't be cleaned
+        /*
+         * No previous accepted message - this was the first response
+         * Just show a warning that chat history couldn't be cleaned
+         */
         toast.warning('Files reverted. Note: First response cannot be rewound from chat history.');
       }
     } finally {

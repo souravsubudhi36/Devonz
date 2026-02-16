@@ -848,8 +848,10 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
       } else if (event.data.type === 'INSPECTOR_BULK_REVERTED') {
         setBulkAffectedCount(undefined);
       } else if (event.data.type === 'PREVIEW_CONSOLE_ERROR') {
-        // Handle console errors captured from preview iframe (module import errors, etc.)
-        // Route to preview error handler's auto-fix system
+        /*
+         * Handle console errors captured from preview iframe (module import errors, etc.)
+         * Route to preview error handler's auto-fix system
+         */
         getPreviewErrorHandler().handlePreviewMessage({
           type: 'PREVIEW_UNCAUGHT_EXCEPTION', // Use existing type for compatibility
           message: event.data.message,
@@ -860,8 +862,10 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
           port: selectedWindowSize?.width || 0,
         });
       } else if (event.data.type === 'PREVIEW_VITE_ERROR') {
-        // Handle Vite error overlay detection (ES module errors, HMR failures, etc.)
-        // Route to preview error handler's auto-fix system
+        /*
+         * Handle Vite error overlay detection (ES module errors, HMR failures, etc.)
+         * Route to preview error handler's auto-fix system
+         */
         getPreviewErrorHandler().handlePreviewMessage({
           type: 'PREVIEW_UNCAUGHT_EXCEPTION', // Use existing type for compatibility
           message: event.data.fullMessage || event.data.message,

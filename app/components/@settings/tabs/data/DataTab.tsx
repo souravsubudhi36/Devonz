@@ -140,6 +140,7 @@ export function DataTab() {
 
   // Internal tab state for organizing content
   type DataTabSection = 'chats' | 'settings' | 'api-keys' | 'data-usage';
+
   const [activeSection, setActiveSection] = useState<DataTabSection>('chats');
 
   const tabSections: { id: DataTabSection; label: string }[] = [

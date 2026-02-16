@@ -11,10 +11,10 @@ const storedProfile = typeof window !== 'undefined' ? localStorage.getItem('devo
 const initialProfile: Profile = storedProfile
   ? JSON.parse(storedProfile)
   : {
-    username: '',
-    bio: '',
-    avatar: '',
-  };
+      username: '',
+      bio: '',
+      avatar: '',
+    };
 
 export const profileStore = atom<Profile>(initialProfile);
 

@@ -16,8 +16,10 @@ export {
   getAgentSystemPrompt,
 } from './prompts';
 
-// Re-export orchestrator and tools from services
-// These are the main entry points for agent mode functionality
+/*
+ * Re-export orchestrator and tools from services
+ * These are the main entry points for agent mode functionality
+ */
 export {
   AgentOrchestrator,
   getAgentOrchestrator,

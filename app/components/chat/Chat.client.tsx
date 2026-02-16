@@ -185,8 +185,10 @@ export const ChatImpl = memo(
 
         logger.debug('Finished streaming');
 
-        // Check if this was an auto-fix response
-        // Wait for terminal/preview to run the code, then check if errors cleared
+        /*
+         * Check if this was an auto-fix response
+         * Wait for terminal/preview to run the code, then check if errors cleared
+         */
         if (isAutoFixActive()) {
           const settings = autoFixStore.get().settings;
 
@@ -392,8 +394,10 @@ export const ChatImpl = memo(
         return;
       }
 
-      // Animate the intro element out before showing chat
-      // Only animate if the element exists to prevent framer-motion errors
+      /*
+       * Animate the intro element out before showing chat
+       * Only animate if the element exists to prevent framer-motion errors
+       */
       const introElement = document.querySelector('#intro');
 
       if (introElement) {

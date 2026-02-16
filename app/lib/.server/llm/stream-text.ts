@@ -301,8 +301,10 @@ ${projectMemoryContent}
     ),
   );
 
-  // AGENT MODE: Replace system prompt entirely when agent mode is enabled
-  // This ensures the AI uses agent tools instead of artifacts
+  /*
+   * AGENT MODE: Replace system prompt entirely when agent mode is enabled
+   * This ensures the AI uses agent tools instead of artifacts
+   */
   if (options?.agentMode) {
     logger.info('🤖 Agent Mode: Using agent-specific system prompt (replacing standard prompt)');
     systemPrompt = AGENT_MODE_FULL_SYSTEM_PROMPT(WORK_DIR);

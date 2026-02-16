@@ -318,8 +318,10 @@ async function getErrors(params: GetErrorsParams): Promise<ToolExecutionResult<G
       }
     }
 
-    // Note: PreviewErrorHandler doesn't expose a getErrors() method.
-    // Preview errors are captured via autoFixStore when they occur.
+    /*
+     * Note: PreviewErrorHandler doesn't expose a getErrors() method.
+     * Preview errors are captured via autoFixStore when they occur.
+     */
 
     logger.debug(`Retrieved errors`, { count: errors.length, source });
 

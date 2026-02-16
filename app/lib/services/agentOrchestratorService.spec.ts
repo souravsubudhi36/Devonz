@@ -95,6 +95,7 @@ describe('AgentOrchestrator', () => {
     it('should start a new session', () => {
       const orchestrator = createAgentOrchestrator();
       orchestrator.startSession('Test task');
+
       const state = orchestrator.getState();
       expect(state.currentTask).toBe('Test task');
       expect(state.status).toBe('thinking');
@@ -104,6 +105,7 @@ describe('AgentOrchestrator', () => {
     it('should end session and return final state', () => {
       const orchestrator = createAgentOrchestrator();
       orchestrator.startSession('Test task');
+
       const finalState = orchestrator.endSession();
       expect(finalState.status).toBe('completed');
     });
@@ -113,6 +115,7 @@ describe('AgentOrchestrator', () => {
       orchestrator.startSession('First task');
       orchestrator.incrementIteration();
       orchestrator.startSession('Second task');
+
       const state = orchestrator.getState();
       expect(state.currentTask).toBe('Second task');
       expect(state.iteration).toBe(0);
@@ -125,6 +128,7 @@ describe('AgentOrchestrator', () => {
       orchestrator.startSession('Task');
       orchestrator.incrementIteration();
       orchestrator.reset();
+
       const state = orchestrator.getState();
       expect(state.iteration).toBe(0);
       expect(state.status).toBe('idle');
@@ -162,6 +166,7 @@ describe('AgentOrchestrator', () => {
         success: true,
         data: { content: 'file content' },
       });
+
       const result = await orchestrator.executeTool('devonz_read_file', { path: '/test.ts' });
       expect(result.success).toBe(true);
       expect(mockExecuteAgentTool).toHaveBeenCalledWith('devonz_read_file', { path: '/test.ts' });
@@ -171,6 +176,7 @@ describe('AgentOrchestrator', () => {
       const orchestrator = createAgentOrchestrator();
       mockExecuteAgentTool.mockResolvedValue({ success: true, data: {} });
       await orchestrator.executeTool('devonz_read_file', { path: '/test.ts' });
+
       const state = orchestrator.getState();
       expect(state.totalToolCalls).toBe(1);
       expect(state.toolCalls).toHaveLength(1);
@@ -180,6 +186,7 @@ describe('AgentOrchestrator', () => {
     it('should return error for unknown tool', async () => {
       const orchestrator = createAgentOrchestrator();
       mockIsAgentTool.mockReturnValue(false);
+
       const result = await orchestrator.executeTool('unknown_tool', {});
       expect(result.success).toBe(false);
       expect(result.error).toContain('Unknown agent tool');
@@ -195,6 +202,7 @@ describe('AgentOrchestrator', () => {
         path: '/new-file.ts',
         content: 'content',
       });
+
       const state = orchestrator.getState();
       expect(state.filesCreated).toContain('/new-file.ts');
     });
@@ -206,6 +214,7 @@ describe('AgentOrchestrator', () => {
         data: { exitCode: 0, output: 'done' },
       });
       await orchestrator.executeTool('devonz_run_command', { command: 'npm install' });
+
       const state = orchestrator.getState();
       expect(state.commandsExecuted).toContain('npm install');
     });
@@ -216,6 +225,7 @@ describe('AgentOrchestrator', () => {
       mockExecuteAgentTool.mockResolvedValue({ success: true, data: {} });
       await orchestrator.executeTool('devonz_read_file', { path: '/test.ts' });
       expect(onToolExecuted).toHaveBeenCalled();
+
       const record = onToolExecuted.mock.calls[0][0] as ToolCallRecord;
       expect(record.name).toBe('devonz_read_file');
     });
@@ -289,6 +299,7 @@ describe('AgentOrchestrator', () => {
     it('should return true when within 5 of limit', () => {
       const orchestrator = createAgentOrchestrator({ maxIterations: 25 });
       orchestrator.startSession('Task');
+
       for (let i = 0; i < 20; i++) {
         orchestrator.incrementIteration();
       }
@@ -306,6 +317,7 @@ describe('AgentOrchestrator', () => {
     it('should return warning when near limit', () => {
       const orchestrator = createAgentOrchestrator({ maxIterations: 25 });
       orchestrator.startSession('Task');
+
       for (let i = 0; i < 21; i++) {
         orchestrator.incrementIteration();
       }
@@ -318,6 +330,7 @@ describe('AgentOrchestrator', () => {
       const orchestrator = createAgentOrchestrator();
       orchestrator.startSession('Task');
       orchestrator.setError('Something went wrong');
+
       const state = orchestrator.getState();
       expect(state.status).toBe('error');
       expect(state.errorMessage).toBe('Something went wrong');
@@ -337,6 +350,7 @@ describe('AgentOrchestrator', () => {
         path: '/test.ts',
         content: 'content',
       });
+
       const summary = orchestrator.getSessionSummary();
       expect(summary).toContain('1 iterations');
       expect(summary).toContain('1 tool calls');
@@ -398,6 +412,7 @@ describe('Singleton functions', () => {
     it('should clear singleton instance', () => {
       const instance1 = getAgentOrchestrator();
       resetAgentOrchestrator();
+
       const instance2 = getAgentOrchestrator();
       expect(instance1).not.toBe(instance2);
     });
