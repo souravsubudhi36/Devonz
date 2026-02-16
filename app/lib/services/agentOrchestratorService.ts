@@ -35,64 +35,64 @@ function createInitialState(): AgentExecutionState {
 }
 
 export class AgentOrchestrator {
-  private state: AgentExecutionState;
-  private settings: AgentModeSettings;
-  private options: AgentOrchestratorOptions;
+  private _state: AgentExecutionState;
+  private _settings: AgentModeSettings;
+  private _options: AgentOrchestratorOptions;
 
   constructor(settings: Partial<AgentModeSettings> = {}, options: Partial<AgentOrchestratorOptions> = {}) {
-    this.settings = { ...DEFAULT_AGENT_SETTINGS, ...settings };
-    this.options = options;
-    this.state = createInitialState();
-    this.state.maxIterations = this.settings.maxIterations;
-    logger.debug('AgentOrchestrator initialized', { settings: this.settings });
+    this._settings = { ...DEFAULT_AGENT_SETTINGS, ...settings };
+    this._options = options;
+    this._state = createInitialState();
+    this._state.maxIterations = this._settings.maxIterations;
+    logger.debug('AgentOrchestrator initialized', { settings: this._settings });
   }
 
   getState(): Readonly<AgentExecutionState> {
-    return { ...this.state };
+    return { ...this._state };
   }
 
   getSettings(): Readonly<AgentModeSettings> {
-    return { ...this.settings };
+    return { ...this._settings };
   }
 
   updateSettings(updates: Partial<AgentModeSettings>): void {
-    this.settings = { ...this.settings, ...updates };
-    this.state.maxIterations = this.settings.maxIterations;
+    this._settings = { ...this._settings, ...updates };
+    this._state.maxIterations = this._settings.maxIterations;
     logger.debug('Settings updated', { updates });
   }
 
   startSession(task: string): void {
-    this.state = createInitialState();
-    this.state.currentTask = task;
-    this.state.status = 'thinking';
-    this.state.sessionStartTime = Date.now();
-    this.state.maxIterations = this.settings.maxIterations;
+    this._state = createInitialState();
+    this._state.currentTask = task;
+    this._state.status = 'thinking';
+    this._state.sessionStartTime = Date.now();
+    this._state.maxIterations = this._settings.maxIterations;
     logger.info('Session started', { task });
-    this.notifyStatusChange('thinking');
+    this._notifyStatusChange('thinking');
   }
 
   endSession(): AgentExecutionState {
-    this.state.status = 'completed';
-    this.state.sessionEndTime = Date.now();
+    this._state.status = 'completed';
+    this._state.sessionEndTime = Date.now();
     logger.info('Session ended', this.getSessionSummary());
-    this.notifyStatusChange('completed');
+    this._notifyStatusChange('completed');
 
     return this.getState();
   }
 
   reset(): void {
-    this.state = createInitialState();
-    this.state.maxIterations = this.settings.maxIterations;
+    this._state = createInitialState();
+    this._state.maxIterations = this._settings.maxIterations;
     logger.debug('State reset');
-    this.notifyStatusChange('idle');
+    this._notifyStatusChange('idle');
   }
 
   canContinue(): boolean {
-    if (this.state.status === 'error') {
+    if (this._state.status === 'error') {
       return false;
     }
 
-    return this.state.iteration < this.state.maxIterations;
+    return this._state.iteration < this._state.maxIterations;
   }
 
   async executeTool(
@@ -108,10 +108,10 @@ export class AgentOrchestrator {
       return { success: false, error };
     }
 
-    const needsApproval = this.checkNeedsApproval(toolName, params);
+    const needsApproval = this._checkNeedsApproval(toolName, params);
 
-    if (needsApproval && !this.options.autoApproveAll) {
-      const approved = await this.requestApproval({
+    if (needsApproval && !this._options.autoApproveAll) {
+      const approved = await this._requestApproval({
         toolName,
         params,
         reason: `Tool ${toolName} requires approval`,
@@ -122,8 +122,8 @@ export class AgentOrchestrator {
       }
     }
 
-    this.state.status = 'executing';
-    this.notifyStatusChange('executing');
+    this._state.status = 'executing';
+    this._notifyStatusChange('executing');
 
     const startTime = Date.now();
 
@@ -140,30 +140,30 @@ export class AgentOrchestrator {
         duration,
       };
 
-      this.state.toolCalls.push(record);
-      this.state.totalToolCalls++;
-      this.state.lastToolCall = record;
+      this._state.toolCalls.push(record);
+      this._state.totalToolCalls++;
+      this._state.lastToolCall = record;
 
       if (result.success && result.data) {
         const data = result.data as Record<string, unknown>;
 
         if (data.created && data.path) {
-          this.state.filesCreated.push(data.path as string);
+          this._state.filesCreated.push(data.path as string);
         } else if (data.modified && data.path) {
-          this.state.filesModified.push(data.path as string);
+          this._state.filesModified.push(data.path as string);
         } else if (toolName === 'devonz_write_file' && data.path) {
-          this.state.filesCreated.push(data.path as string);
+          this._state.filesCreated.push(data.path as string);
         }
 
         if (toolName === 'devonz_run_command' && params.command) {
-          this.state.commandsExecuted.push(params.command as string);
+          this._state.commandsExecuted.push(params.command as string);
         }
       }
 
-      this.options.onToolExecuted?.(record);
+      this._options.onToolExecuted?.(record);
 
-      this.state.status = 'thinking';
-      this.notifyStatusChange('thinking');
+      this._state.status = 'thinking';
+      this._notifyStatusChange('thinking');
 
       return result;
     } catch (error) {
@@ -174,15 +174,15 @@ export class AgentOrchestrator {
     }
   }
 
-  private checkNeedsApproval(toolName: string, params: Record<string, unknown>): boolean {
-    if (toolName === 'devonz_run_command' && !this.settings.autoApproveCommands) {
+  private _checkNeedsApproval(toolName: string, params: Record<string, unknown>): boolean {
+    if (toolName === 'devonz_run_command' && !this._settings.autoApproveCommands) {
       return true;
     }
 
     if (toolName === 'devonz_write_file') {
       const path = params.path as string | undefined;
 
-      if (path && !this.settings.autoApproveFileCreation) {
+      if (path && !this._settings.autoApproveFileCreation) {
         return true;
       }
     }
@@ -190,37 +190,37 @@ export class AgentOrchestrator {
     return false;
   }
 
-  private async requestApproval(request: ApprovalRequest): Promise<boolean> {
-    if (!this.options.onApprovalNeeded) {
+  private async _requestApproval(request: ApprovalRequest): Promise<boolean> {
+    if (!this._options.onApprovalNeeded) {
       return false;
     }
 
-    this.state.status = 'waiting_for_approval';
-    this.state.pendingApproval = request;
-    this.notifyStatusChange('waiting_for_approval');
+    this._state.status = 'waiting_for_approval';
+    this._state.pendingApproval = request;
+    this._notifyStatusChange('waiting_for_approval');
 
     try {
-      const approved = await this.options.onApprovalNeeded(request);
-      this.state.pendingApproval = undefined;
+      const approved = await this._options.onApprovalNeeded(request);
+      this._state.pendingApproval = undefined;
 
       return approved;
     } catch {
-      this.state.pendingApproval = undefined;
+      this._state.pendingApproval = undefined;
       return false;
     }
   }
 
   incrementIteration(): boolean {
-    this.state.iteration++;
-    logger.debug('Iteration incremented', { iteration: this.state.iteration });
-    this.options.onIterationComplete?.(this.state.iteration, this.getState());
+    this._state.iteration++;
+    logger.debug('Iteration incremented', { iteration: this._state.iteration });
+    this._options.onIterationComplete?.(this._state.iteration, this.getState());
 
     return this.canContinue();
   }
 
   isNearIterationLimit(): boolean {
     const threshold = 5;
-    return this.state.maxIterations - this.state.iteration <= threshold;
+    return this._state.maxIterations - this._state.iteration <= threshold;
   }
 
   getIterationWarningPrompt(): string | null {
@@ -232,37 +232,37 @@ export class AgentOrchestrator {
   }
 
   setError(message: string): void {
-    this.state.status = 'error';
-    this.state.errorMessage = message;
+    this._state.status = 'error';
+    this._state.errorMessage = message;
     logger.error('Error set', { message });
-    this.notifyStatusChange('error');
+    this._notifyStatusChange('error');
   }
 
   getSessionSummary(): string {
     const parts: string[] = [];
-    parts.push(`${this.state.iteration} iterations`);
-    parts.push(`${this.state.totalToolCalls} tool calls`);
+    parts.push(`${this._state.iteration} iterations`);
+    parts.push(`${this._state.totalToolCalls} tool calls`);
 
-    if (this.state.filesCreated.length > 0) {
-      parts.push(`Files created: ${this.state.filesCreated.join(', ')}`);
+    if (this._state.filesCreated.length > 0) {
+      parts.push(`Files created: ${this._state.filesCreated.join(', ')}`);
     }
 
-    if (this.state.filesModified.length > 0) {
-      parts.push(`Files modified: ${this.state.filesModified.join(', ')}`);
+    if (this._state.filesModified.length > 0) {
+      parts.push(`Files modified: ${this._state.filesModified.join(', ')}`);
     }
 
-    if (this.state.commandsExecuted.length > 0) {
-      parts.push(`Commands: ${this.state.commandsExecuted.join(', ')}`);
+    if (this._state.commandsExecuted.length > 0) {
+      parts.push(`Commands: ${this._state.commandsExecuted.join(', ')}`);
     }
 
     return parts.join(' | ');
   }
 
   abort(): void {
-    this.state.status = 'idle';
-    this.state.isExecuting = false;
+    this._state.status = 'idle';
+    this._state.isExecuting = false;
     logger.info('Execution aborted');
-    this.notifyStatusChange('idle');
+    this._notifyStatusChange('idle');
   }
 
   async getAvailableTools(): Promise<string[]> {
@@ -270,8 +270,8 @@ export class AgentOrchestrator {
     return getAgentToolNames();
   }
 
-  private notifyStatusChange(status: AgentStatus): void {
-    this.options.onStatusChange?.(status);
+  private _notifyStatusChange(status: AgentStatus): void {
+    this._options.onStatusChange?.(status);
   }
 }
 
@@ -309,9 +309,9 @@ export async function runAgentTask(
   return orchestrator.endSession();
 }
 
-export function isAgentModeAvailable(): boolean {
+export async function isAgentModeAvailable(): Promise<boolean> {
   try {
-    const { getAgentToolNames } = require('./agentToolsService');
+    const { getAgentToolNames } = await import('./agentToolsService');
     return getAgentToolNames().length > 0;
   } catch {
     return false;

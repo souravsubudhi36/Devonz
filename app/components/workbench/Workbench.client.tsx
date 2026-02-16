@@ -71,7 +71,7 @@ export const Workbench = memo(
   }: WorkspaceProps) => {
     renderLogger.trace('Workbench');
 
-    const [fileHistory, setFileHistory] = useState<Record<string, FileHistory>>({});
+    const [fileHistory] = useState<Record<string, FileHistory>>({});
 
     // const modifiedFiles = Array.from(useStore(workbenchStore.unsavedFiles).keys());
 

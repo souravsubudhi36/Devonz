@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { isBinaryFile, shouldIncludeFile, generateId, MAX_FILES, IGNORE_PATTERNS } from './fileUtils';
 
 describe('fileUtils', () => {

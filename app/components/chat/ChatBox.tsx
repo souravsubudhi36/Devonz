@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
 import { PROVIDER_LIST } from '~/utils/constants';
 import { CombinedModelSelector } from '~/components/chat/CombinedModelSelector';
-import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import FilePreview from './FilePreview';
 import { SendButton } from './SendButton.client';
 import { IconButton } from '~/components/ui/IconButton';
@@ -63,33 +62,7 @@ interface ChatBoxProps {
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
-  // Check if current provider has API key set
-  const hasApiKey = props.provider && props.apiKeys[props.provider.name];
-  const isLocalProvider = props.provider && LOCAL_PROVIDERS.includes(props.provider.name);
-  const [isEnvKeySet, setIsEnvKeySet] = useState(false);
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
-
-  // Check if API key is set via environment variable
-  const checkEnvApiKey = useCallback(async () => {
-    if (!props.provider?.name) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/check-env-key?provider=${encodeURIComponent(props.provider.name)}`);
-      const data = await response.json();
-      setIsEnvKeySet((data as { isSet: boolean }).isSet);
-    } catch (error) {
-      setIsEnvKeySet(false);
-    }
-  }, [props.provider?.name]);
-
-  useEffect(() => {
-    checkEnvApiKey();
-  }, [checkEnvApiKey]);
-
-  // API key is available if set via UI or environment variable
-  const hasApiKeyAvailable = hasApiKey || isEnvKeySet;
 
   return (
     <div

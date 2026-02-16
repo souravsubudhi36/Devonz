@@ -432,7 +432,7 @@ describe('Singleton functions', () => {
 });
 
 describe('isAgentModeAvailable', () => {
-  it('should return boolean', () => {
-    expect(typeof isAgentModeAvailable()).toBe('boolean');
+  it('should return boolean', async () => {
+    expect(typeof (await isAgentModeAvailable())).toBe('boolean');
   });
 });

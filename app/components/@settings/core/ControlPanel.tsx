@@ -1,14 +1,13 @@
 import { useState, useEffect, useMemo, lazy, Suspense, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import * as RadixDialog from '@radix-ui/react-dialog';
-import { classNames } from '~/utils/classNames';
 import { useFeatures } from '~/lib/hooks/useFeatures';
 import { useNotifications } from '~/lib/hooks/useNotifications';
 import { useConnectionStatus } from '~/lib/hooks/useConnectionStatus';
 import { tabConfigurationStore, resetTabConfiguration } from '~/lib/stores/settings';
 import { profileStore } from '~/lib/stores/profile';
 import type { TabType, Profile } from './types';
-import { TAB_LABELS, TAB_ICONS, DEFAULT_TAB_CONFIG } from './constants';
+import { TAB_LABELS, TAB_ICONS } from './constants';
 import { DialogTitle } from '~/components/ui/Dialog';
 
 // Lazy load all tab components for better initial performance
@@ -54,9 +53,9 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
   const profile = useStore(profileStore) as Profile;
 
   // Status hooks
-  const { hasNewFeatures, unviewedFeatures, acknowledgeAllFeatures } = useFeatures();
-  const { hasUnreadNotifications, unreadNotifications, markAllAsRead } = useNotifications();
-  const { hasConnectionIssues, currentIssue, acknowledgeIssue } = useConnectionStatus();
+  const { hasNewFeatures, acknowledgeAllFeatures } = useFeatures();
+  const { hasUnreadNotifications, markAllAsRead } = useNotifications();
+  const { hasConnectionIssues, acknowledgeIssue } = useConnectionStatus();
 
   // Add visibleTabs logic using useMemo with optimized calculations
   const visibleTabs = useMemo(() => {
@@ -134,27 +133,6 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
         return hasConnectionIssues;
       default:
         return false;
-    }
-  };
-
-  const getStatusMessage = (tabId: TabType): string => {
-    switch (tabId) {
-      case 'features':
-        return `${unviewedFeatures.length} new feature${unviewedFeatures.length === 1 ? '' : 's'} to explore`;
-      case 'notifications':
-        return `${unreadNotifications.length} unread notification${unreadNotifications.length === 1 ? '' : 's'}`;
-      case 'github':
-      case 'gitlab':
-      case 'supabase':
-      case 'vercel':
-      case 'netlify':
-        return currentIssue === 'disconnected'
-          ? 'Connection lost'
-          : currentIssue === 'high-latency'
-            ? 'High latency detected'
-            : 'Connection issues detected';
-      default:
-        return '';
     }
   };
 

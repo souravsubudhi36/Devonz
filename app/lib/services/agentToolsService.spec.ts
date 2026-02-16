@@ -6,7 +6,6 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { ToolExecutionResult } from '~/lib/agent/types';
 
 // Mock functions need to be defined before vi.mock calls
 const mockReadFile = vi.fn();

@@ -11,7 +11,6 @@
 import { webcontainer } from '~/lib/webcontainer';
 import { createScopedLogger } from '~/utils/logger';
 import { autoFixStore } from '~/lib/stores/autofix';
-import { getPreviewErrorHandler } from '~/utils/previewErrorHandler';
 import type {
   ToolExecutionResult,
   ReadFileParams,

@@ -15,7 +15,6 @@ import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import RightIconPanel from './RightIconPanel';
 import { RecentChats } from '~/components/chat/RecentChats';
 import type { ProviderInfo } from '~/types/model';
-import StarterTemplates from './StarterTemplates';
 import type { ActionAlert, SupabaseAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
 import ChatAlert from './ChatAlert';

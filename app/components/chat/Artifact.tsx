@@ -5,7 +5,7 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
 import type { ActionState } from '~/lib/runtime/action-runner';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { stagingStore, getChangeForFile } from '~/lib/stores/staging';
+import { getChangeForFile } from '~/lib/stores/staging';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
 import { WORK_DIR } from '~/utils/constants';
@@ -260,7 +260,6 @@ export function openArtifactInWorkbench(filePath: any) {
 
 const ActionList = memo(({ actions }: ActionListProps) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const stagingState = useStore(stagingStore);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>

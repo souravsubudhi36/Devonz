@@ -24,14 +24,6 @@ interface DomainRequest {
   domain?: string;
 }
 
-interface VercelDomain {
-  name: string;
-  verified: boolean;
-  gitBranch?: string | null;
-  redirect?: string | null;
-  redirectStatusCode?: number | null;
-}
-
 /**
  * Get Vercel token from request
  */

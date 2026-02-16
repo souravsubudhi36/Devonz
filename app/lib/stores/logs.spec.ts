@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { logStore, type LogEntry } from './logs';
+import { logStore } from './logs';
 
 describe('logStore', () => {
   beforeEach(() => {
