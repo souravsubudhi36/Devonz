@@ -213,7 +213,7 @@ function CodeBlock({ className, code, language = 'shell', maxLines }: CodeBlockP
   }, [code, maxLines]);
 
   // Ensure language is supported, fallback to plaintext
-  const lang = highlighterOptions.langs.includes(language as any) ? language : 'shell';
+  const lang = highlighterOptions.langs.includes(language) ? language : 'shell';
 
   /*
    * SECURITY NOTE: dangerouslySetInnerHTML usage is safe here because:

@@ -109,11 +109,11 @@ export function extractCurrentContext(messages: Message[]) {
       continue;
     }
 
-    if (!(annotation as any).type) {
+    if (!('type' in annotation) || !(annotation as Record<string, unknown>).type) {
       continue;
     }
 
-    const annotationObject = annotation as any;
+    const annotationObject = annotation as unknown as ContextAnnotation;
 
     if (annotationObject.type === 'codeContext') {
       codeContext = annotationObject;

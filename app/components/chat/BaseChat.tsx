@@ -58,7 +58,7 @@ interface BaseChatProps {
   setProvider?: (provider: ProviderInfo) => void;
   providerList?: ProviderInfo[];
   handleStop?: () => void;
-  sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
+  sendMessage?: (event?: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   enhancePrompt?: () => void;
   importChat?: (description: string, messages: Message[]) => Promise<void>;
@@ -169,7 +169,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     useEffect(() => {
       if (data) {
         const progressList = data.filter(
-          (x) => typeof x === 'object' && (x as any).type === 'progress',
+          (x) =>
+            typeof x === 'object' && x !== null && 'type' in x && (x as Record<string, unknown>).type === 'progress',
         ) as ProgressAnnotation[];
         setProgressAnnotations(progressList);
       }
@@ -285,7 +286,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     }, [recognition]);
 
     const handleSendMessage = useCallback(
-      (event: React.UIEvent, messageInput?: string) => {
+      (event?: React.UIEvent, messageInput?: string) => {
         if (sendMessage) {
           sendMessage(event, messageInput);
           setSelectedElement?.(null);
@@ -432,7 +433,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         alert={deployAlert}
                         clearAlert={() => clearDeployAlert?.()}
                         postMessage={(message: string | undefined) => {
-                          sendMessage?.({} as any, message);
+                          sendMessage?.(undefined, message);
                           clearSupabaseAlert?.();
                         }}
                       />
@@ -442,7 +443,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         alert={supabaseAlert}
                         clearAlert={() => clearSupabaseAlert?.()}
                         postMessage={(message) => {
-                          sendMessage?.({} as any, message);
+                          sendMessage?.(undefined, message);
                           clearSupabaseAlert?.();
                         }}
                       />
@@ -452,7 +453,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         alert={actionAlert}
                         clearAlert={() => clearAlert?.()}
                         postMessage={(message) => {
-                          sendMessage?.({} as any, message);
+                          sendMessage?.(undefined, message);
                           clearAlert?.();
                         }}
                       />
@@ -461,7 +462,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     {/* Plan Approval Alert - shows when a plan is pending approval */}
                     <PlanApprovalAlert
                       postMessage={(message) => {
-                        sendMessage?.({} as any, message);
+                        sendMessage?.(undefined, message);
                       }}
                     />
                   </div>

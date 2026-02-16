@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 
 interface ExamplePromptsProps {
-  sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
+  sendMessage?: (event?: React.UIEvent, messageInput?: string) => void;
 }
 
 const ALL_PROMPTS = [

@@ -464,7 +464,7 @@ export const ChatImpl = memo(
       return attachments;
     };
 
-    const sendMessage = async (_event: React.UIEvent, messageInput?: string) => {
+    const sendMessage = async (_event?: React.UIEvent, messageInput?: string) => {
       const messageContent = messageInput || input;
 
       if (!messageContent?.trim()) {

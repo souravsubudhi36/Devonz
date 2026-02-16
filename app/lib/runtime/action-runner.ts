@@ -47,6 +47,14 @@ export type FailedActionState = BoltAction &
 
 export type ActionState = BaseActionState | FailedActionState;
 
+/** Minimal input for internal file write operations (saveFileHistory, supabase migrations) */
+type FileWriteInput = {
+  type: 'file';
+  filePath: string;
+  content: string;
+  messageId?: string;
+};
+
 type BaseActionUpdate = Partial<Pick<BaseActionState, 'status' | 'abort' | 'executed'>>;
 
 export type ActionStateUpdate =
@@ -380,7 +388,7 @@ export class ActionRunner {
     return resp;
   }
 
-  async #runFileAction(action: ActionState) {
+  async #runFileAction(action: ActionState | FileWriteInput) {
     if (action.type !== 'file') {
       unreachable('Expected file action');
     }
@@ -411,7 +419,7 @@ export class ActionRunner {
         type: changeType,
         originalContent,
         newContent: action.content,
-        actionId: (action as any).id ?? `action-${Date.now()}`,
+        actionId: `action-${Date.now()}`,
         messageId: action.messageId, // Pass messageId for rewind on reject
         description: `${changeType === 'create' ? 'Create' : 'Modify'} ${relativePath}`,
       });
@@ -441,7 +449,7 @@ export class ActionRunner {
   /**
    * Write file directly to WebContainer (used when staging is bypassed)
    */
-  async #writeFileDirect(action: ActionState, webcontainer: WebContainer, relativePath: string) {
+  async #writeFileDirect(action: ActionState | FileWriteInput, webcontainer: WebContainer, relativePath: string) {
     if (action.type !== 'file') {
       unreachable('Expected file action');
     }
@@ -541,8 +549,7 @@ export class ActionRunner {
       type: 'file',
       filePath: historyPath,
       content: JSON.stringify(history),
-      changeSource: 'auto-save',
-    } as any);
+    });
   }
 
   #getHistoryPath(filePath: string) {
@@ -661,8 +668,7 @@ export class ActionRunner {
           type: 'file',
           filePath,
           content,
-          changeSource: 'supabase',
-        } as any);
+        });
         return { success: true };
 
       case 'query': {
@@ -717,10 +723,18 @@ export class ActionRunner {
             ? `${stage === 'building' ? 'Build' : 'Deployment'} completed successfully`
             : `Preparing to ${stage === 'building' ? 'build' : 'deploy'} your application`;
 
-    const buildStatus =
-      stage === 'building' ? status : stage === 'deploying' || stage === 'complete' ? 'complete' : 'pending';
+    type DeployStatusValue = NonNullable<DeployAlert['buildStatus']>;
 
-    const deployStatus = stage === 'building' ? 'pending' : status;
+    const buildStatus: DeployStatusValue =
+      stage === 'building'
+        ? status === 'aborted'
+          ? 'failed'
+          : status
+        : stage === 'deploying' || stage === 'complete'
+          ? 'complete'
+          : 'pending';
+
+    const deployStatus: DeployStatusValue = stage === 'building' ? 'pending' : status === 'aborted' ? 'failed' : status;
 
     this.onDeployAlert({
       type: alertType,
@@ -729,8 +743,8 @@ export class ActionRunner {
       content: details?.error || '',
       url: details?.url,
       stage,
-      buildStatus: buildStatus as any,
-      deployStatus: deployStatus as any,
+      buildStatus,
+      deployStatus,
       source: details?.source || 'netlify',
     });
   }

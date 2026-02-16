@@ -3,8 +3,28 @@ import { isMobile } from './mobile';
 import { PROVIDER_LIST, DEFAULT_MODEL } from './constants';
 import { logger } from './logger';
 
+/** Augment Window with bolt-specific globals */
+declare global {
+  interface Window {
+    __bolt_workbench_store?: { get?: () => Record<string, unknown> };
+  }
+
+  interface Performance {
+    memory?: {
+      usedJSHeapSize: number;
+      totalJSHeapSize: number;
+      jsHeapSizeLimit: number;
+    };
+  }
+}
+
+/** Shape of the lazily-loaded LogStore used for alert collection */
+interface LazyLogStore {
+  getLogs?: () => Array<{ level: string; message: string; category: string }>;
+}
+
 // Lazy import to avoid circular dependencies
-let logStore: any = null;
+let logStore: LazyLogStore | null = null;
 const getLogStore = () => {
   if (!logStore && typeof window !== 'undefined') {
     try {
@@ -812,18 +832,18 @@ class DebugLogger {
     try {
       if (typeof window !== 'undefined') {
         // Access stores if available
-        const workbenchStore = (window as any).__bolt_workbench_store;
+        const workbenchStore = window.__bolt_workbench_store;
 
         if (workbenchStore) {
           const state = workbenchStore.get?.() || {};
           workbenchInfo = {
-            currentView: state.currentView || 'code',
-            showWorkbench: state.showWorkbench || false,
-            showTerminal: state.showTerminal !== undefined ? state.showTerminal : true,
-            artifactsCount: Object.keys(state.artifacts || {}).length,
-            filesCount: Object.keys(state.files || {}).length,
-            unsavedFiles: state.unsavedFiles?.size || 0,
-            hasActivePreview: (state.previews || []).length > 0,
+            currentView: (state.currentView as string) || 'code',
+            showWorkbench: Boolean(state.showWorkbench),
+            showTerminal: state.showTerminal !== undefined ? Boolean(state.showTerminal) : true,
+            artifactsCount: Object.keys((state.artifacts as Record<string, unknown>) || {}).length,
+            filesCount: Object.keys((state.files as Record<string, unknown>) || {}).length,
+            unsavedFiles: (state.unsavedFiles as Set<unknown>)?.size || 0,
+            hasActivePreview: ((state.previews as unknown[]) || []).length > 0,
           };
         }
       }
@@ -912,7 +932,9 @@ class DebugLogger {
         const gitInfo = await response.json();
 
         // Transform the API response to match our interface
-        const gitInfoTyped = gitInfo as any;
+        const gitInfoTyped = gitInfo as {
+          local?: { branch?: string; commitHash?: string; remoteUrl?: string; commitTime?: string; author?: string };
+        };
 
         // Type assertion for API response
         return {
@@ -923,8 +945,8 @@ class DebugLogger {
           lastCommit: gitInfoTyped.local
             ? {
                 message: 'Latest commit',
-                date: gitInfoTyped.local.commitTime,
-                author: gitInfoTyped.local.author,
+                date: gitInfoTyped.local.commitTime || 'unknown',
+                author: gitInfoTyped.local.author || 'unknown',
               }
             : undefined,
         };
@@ -966,7 +988,7 @@ class DebugLogger {
   }
 
   private _collectPerformanceInfo(): PerformanceEntry {
-    const timing = performance.timing as any;
+    const timing = performance.timing;
     const paintEntries = performance.getEntriesByType('paint');
 
     return {
@@ -975,11 +997,11 @@ class DebugLogger {
       domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
       firstPaint: paintEntries.find((entry) => entry.name === 'first-paint')?.startTime,
       firstContentfulPaint: paintEntries.find((entry) => entry.name === 'first-contentful-paint')?.startTime,
-      memoryUsage: (performance as any).memory
+      memoryUsage: performance.memory
         ? {
-            used: (performance as any).memory.usedJSHeapSize,
-            total: (performance as any).memory.totalJSHeapSize,
-            limit: (performance as any).memory.jsHeapSizeLimit,
+            used: performance.memory.usedJSHeapSize,
+            total: performance.memory.totalJSHeapSize,
+            limit: performance.memory.jsHeapSizeLimit,
           }
         : undefined,
       timing,
@@ -995,9 +1017,9 @@ class DebugLogger {
       try {
         const logs = store.getLogs?.() || [];
         alerts = logs
-          .filter((log: any) => ['error', 'warning'].includes(log.level))
+          .filter((log) => ['error', 'warning'].includes(log.level))
           .slice(0, 10)
-          .map((log: any) => ({
+          .map((log) => ({
             type: log.level,
             title: log.message.substring(0, 100),
             source: log.category,
@@ -1018,16 +1040,16 @@ class DebugLogger {
 
     try {
       if (typeof window !== 'undefined') {
-        const workbenchStore = (window as any).__bolt_workbench_store;
+        const workbenchStore = window.__bolt_workbench_store;
 
         if (workbenchStore) {
           const state = workbenchStore.get?.() || {};
           workbenchState = {
-            currentView: state.currentView || 'code',
-            showWorkbench: state.showWorkbench || false,
-            showTerminal: state.showTerminal !== undefined ? state.showTerminal : true,
-            artifactsCount: Object.keys(state.artifacts || {}).length,
-            filesCount: Object.keys(state.files || {}).length,
+            currentView: (state.currentView as string) || 'code',
+            showWorkbench: Boolean(state.showWorkbench),
+            showTerminal: state.showTerminal !== undefined ? Boolean(state.showTerminal) : true,
+            artifactsCount: Object.keys((state.artifacts as Record<string, unknown>) || {}).length,
+            filesCount: Object.keys((state.files as Record<string, unknown>) || {}).length,
           };
         }
       }
