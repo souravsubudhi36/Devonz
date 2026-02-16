@@ -1,4 +1,7 @@
 import { map, computed } from 'nanostores';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('PlanStore');
 
 /**
  * Represents a single task in the plan
@@ -141,7 +144,7 @@ export function updateTaskStatus(taskId: string, status: PlanTask['status']): vo
   const taskIndex = currentState.tasks.findIndex((task) => task.id === taskId);
 
   if (taskIndex === -1) {
-    console.warn(`[PlanStore] Task with id "${taskId}" not found`);
+    logger.warn(`Task with id "${taskId}" not found`);
     return;
   }
 
@@ -241,7 +244,7 @@ export function updateTask(taskId: string, updates: Partial<Omit<PlanTask, 'id'>
   const taskIndex = currentState.tasks.findIndex((task) => task.id === taskId);
 
   if (taskIndex === -1) {
-    console.warn(`[PlanStore] Task with id "${taskId}" not found`);
+    logger.warn(`Task with id "${taskId}" not found`);
     return;
   }
 

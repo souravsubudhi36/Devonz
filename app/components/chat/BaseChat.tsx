@@ -33,6 +33,9 @@ import type { ElementInfo } from '~/components/workbench/Inspector';
 import LlmErrorAlert from './LLMApiAlert';
 import { ResizeHandle } from '~/components/ui/ResizeHandle';
 import { PlanApprovalAlert } from './PlanApprovalAlert';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('BaseChat');
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -172,7 +175,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       }
     }, [data]);
     useEffect(() => {
-      console.log(transcript);
+      logger.debug(transcript);
     }, [transcript]);
 
     useEffect(() => {
@@ -203,7 +206,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         };
 
         recognition.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
+          logger.error('Speech recognition error:', event.error);
           setIsListening(false);
         };
 
@@ -219,7 +222,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           parsedApiKeys = getApiKeysFromCookies();
           setApiKeys(parsedApiKeys);
         } catch (error) {
-          console.error('Error loading API keys from cookies:', error);
+          logger.error('Error loading API keys from cookies:', error);
           Cookies.remove('apiKeys');
         }
 
@@ -231,7 +234,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             setModelList(typedData.modelList);
           })
           .catch((error) => {
-            console.error('Error fetching model list:', error);
+            logger.error('Error fetching model list:', error);
           })
           .finally(() => {
             setIsModelLoading(undefined);
@@ -254,7 +257,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           const data = await response.json();
           providerModels = (data as { modelList: ModelInfo[] }).modelList;
         } catch (error) {
-          console.error('Error loading dynamic models for:', providerName, error);
+          logger.error('Error loading dynamic models for:', providerName, error);
         }
 
         // Only update models for the specific provider

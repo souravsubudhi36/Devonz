@@ -612,7 +612,7 @@ export class FilesStore {
 
     // Guard against undefined webcontainer (SSR or failed boot)
     if (!webcontainer || !webcontainer.internal) {
-      console.warn('[FilesStore] WebContainer not available, skipping init');
+      logger.warn('WebContainer not available, skipping init');
 
       return;
     }
@@ -787,7 +787,7 @@ export class FilesStore {
     try {
       return utf8TextDecoder.decode(buffer);
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       return '';
     }
   }

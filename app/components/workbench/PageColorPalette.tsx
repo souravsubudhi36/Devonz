@@ -1,4 +1,7 @@
 import { memo, useState, useCallback } from 'react';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('ColorPalette');
 
 interface PageColorPaletteProps {
   colors: string[];
@@ -48,7 +51,7 @@ export const PageColorPalette = memo(({ colors, onColorSelect }: PageColorPalett
       setCopiedColor(hex);
       setTimeout(() => setCopiedColor(null), 1500);
     } catch {
-      console.error('Failed to copy color');
+      logger.error('Failed to copy color');
     }
   }, []);
 

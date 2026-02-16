@@ -17,6 +17,9 @@ import ProviderCard from './ProviderCard';
 import ModelCard from './ModelCard';
 import { OLLAMA_API_URL } from './types';
 import type { OllamaModel, LMStudioModel } from './types';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('LocalProviders');
 
 // Type definitions
 type ViewMode = 'dashboard' | 'guide' | 'status';
@@ -82,10 +85,10 @@ export default function LocalProvidersTab() {
       const baseUrl = provider.settings.baseUrl;
 
       if (provider.settings.enabled && baseUrl) {
-        console.log(`[LocalProvidersTab] Starting monitoring for ${provider.name} at ${baseUrl}`);
+        logger.debug(`Starting monitoring for ${provider.name} at ${baseUrl}`);
         startMonitoring(provider.name as 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl);
       } else if (!provider.settings.enabled && baseUrl) {
-        console.log(`[LocalProvidersTab] Stopping monitoring for ${provider.name} at ${baseUrl}`);
+        logger.debug(`Stopping monitoring for ${provider.name} at ${baseUrl}`);
         stopMonitoring(provider.name as 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl);
       }
     });
@@ -127,7 +130,7 @@ export default function LocalProvidersTab() {
         })),
       );
     } catch {
-      console.error('Error fetching Ollama models');
+      logger.error('Error fetching Ollama models');
     } finally {
       setIsLoadingModels(false);
     }
@@ -146,7 +149,7 @@ export default function LocalProvidersTab() {
       const data = (await response.json()) as { data: LMStudioModel[] };
       setLMStudioModels(data.data || []);
     } catch {
-      console.error('Error fetching LM Studio models');
+      logger.error('Error fetching LM Studio models');
       setLMStudioModels([]);
     } finally {
       setIsLoadingLMStudioModels(false);

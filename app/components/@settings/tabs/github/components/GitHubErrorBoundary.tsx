@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import type { ReactNode, ErrorInfo } from 'react';
 import { Button } from '~/components/ui/Button';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('GitHubErrorBoundary');
 
 interface Props {
   children: ReactNode;
@@ -24,7 +27,7 @@ export class GitHubErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('GitHub Error Boundary caught an error:', error, errorInfo);
+    logger.error('Caught error:', error, errorInfo);
 
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -90,7 +93,7 @@ export function withGitHubErrorBoundary<P extends object>(component: React.Compo
 // Hook for handling async errors in GitHub operations
 export function useGitHubErrorHandler() {
   const handleError = React.useCallback((error: unknown, context?: string) => {
-    console.error(`GitHub Error ${context ? `(${context})` : ''}:`, error);
+    logger.error(`Error${context ? ` (${context})` : ''}:`, error);
 
     /*
      * You could integrate with error tracking services here

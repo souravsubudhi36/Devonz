@@ -94,7 +94,7 @@ export class WorkbenchStore {
       .then(() => callback())
       .catch((error) => {
         // Log the error but don't break the queue - allow subsequent operations to continue
-        console.error('[WorkbenchStore] Execution queue error:', error);
+        logger.error('Execution queue error:', error);
       });
   }
 
@@ -394,7 +394,7 @@ export class WorkbenchStore {
 
       return success;
     } catch (error) {
-      console.error('Failed to create file:', error);
+      logger.error('Failed to create file:', error);
       throw error;
     }
   }
@@ -403,7 +403,7 @@ export class WorkbenchStore {
     try {
       return await this.#filesStore.createFolder(folderPath);
     } catch (error) {
-      console.error('Failed to create folder:', error);
+      logger.error('Failed to create folder:', error);
       throw error;
     }
   }
@@ -440,7 +440,7 @@ export class WorkbenchStore {
 
       return success;
     } catch (error) {
-      console.error('Failed to delete file:', error);
+      logger.error('Failed to delete file:', error);
       throw error;
     }
   }
@@ -483,7 +483,7 @@ export class WorkbenchStore {
 
       return success;
     } catch (error) {
-      console.error('Failed to delete folder:', error);
+      logger.error('Failed to delete folder:', error);
       throw error;
     }
   }

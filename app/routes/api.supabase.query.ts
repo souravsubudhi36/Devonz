@@ -34,7 +34,7 @@ export async function action({ request }: ActionFunctionArgs) {
       try {
         errorData = JSON.parse(errorText);
       } catch (e) {
-        console.log(e);
+        logger.error(e);
         errorData = { message: errorText };
       }
 

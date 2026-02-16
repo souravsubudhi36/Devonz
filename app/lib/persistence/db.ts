@@ -9,12 +9,12 @@ export interface IChatMetadata {
   netlifySiteId?: string;
 }
 
-const logger = createScopedLogger('ChatHistory');
+const logger = createScopedLogger('Database');
 
 // this is used at the top level and never rejects
 export async function openDatabase(): Promise<IDBDatabase | undefined> {
   if (typeof indexedDB === 'undefined') {
-    console.error('indexedDB is not available in this environment.');
+    logger.error('indexedDB is not available in this environment.');
     return undefined;
   }
 

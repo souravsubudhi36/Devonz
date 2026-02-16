@@ -6,6 +6,9 @@ import { GitHubRepositoryCard } from './GitHubRepositoryCard';
 import type { GitHubRepoInfo } from '~/types/GitHub';
 import { useGitHubConnection, useGitHubStats } from '~/lib/hooks';
 import { classNames } from '~/utils/classNames';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('GitHubRepoSelector');
 
 interface GitHubRepositorySelectorProps {
   onClone?: (repoUrl: string, branch?: string) => void;
@@ -104,7 +107,7 @@ export function GitHubRepositorySelector({ onClone, className }: GitHubRepositor
     try {
       await refreshStats();
     } catch (err) {
-      console.error('Failed to refresh GitHub repositories:', err);
+      logger.error('Failed to refresh GitHub repositories:', err);
       setError(err instanceof Error ? err.message : 'Failed to refresh repositories');
     } finally {
       setIsRefreshing(false);

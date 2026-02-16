@@ -3,6 +3,9 @@ import type { VercelConnection } from '~/types/vercel';
 import { logStore } from './logs';
 import { toast } from 'react-toastify';
 import { vercelApi } from '~/lib/api/vercel-client';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('VercelStore');
 
 // Auto-connect using environment variable
 const envToken = import.meta.env?.VITE_VERCEL_ACCESS_TOKEN;
@@ -30,7 +33,7 @@ if (storedConnection) {
       initialConnection = parsed;
     }
   } catch (error) {
-    console.error('Error parsing saved Vercel connection:', error);
+    logger.error('Error parsing saved Vercel connection:', error);
     initialConnection = {
       user: null,
       token: envToken || '',
@@ -63,7 +66,7 @@ export const updateVercelConnection = (updates: Partial<VercelConnection>) => {
 // Auto-connect using environment token
 export async function autoConnectVercel() {
   if (!envToken) {
-    console.error('No Vercel token found in environment');
+    logger.error('No Vercel token found in environment');
     return { success: false, error: 'No Vercel token found in environment' };
   }
 
@@ -95,7 +98,7 @@ export async function autoConnectVercel() {
 
     return { success: true };
   } catch (error) {
-    console.error('Failed to auto-connect to Vercel:', error);
+    logger.error('Failed to auto-connect to Vercel:', error);
     logStore.logError(`Vercel auto-connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`, {
       type: 'system',
       message: 'Vercel auto-connection failed',
@@ -153,7 +156,7 @@ export async function fetchVercelStats(token: string) {
 
           return project;
         } catch (error) {
-          console.error(`Error fetching deployments for project ${project.id}:`, error);
+          logger.error(`Error fetching deployments for project ${project.id}:`, error);
           return project;
         }
       }),
@@ -168,7 +171,7 @@ export async function fetchVercelStats(token: string) {
       },
     });
   } catch (error) {
-    console.error('Vercel API Error:', error);
+    logger.error('Vercel API Error:', error);
     logStore.logError('Failed to fetch Vercel stats', { error });
     toast.error('Failed to fetch Vercel statistics');
   } finally {

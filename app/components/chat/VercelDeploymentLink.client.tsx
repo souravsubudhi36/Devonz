@@ -4,6 +4,9 @@ import { chatId } from '~/lib/persistence/useChatHistory';
 import { vercelApi } from '~/lib/api/vercel-client';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { useEffect, useState } from 'react';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('VercelDeployLink');
 
 export function VercelDeploymentLink() {
   const connection = useStore(vercelConnection);
@@ -96,7 +99,7 @@ export function VercelDeploymentLink() {
           setDeploymentUrl((data as { project: { url: string } }).project.url);
         }
       } catch (err) {
-        console.error('Error fetching Vercel deployment:', err);
+        logger.error('Error fetching Vercel deployment:', err);
       } finally {
         setIsLoading(false);
       }

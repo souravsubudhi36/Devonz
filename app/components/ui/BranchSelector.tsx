@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './Button';
 import { classNames } from '~/utils/classNames';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('BranchSelector');
 
 interface BranchInfo {
   name: string;
@@ -92,7 +95,7 @@ export function BranchSelector({
       const defaultBranchToSelect = data.defaultBranch || defaultBranch || 'main';
       setSelectedBranch(defaultBranchToSelect);
     } catch (err) {
-      console.error('Failed to fetch branches:', err);
+      logger.error('Failed to fetch branches:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch branches');
       setBranches([]);
     } finally {

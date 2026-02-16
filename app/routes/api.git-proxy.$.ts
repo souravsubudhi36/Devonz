@@ -1,5 +1,8 @@
 import { json } from '@remix-run/node';
 import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('GitProxy');
 
 // Allowed headers to forward to the target server
 const ALLOW_HEADERS = [
@@ -157,7 +160,7 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error('Proxy error:', error);
+    logger.error('Proxy error:', error);
     return json(
       {
         error: 'Proxy error',

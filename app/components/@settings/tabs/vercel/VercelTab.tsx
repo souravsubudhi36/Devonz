@@ -20,6 +20,9 @@ import {
   fetchVercelStatsViaAPI,
   initializeVercelConnection,
 } from '~/lib/stores/vercel';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('VercelTab');
 
 interface ProjectAction {
   name: string;
@@ -170,10 +173,10 @@ export default function VercelTab() {
         const currentState = vercelConnection.get();
 
         if (!currentState.user) {
-          console.log('No server-side Vercel token available, manual connection required');
+          logger.debug('No server-side Vercel token available, manual connection required');
         }
       } catch (error) {
-        console.error('Failed to initialize Vercel connection:', error);
+        logger.error('Failed to initialize Vercel connection:', error);
       }
     };
     initializeConnection();
@@ -236,7 +239,7 @@ export default function VercelTab() {
       await fetchVercelStats(token);
       toast.success('Successfully connected to Vercel');
     } catch (error) {
-      console.error('Auth error:', error);
+      logger.error('Auth error:', error);
       logStore.logError('Failed to authenticate with Vercel', { error });
 
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Vercel';
@@ -692,7 +695,7 @@ export default function VercelTab() {
     projectActions,
   ]);
 
-  console.log('connection', connection);
+  logger.debug('connection', connection);
 
   return (
     <div className="space-y-6">

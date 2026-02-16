@@ -1,5 +1,8 @@
 import { json } from '@remix-run/node';
 import JSZip from 'jszip';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('GitHubTemplate');
 
 // Function to detect if we're running in Cloudflare
 function isCloudflareEnvironment(context: any): boolean {
@@ -90,7 +93,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
         });
 
         if (!contentResponse.ok) {
-          console.warn(`Failed to fetch ${file.path}: ${contentResponse.status}`);
+          logger.warn(`Failed to fetch ${file.path}: ${contentResponse.status}`);
           return null;
         }
 
@@ -103,7 +106,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
           content,
         };
       } catch (error) {
-        console.warn(`Error fetching ${file.path}:`, error);
+        logger.warn(`Error fetching ${file.path}:`, error);
         return null;
       }
     });
@@ -227,9 +230,9 @@ export async function loader({ request, context }: { request: Request; context: 
 
     return json(filteredFiles);
   } catch (error) {
-    console.error('Error processing GitHub template:', error);
-    console.error('Repository:', repo);
-    console.error('Error details:', error instanceof Error ? error.message : String(error));
+    logger.error('Error processing GitHub template:', error);
+    logger.error('Repository:', repo);
+    logger.error('Error details:', error instanceof Error ? error.message : String(error));
 
     return json(
       {

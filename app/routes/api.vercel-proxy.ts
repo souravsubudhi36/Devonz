@@ -18,6 +18,9 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('VercelProxy');
 
 const VERCEL_API_BASE = 'https://api.vercel.com';
 
@@ -98,7 +101,7 @@ async function vercelProxyLoader({ request, context }: LoaderFunctionArgs) {
 
     return json(data);
   } catch (error) {
-    console.error('Vercel proxy error:', error);
+    logger.error('Vercel proxy error:', error);
 
     return json(
       {
@@ -175,7 +178,7 @@ async function vercelProxyAction({ request, context }: ActionFunctionArgs) {
 
     return json(responseData);
   } catch (error) {
-    console.error('Vercel proxy error:', error);
+    logger.error('Vercel proxy error:', error);
 
     return json(
       {

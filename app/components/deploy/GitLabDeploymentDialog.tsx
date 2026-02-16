@@ -12,6 +12,9 @@ import { GitLabApiService } from '~/lib/services/gitlabApiService';
 import { SearchInput, EmptyState, StatusIndicator, Badge } from '~/components/ui';
 import { formatSize } from '~/utils/formatSize';
 import { GitLabAuthDialog } from '~/components/@settings/tabs/gitlab/components/GitLabAuthDialog';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('GitLabDeployment');
 
 interface GitLabDeploymentDialogProps {
   isOpen: boolean;
@@ -90,7 +93,7 @@ export function GitLabDeploymentDialog({ isOpen, onClose, projectName, files }: 
       const repos = await apiService.getProjects();
       setRecentRepos(repos);
     } catch (error) {
-      console.error('Failed to fetch GitLab repositories:', error);
+      logger.error('Failed to fetch GitLab repositories:', error);
       logStore.logError('Failed to fetch GitLab repositories', { error });
       toast.error('Failed to fetch recent repositories');
     } finally {
@@ -201,7 +204,7 @@ export function GitLabDeploymentDialog({ isOpen, onClose, projectName, files }: 
         isNewProject: !projectExists,
       });
     } catch (error) {
-      console.error('Error pushing to GitLab:', error);
+      logger.error('Error pushing to GitLab:', error);
 
       logStore.logError('GitLab deployment failed', {
         error,

@@ -13,7 +13,7 @@ import { Slider, type SliderOptions } from '~/components/ui/Slider';
 import { workbenchStore, type WorkbenchViewType } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
-import { renderLogger } from '~/utils/logger';
+import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { EditorPanel } from './EditorPanel';
 import { Preview } from './Preview';
 import { Versions } from './Versions';
@@ -29,6 +29,8 @@ import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportCh
 import { useChatHistory } from '~/lib/persistence';
 import { streamingState } from '~/lib/stores/streaming';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+
+const workbenchLogger = createScopedLogger('Workbench');
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -141,7 +143,7 @@ export const Workbench = memo(
         await workbenchStore.syncFiles(directoryHandle);
         toast.success('Files synced successfully');
       } catch (error) {
-        console.error('Error syncing files:', error);
+        workbenchLogger.error('Error syncing files:', error);
         toast.error('Failed to sync files');
       } finally {
         setIsSyncing(false);

@@ -21,6 +21,9 @@ import {
 import type { FileMap } from '~/lib/stores/files';
 import type { Snapshot } from './types';
 import { webcontainer } from '~/lib/webcontainer';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('ChatHistory');
 
 export interface ChatHistoryItem {
   id: string;
@@ -120,7 +123,7 @@ export function useChatHistory() {
           setReady(true);
         })
         .catch((error) => {
-          console.error(error);
+          logger.error(error);
 
           logStore.logError('Failed to load chat messages or snapshot', error); // Updated error message
           toast.error('Failed to load chat: ' + error.message); // More specific error
@@ -149,7 +152,7 @@ export function useChatHistory() {
       try {
         await setSnapshot(db, id, snapshot);
       } catch (error) {
-        console.error('Failed to save snapshot:', error);
+        logger.error('Failed to save snapshot:', error);
         toast.error('Failed to save chat snapshot.');
       }
     },
@@ -214,7 +217,7 @@ export function useChatHistory() {
         chatMetadata.set(metadata);
       } catch (error) {
         toast.error('Failed to update chat metadata');
-        console.error(error);
+        logger.error(error);
       }
     },
     storeMessageHistory: async (messages: Message[]) => {
@@ -270,7 +273,7 @@ export function useChatHistory() {
       const finalChatId = chatId.get();
 
       if (!finalChatId) {
-        console.error('Cannot save messages, chat ID is not set.');
+        logger.error('Cannot save messages, chat ID is not set.');
         toast.error('Failed to save chat messages: Chat ID missing.');
 
         return;
@@ -297,7 +300,7 @@ export function useChatHistory() {
         toast.success('Chat duplicated successfully');
       } catch (error) {
         toast.error('Failed to duplicate chat');
-        console.log(error);
+        logger.error(error);
       }
     },
     importChat: async (description: string, messages: Message[], metadata?: IChatMetadata) => {

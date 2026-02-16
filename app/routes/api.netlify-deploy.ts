@@ -1,6 +1,9 @@
 import { type ActionFunctionArgs, json } from '@remix-run/node';
 import crypto from 'crypto';
 import type { NetlifySiteInfo } from '~/types/netlify';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('NetlifyDeploy');
 
 interface DeployRequestBody {
   siteId?: string;
@@ -169,12 +172,12 @@ export async function action({ request }: ActionFunctionArgs) {
               uploadSuccess = uploadResponse.ok;
 
               if (!uploadSuccess) {
-                console.error('Upload failed:', await uploadResponse.text());
+                logger.error('Upload failed:', await uploadResponse.text());
                 uploadRetries++;
                 await new Promise((resolve) => setTimeout(resolve, 2000));
               }
             } catch (error) {
-              console.error('Upload error:', error);
+              logger.error('Upload error:', error);
               uploadRetries++;
               await new Promise((resolve) => setTimeout(resolve, 2000));
             }
@@ -223,7 +226,7 @@ export async function action({ request }: ActionFunctionArgs) {
       site: siteInfo,
     });
   } catch (error) {
-    console.error('Deploy error:', error);
+    logger.error('Deploy error:', error);
     return json({ error: 'Deployment failed' }, { status: 500 });
   }
 }

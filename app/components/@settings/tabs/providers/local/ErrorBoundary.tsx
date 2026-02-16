@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import type { ReactNode } from 'react';
 import { classNames } from '~/utils/classNames';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('LocalProvidersErrorBoundary');
 
 interface Props {
   children: ReactNode;
@@ -24,7 +27,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Local Providers Error Boundary caught an error:', error, errorInfo);
+    logger.error('Caught error:', error, errorInfo);
     this.props.onError?.(error, errorInfo);
   }
 

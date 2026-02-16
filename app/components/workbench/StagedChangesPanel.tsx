@@ -12,6 +12,7 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { usePreviewStore } from '~/lib/stores/previews';
 import { WORK_DIR } from '~/utils/constants';
 import { takeDelayedSnapshot } from '~/lib/persistence/snapshotUtils';
+import { createScopedLogger } from '~/utils/logger';
 import {
   stagingStore,
   pendingCount,
@@ -44,6 +45,8 @@ import {
  * Animation Variants
  * ============================================================================
  */
+
+const logger = createScopedLogger('StagedChanges');
 
 const panelVariants = {
   collapsed: {
@@ -297,14 +300,14 @@ export const StagedChangesPanel = memo(() => {
            * Don't await them - just fire and forget
            */
           shell.executeCommand(`staged-${cmd.id}`, cmd.command).catch((error) => {
-            console.error(`Start command failed: ${cmd.command}`, error);
+            logger.error(`Start command failed: ${cmd.command}`, error);
           });
         } else {
           // Shell commands (like 'npm install') should be awaited
           await shell.executeCommand(`staged-${cmd.id}`, cmd.command);
         }
       } catch (error) {
-        console.error(`Failed to execute command: ${cmd.command}`, error);
+        logger.error(`Failed to execute command: ${cmd.command}`, error);
         toast.error(`Command failed: ${cmd.command.substring(0, 30)}...`);
       }
     }
@@ -325,7 +328,7 @@ export const StagedChangesPanel = memo(() => {
         toast.success(`Applied ${result.applied.length} file(s)`);
       }
     } catch (error) {
-      console.error('Error applying changes:', error);
+      logger.error('Error applying changes:', error);
       toast.error('Failed to apply changes to WebContainer');
     }
   }, []);
@@ -377,7 +380,7 @@ export const StagedChangesPanel = memo(() => {
         toast.success(`Reverted ${result.reverted.length} file(s)`);
       }
     } catch (error) {
-      console.error('Error reverting changes:', error);
+      logger.error('Error reverting changes:', error);
       toast.error('Failed to revert changes');
     }
   }, []);
@@ -395,7 +398,7 @@ export const StagedChangesPanel = memo(() => {
         try {
           await takeDelayedSnapshot(150); // 150ms delay for WebContainer sync
         } catch (snapshotError) {
-          console.error('[StagedChangesPanel] Failed to take snapshot after single accept:', snapshotError);
+          logger.error('Failed to take snapshot after single accept:', snapshotError);
         }
       } finally {
         setIsApplying(false);
@@ -446,7 +449,7 @@ export const StagedChangesPanel = memo(() => {
         toast.success('Change reverted');
       }
     } catch (error) {
-      console.error('Error reverting change:', error);
+      logger.error('Error reverting change:', error);
       toast.error('Failed to revert change');
     } finally {
       setIsApplying(false);
@@ -502,7 +505,7 @@ export const StagedChangesPanel = memo(() => {
         }
       }
     } catch (error) {
-      console.error('Error toggling preview mode:', error);
+      logger.error('Error toggling preview mode:', error);
       toast.error('Failed to toggle preview mode');
     } finally {
       setIsApplying(false);
@@ -537,7 +540,7 @@ export const StagedChangesPanel = memo(() => {
       try {
         await takeDelayedSnapshot(150); // 150ms delay for WebContainer sync
       } catch (snapshotError) {
-        console.error('[StagedChangesPanel] Failed to take snapshot after accept:', snapshotError);
+        logger.error('Failed to take snapshot after accept:', snapshotError);
 
         // Don't show toast for snapshot errors - files are still applied
       }

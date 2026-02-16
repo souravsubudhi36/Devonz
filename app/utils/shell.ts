@@ -4,6 +4,9 @@ import { withResolvers } from './promises';
 import { atom } from 'nanostores';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { detectTerminalErrors } from './terminalErrorDetector';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('Shell');
 
 export async function newShellProcess(webcontainer: WebContainer, terminal: ITerminal) {
   const args: string[] = [];
@@ -276,7 +279,7 @@ export class BoltShell {
       try {
         resp.output = cleanTerminalOutput(resp.output);
       } catch (error) {
-        console.log('failed to format terminal output', error);
+        logger.error('Failed to format terminal output', error);
       }
     }
 

@@ -1,6 +1,9 @@
 import { json } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('NetlifyUser');
 
 async function netlifyUserLoader({ request, context }: { request: Request; context: any }) {
   try {
@@ -50,7 +53,7 @@ async function netlifyUserLoader({ request, context }: { request: Request; conte
       full_name: userData.full_name,
     });
   } catch (error) {
-    console.error('Error fetching Netlify user:', error);
+    logger.error('Error fetching Netlify user:', error);
     return json(
       {
         error: 'Failed to fetch Netlify user information',
@@ -125,7 +128,7 @@ async function netlifyUserAction({ request, context }: { request: Request; conte
 
     return json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('Error in Netlify user action:', error);
+    logger.error('Error in Netlify user action:', error);
     return json(
       {
         error: 'Failed to process Netlify request',

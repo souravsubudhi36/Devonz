@@ -2,6 +2,9 @@ import ignore from 'ignore';
 import type { ProviderInfo } from '~/types/model';
 import type { Template } from '~/types/template';
 import { STARTER_TEMPLATES } from './constants';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('StarterTemplate');
 
 const starterTemplateSelectionPrompt = (templates: Template[]) => `
 You are an experienced developer who helps people choose the best starter template for their projects.
@@ -77,7 +80,7 @@ const parseSelectedTemplate = (llmOutput: string): { template: string; title: st
 
     return { template: templateNameMatch[1].trim(), title: titleMatch?.[1].trim() || 'Untitled Project' };
   } catch (error) {
-    console.error('Error parsing template selection:', error);
+    logger.error('Error parsing template selection:', error);
     return null;
   }
 };
@@ -95,7 +98,7 @@ export const selectStarterTemplate = async (options: { message: string; model: s
     body: JSON.stringify(requestBody),
   });
   const respJson: { text: string } = await response.json();
-  console.log(respJson);
+  logger.debug(respJson);
 
   const { text } = respJson;
   const selectedTemplate = parseSelectedTemplate(text);
@@ -103,7 +106,7 @@ export const selectStarterTemplate = async (options: { message: string; model: s
   if (selectedTemplate) {
     return selectedTemplate;
   } else {
-    console.log('No template selected, using blank template');
+    logger.info('No template selected, using blank template');
 
     return {
       template: 'blank',
@@ -126,7 +129,7 @@ const getGitHubRepoContent = async (repoName: string): Promise<{ name: string; p
 
     return files;
   } catch (error) {
-    console.error('Error fetching release contents:', error);
+    logger.error('Error fetching release contents:', error);
     throw error;
   }
 };

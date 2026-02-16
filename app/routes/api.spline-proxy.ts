@@ -19,6 +19,9 @@
  */
 
 import type { LoaderFunctionArgs } from '@remix-run/node';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('SplineProxy');
 
 const SPLINE_CDN_BASE = 'https://prod.spline.design';
 
@@ -110,7 +113,7 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<Response>
   const cached = sceneCache.get(splineUrl);
 
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log(`[Spline Proxy] Cache hit for: ${splineUrl}`);
+    logger.debug(`Cache hit for: ${splineUrl}`);
 
     return new Response(cached.data, {
       status: 200,
@@ -123,7 +126,7 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<Response>
     });
   }
 
-  console.log(`[Spline Proxy] Fetching scene: ${splineUrl}`);
+  logger.info(`Fetching scene: ${splineUrl}`);
 
   try {
     // Fetch the Spline scene from CDN
@@ -138,7 +141,7 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<Response>
     });
 
     if (!response.ok) {
-      console.error(`[Spline Proxy] Failed to fetch: ${response.status} ${response.statusText}`);
+      logger.error(`Failed to fetch: ${response.status} ${response.statusText}`);
 
       return new Response(
         JSON.stringify({
@@ -172,7 +175,7 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<Response>
       contentType,
     });
 
-    console.log(`[Spline Proxy] Successfully fetched scene: ${data.byteLength} bytes`);
+    logger.info(`Successfully fetched scene: ${data.byteLength} bytes`);
 
     return new Response(data, {
       status: 200,
@@ -186,7 +189,7 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<Response>
       },
     });
   } catch (error) {
-    console.error('[Spline Proxy] Error fetching scene:', error);
+    logger.error('Error fetching scene:', error);
 
     return new Response(
       JSON.stringify({

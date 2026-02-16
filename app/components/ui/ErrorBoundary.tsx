@@ -11,6 +11,9 @@ import React, { Component } from 'react';
 import type { ReactNode, ErrorInfo } from 'react';
 import { classNames } from '~/utils/classNames';
 import type { ErrorCategory, ErrorBoundaryFallbackProps } from '~/types/errors';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('ErrorBoundary');
 
 interface Props {
   /** Child components to wrap */
@@ -74,11 +77,7 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({ errorInfo });
 
     // Log error with context
-    console.error(
-      `[ErrorBoundary${this.props.category ? `:${this.props.category}` : ''}] Caught error:`,
-      error,
-      errorInfo,
-    );
+    logger.error(`Caught error${this.props.category ? ` (${this.props.category})` : ''}:`, error, errorInfo);
 
     // Call optional error handler
     this.props.onError?.(error, errorInfo);

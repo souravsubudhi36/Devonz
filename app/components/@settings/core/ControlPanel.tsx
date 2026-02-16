@@ -9,6 +9,9 @@ import { profileStore } from '~/lib/stores/profile';
 import type { TabType, Profile } from './types';
 import { TAB_LABELS, TAB_ICONS } from './constants';
 import { DialogTitle } from '~/components/ui/Dialog';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('ControlPanel');
 
 // Lazy load all tab components for better initial performance
 const ProfileTab = lazy(() => import('~/components/@settings/tabs/profile/ProfileTab'));
@@ -60,7 +63,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
   // Add visibleTabs logic using useMemo with optimized calculations
   const visibleTabs = useMemo(() => {
     if (!tabConfiguration?.userTabs || !Array.isArray(tabConfiguration.userTabs)) {
-      console.warn('Invalid tab configuration, resetting to defaults');
+      logger.warn('Invalid tab configuration, resetting to defaults');
       resetTabConfiguration();
 
       return [];

@@ -6,6 +6,9 @@ import { webcontainer } from '~/lib/webcontainer';
 import { classNames } from '~/utils/classNames';
 import { toast } from 'react-toastify';
 import type { FileMap } from '~/lib/stores/files';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('ProjectMemory');
 
 const PROJECT_MEMORY_PATH = '/home/project/PROJECT.md';
 const RELATIVE_PATH = 'PROJECT.md';
@@ -77,7 +80,7 @@ export default function ProjectMemoryTab() {
       setHasUnsavedChanges(false);
       toast.success('Project memory saved successfully!');
     } catch (error) {
-      console.error('Failed to save PROJECT.md:', error);
+      logger.error('Failed to save PROJECT.md:', error);
       toast.error('Failed to save project memory. Please try again.');
     } finally {
       setIsSaving(false);

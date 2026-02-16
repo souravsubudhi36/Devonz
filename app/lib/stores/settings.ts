@@ -4,6 +4,7 @@ import type { IProviderConfig } from '~/types/model';
 import type { TabVisibilityConfig, TabWindowConfig, UserTabConfig } from '~/components/@settings/core/types';
 import { DEFAULT_TAB_CONFIG } from '~/components/@settings/core/constants';
 import { toggleTheme } from './theme';
+import { createScopedLogger } from '~/utils/logger';
 import {
   acceptAllWithCheckpoint,
   rejectAllChanges as rejectAllStagingChanges,
@@ -25,6 +26,8 @@ export interface Shortcut {
   description?: string; // Description of what the shortcut does
   isPreventDefault?: boolean; // Whether to prevent default browser behavior
 }
+
+const logger = createScopedLogger('SettingsStore');
 
 export interface Shortcuts {
   toggleTheme: Shortcut;
@@ -146,7 +149,7 @@ const fetchConfiguredProviders = async (): Promise<ConfiguredProvider[]> => {
 
     return data.providers || [];
   } catch (error) {
-    console.error('Error fetching configured providers:', error);
+    logger.error('Error fetching configured providers:', error);
     return [];
   }
 };
@@ -179,7 +182,7 @@ const getInitialProviderSettings = (): ProviderSetting => {
           }
         });
       } catch (error) {
-        console.error('Error parsing saved provider settings:', error);
+        logger.error('Error parsing saved provider settings:', error);
       }
     }
   }
@@ -245,10 +248,10 @@ const autoEnableConfiguredProviders = async () => {
       const allAutoEnabled = [...new Set([...previouslyAutoEnabled, ...newlyAutoEnabled])];
       localStorage.setItem(AUTO_ENABLED_KEY, JSON.stringify(allAutoEnabled));
 
-      console.log(`Auto-enabled providers: ${newlyAutoEnabled.join(', ')}`);
+      logger.info(`Auto-enabled providers: ${newlyAutoEnabled.join(', ')}`);
     }
   } catch (error) {
-    console.error('Error auto-enabling configured providers:', error);
+    logger.error('Error auto-enabling configured providers:', error);
   }
 };
 
@@ -313,7 +316,7 @@ const updateAutoEnabledTracking = (providerName: string, isEnabled: boolean) => 
       localStorage.setItem(AUTO_ENABLED_KEY, JSON.stringify(updatedAutoEnabled));
     }
   } catch (error) {
-    console.error('Error updating auto-enabled tracking:', error);
+    logger.error('Error updating auto-enabled tracking:', error);
   }
 };
 
@@ -430,7 +433,7 @@ const getInitialTabConfiguration = (): TabWindowConfig => {
       userTabs: parsed.userTabs.filter((tab: TabVisibilityConfig): tab is UserTabConfig => tab.window === 'user'),
     };
   } catch (error) {
-    console.warn('Failed to parse tab configuration:', error);
+    logger.warn('Failed to parse tab configuration:', error);
     return defaultConfig;
   }
 };

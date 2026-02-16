@@ -14,6 +14,9 @@ import type { IChatMetadata } from '~/lib/persistence/db';
 // Import the new repository selector components
 import { GitHubRepositorySelector } from '~/components/@settings/tabs/github/components/GitHubRepositorySelector';
 import { GitLabRepositorySelector } from '~/components/@settings/tabs/gitlab/components/GitLabRepositorySelector';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('GitClone');
 
 const IGNORE_PATTERNS = [
   'node_modules/**',
@@ -153,7 +156,7 @@ ${escapeBoltTags(file.content)}
         await importChat(`Git Project:${repoUrl.split('/').slice(-1)[0]}`, messages);
       }
     } catch (error) {
-      console.error('Error during import:', error);
+      logger.error('Error during import:', error);
       toast.error('Failed to import repository');
     } finally {
       setLoading(false);

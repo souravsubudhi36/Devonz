@@ -1,4 +1,7 @@
 import { atom, map } from 'nanostores';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('VersionsStore');
 
 export interface ProjectVersion {
   id: string;
@@ -149,7 +152,7 @@ class VersionsStore {
 
       return screenshot || undefined;
     } catch (error) {
-      console.warn('Failed to capture preview thumbnail:', error);
+      logger.warn('Failed to capture preview thumbnail:', error);
       return this._generateFallbackThumbnail();
     }
   }
@@ -250,7 +253,7 @@ class VersionsStore {
 
       return canvas.toDataURL('image/png', 0.8);
     } catch (error) {
-      console.warn('Failed to capture preview thumbnail:', error);
+      logger.warn('Failed to capture preview thumbnail:', error);
       return undefined;
     }
   }

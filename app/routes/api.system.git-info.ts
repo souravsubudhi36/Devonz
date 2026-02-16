@@ -1,4 +1,7 @@
 import { json, type LoaderFunction, type LoaderFunctionArgs } from '@remix-run/node';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('GitInfo');
 
 interface GitInfo {
   local: {
@@ -92,7 +95,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
     const token = serverGithubToken || headerToken || cookieToken;
 
     if (!token) {
-      console.error('No GitHub token available');
+      logger.error('No GitHub token available');
       return json(
         { error: 'No GitHub token available' },
         {
@@ -115,7 +118,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         if (!response.ok) {
-          console.error('GitHub user API error:', response.status);
+          logger.error('GitHub user API error:', response.status);
           throw new Error(`GitHub API error: ${response.status}`);
         }
 
@@ -141,7 +144,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         if (!reposResponse.ok) {
-          console.error('GitHub repos API error:', reposResponse.status);
+          logger.error('GitHub repos API error:', reposResponse.status);
           throw new Error(`GitHub API error: ${reposResponse.status}`);
         }
 
@@ -224,7 +227,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         if (!response.ok) {
-          console.error('GitHub orgs API error:', response.status);
+          logger.error('GitHub orgs API error:', response.status);
           throw new Error(`GitHub API error: ${response.status}`);
         }
 
@@ -249,7 +252,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
           ?.split('=')[1];
 
         if (!username) {
-          console.error('GitHub username not found in cookies');
+          logger.error('GitHub username not found in cookies');
           return json(
             { error: 'GitHub username not found in cookies' },
             {
@@ -270,7 +273,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         if (!response.ok) {
-          console.error('GitHub activity API error:', response.status);
+          logger.error('GitHub activity API error:', response.status);
           throw new Error(`GitHub API error: ${response.status}`);
         }
 
@@ -287,7 +290,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         );
       }
     } catch (error) {
-      console.error('GitHub API error:', error);
+      logger.error('GitHub API error:', error);
       return json(
         { error: error instanceof Error ? error.message : 'Unknown error' },
         {

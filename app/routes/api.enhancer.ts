@@ -154,7 +154,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       },
     });
   } catch (error: unknown) {
-    console.log(error);
+    logger.error(error);
 
     if (error instanceof Error && error.message?.includes('API key')) {
       throw new Response('Invalid or missing API key', {

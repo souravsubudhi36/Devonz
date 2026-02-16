@@ -3,6 +3,9 @@ import { useNavigate } from '@remix-run/react';
 import { classNames } from '~/utils/classNames';
 import { db, getAll, type ChatHistoryItem } from '~/lib/persistence';
 import { formatDistanceToNow } from 'date-fns';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('RecentChats');
 
 interface RecentChatsProps {
   maxItems?: number;
@@ -30,7 +33,7 @@ export const RecentChats: React.FC<RecentChatsProps> = ({ maxItems = 10 }) => {
 
       setChats(filteredChats);
     } catch (error) {
-      console.error('Failed to load chat history:', error);
+      logger.error('Failed to load chat history:', error);
     } finally {
       setLoading(false);
     }

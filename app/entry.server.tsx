@@ -6,6 +6,9 @@ import { renderHeadToString } from 'remix-island';
 import { Head } from './root';
 import { themeStore } from '~/lib/stores/theme';
 import { PassThrough, Transform } from 'node:stream';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('EntryServer');
 
 const ABORT_DELAY = 5_000;
 
@@ -66,7 +69,7 @@ export default async function handleRequest(
           responseStatusCode = 500;
 
           if (shellRendered) {
-            console.error(error);
+            logger.error(error);
           }
         },
       },

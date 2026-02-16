@@ -219,7 +219,7 @@ export async function streamText(props: {
     ---
     `;
   } else {
-    console.log('No locked files found from any source for prompt.');
+    logger.debug('No locked files found from any source for prompt.');
   }
 
   // PROJECT.md: Persistent project memory - read from project root if exists

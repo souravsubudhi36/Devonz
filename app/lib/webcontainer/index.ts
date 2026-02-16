@@ -1,6 +1,9 @@
 import { WebContainer } from '@webcontainer/api';
 import { WORK_DIR_NAME } from '~/utils/constants';
 import { getPreviewErrorHandler } from '~/utils/previewErrorHandler';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('WebContainer');
 
 interface WebContainerContext {
   loaded: boolean;
@@ -38,7 +41,7 @@ if (!import.meta.env.SSR) {
 
         // Listen for preview errors
         webcontainer.on('preview-message', (message) => {
-          console.log('WebContainer preview message:', message);
+          logger.debug('WebContainer preview message:', message);
 
           // Use the preview error handler for cooldown and deduplication
           getPreviewErrorHandler().handlePreviewMessage(
