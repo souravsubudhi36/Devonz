@@ -1,5 +1,11 @@
 import { type ActionFunctionArgs, type LoaderFunctionArgs, json } from '@remix-run/node';
-import type { VercelProjectInfo } from '~/types/vercel';
+import type {
+  VercelProjectInfo,
+  VercelProject,
+  VercelDeployment,
+  VercelApiError,
+  VercelDeploymentConfig,
+} from '~/types/vercel';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('VercelDeploy');
@@ -197,7 +203,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       return json({ error: 'Failed to fetch project' }, { status: 400 });
     }
 
-    const projectData = (await projectResponse.json()) as any;
+    const projectData = (await projectResponse.json()) as VercelProject;
 
     // Get latest deployment
     const deploymentsResponse = await fetch(`https://api.vercel.com/v6/deployments?projectId=${projectId}&limit=1`, {
@@ -210,7 +216,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       return json({ error: 'Failed to fetch deployments' }, { status: 400 });
     }
 
-    const deploymentsData = (await deploymentsResponse.json()) as any;
+    const deploymentsData = (await deploymentsResponse.json()) as { deployments?: VercelDeployment[] };
 
     const latestDeployment = deploymentsData.deployments?.[0];
 
@@ -280,14 +286,14 @@ export async function action({ request }: ActionFunctionArgs) {
       });
 
       if (!createProjectResponse.ok) {
-        const errorData = (await createProjectResponse.json()) as any;
+        const errorData = (await createProjectResponse.json()) as VercelApiError;
         return json(
           { error: `Failed to create project: ${errorData.error?.message || 'Unknown error'}` },
           { status: 400 },
         );
       }
 
-      const newProject = (await createProjectResponse.json()) as any;
+      const newProject = (await createProjectResponse.json()) as VercelProject;
       targetProjectId = newProject.id;
       projectInfo = {
         id: newProject.id,
@@ -304,7 +310,7 @@ export async function action({ request }: ActionFunctionArgs) {
       });
 
       if (projectResponse.ok) {
-        const existingProject = (await projectResponse.json()) as any;
+        const existingProject = (await projectResponse.json()) as VercelProject;
         projectInfo = {
           id: existingProject.id,
           name: existingProject.name,
@@ -327,14 +333,14 @@ export async function action({ request }: ActionFunctionArgs) {
         });
 
         if (!createProjectResponse.ok) {
-          const errorData = (await createProjectResponse.json()) as any;
+          const errorData = (await createProjectResponse.json()) as VercelApiError;
           return json(
             { error: `Failed to create project: ${errorData.error?.message || 'Unknown error'}` },
             { status: 400 },
           );
         }
 
-        const newProject = (await createProjectResponse.json()) as any;
+        const newProject = (await createProjectResponse.json()) as VercelProject;
         targetProjectId = newProject.id;
         projectInfo = {
           id: newProject.id,
@@ -379,7 +385,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     // Create deployment configuration based on framework
-    const deploymentConfig: any = {
+    const deploymentConfig: VercelDeploymentConfig = {
       name: projectInfo.name,
       project: targetProjectId,
       target: 'production',
@@ -427,14 +433,14 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (!deployResponse.ok) {
-      const errorData = (await deployResponse.json()) as any;
+      const errorData = (await deployResponse.json()) as VercelApiError;
       return json(
         { error: `Failed to create deployment: ${errorData.error?.message || 'Unknown error'}` },
         { status: 400 },
       );
     }
 
-    const deployData = (await deployResponse.json()) as any;
+    const deployData = (await deployResponse.json()) as VercelDeployment;
 
     // Poll for deployment status
     let retryCount = 0;
@@ -450,8 +456,8 @@ export async function action({ request }: ActionFunctionArgs) {
       });
 
       if (statusResponse.ok) {
-        const status = (await statusResponse.json()) as any;
-        deploymentState = status.readyState;
+        const status = (await statusResponse.json()) as VercelDeployment;
+        deploymentState = status.readyState ?? '';
         deploymentUrl = status.url ? `https://${status.url}` : '';
 
         if (status.readyState === 'READY' || status.readyState === 'ERROR') {

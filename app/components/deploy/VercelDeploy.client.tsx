@@ -193,7 +193,11 @@ export function useVercelDeploy() {
         }),
       });
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as {
+        deploy?: { id: string; url?: string };
+        project?: { id: string; name?: string };
+        error?: string;
+      };
 
       if (!response.ok || !data.deploy || !data.project) {
         logger.error('Invalid deploy response:', data);

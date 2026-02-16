@@ -1,5 +1,5 @@
 import { atom } from 'nanostores';
-import type { VercelConnection } from '~/types/vercel';
+import type { VercelConnection, VercelUserResponse } from '~/types/vercel';
 import { logStore } from './logs';
 import { toast } from 'react-toastify';
 import { vercelApi } from '~/lib/api/vercel-client';
@@ -80,11 +80,18 @@ export async function autoConnectVercel() {
       throw new Error(result.error || 'Vercel API error');
     }
 
-    const userData = result.data as any;
+    const userData = result.data as VercelUserResponse;
+    const userObj = userData.user ?? userData;
 
     // Update connection
     updateVercelConnection({
-      user: userData.user || userData,
+      user: {
+        id: userObj.id ?? '',
+        username: userObj.username ?? '',
+        email: userObj.email ?? '',
+        name: userObj.name ?? '',
+        avatar: userObj.avatar,
+      },
       token: envToken,
     });
 

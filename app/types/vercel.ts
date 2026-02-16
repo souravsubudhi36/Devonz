@@ -91,3 +91,26 @@ export interface VercelDomainRemoveResponse {
   error?: string;
   details?: unknown;
 }
+
+export interface VercelDeployment {
+  id: string;
+  url?: string;
+  state?: string;
+  readyState?: string;
+  name?: string;
+  created?: number;
+}
+
+export interface VercelApiError {
+  error?: { message: string; code?: string };
+}
+
+export interface VercelDeploymentConfig {
+  name: string;
+  project: string;
+  target: string;
+  files: Array<{ file: string; data: string }>;
+  buildCommand?: string;
+  outputDirectory?: string;
+  routes?: Array<{ src: string; dest: string }>;
+}
