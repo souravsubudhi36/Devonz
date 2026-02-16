@@ -20,7 +20,7 @@ export abstract class BaseProvider implements ProviderInfo {
   getProviderBaseUrlAndKey(options: {
     apiKeys?: Record<string, string>;
     providerSettings?: IProviderSetting;
-    serverEnv?: Record<string, string>;
+    serverEnv?: Env;
     defaultBaseUrlKey: string;
     defaultApiTokenKey: string;
   }) {
@@ -56,7 +56,7 @@ export abstract class BaseProvider implements ProviderInfo {
   getModelsFromCache(options: {
     apiKeys?: Record<string, string>;
     providerSettings?: Record<string, IProviderSetting>;
-    serverEnv?: Record<string, string>;
+    serverEnv?: Env;
   }): ModelInfo[] | null {
     if (!this.cachedDynamicModels) {
       // console.log('no dynamic models',this.name);
@@ -77,7 +77,7 @@ export abstract class BaseProvider implements ProviderInfo {
   getDynamicModelsCacheKey(options: {
     apiKeys?: Record<string, string>;
     providerSettings?: Record<string, IProviderSetting>;
-    serverEnv?: Record<string, string>;
+    serverEnv?: Env;
   }) {
     return JSON.stringify({
       apiKeys: options.apiKeys?.[this.name],
@@ -89,7 +89,7 @@ export abstract class BaseProvider implements ProviderInfo {
     options: {
       apiKeys?: Record<string, string>;
       providerSettings?: Record<string, IProviderSetting>;
-      serverEnv?: Record<string, string>;
+      serverEnv?: Env;
     },
     models: ModelInfo[],
   ) {
@@ -106,7 +106,7 @@ export abstract class BaseProvider implements ProviderInfo {
   getDynamicModels?(
     apiKeys?: Record<string, string>,
     settings?: IProviderSetting,
-    serverEnv?: Record<string, string>,
+    serverEnv?: Env,
   ): Promise<ModelInfo[]>;
 
   abstract getModelInstance(options: {

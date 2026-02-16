@@ -111,7 +111,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
           `,
         },
       ],
-      env: context.cloudflare?.env as any,
+      env: context.cloudflare?.env,
       apiKeys,
       providerSettings,
       options: {

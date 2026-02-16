@@ -98,7 +98,7 @@ export default class OpenRouterProvider extends BaseProvider {
     const { apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: providerSettings?.[this.name],
-      serverEnv: serverEnv as any,
+      serverEnv,
       defaultBaseUrlKey: '',
       defaultApiTokenKey: 'OPEN_ROUTER_API_KEY',
     });

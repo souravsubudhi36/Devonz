@@ -38,12 +38,12 @@ export default class GoogleProvider extends BaseProvider {
   async getDynamicModels(
     apiKeys?: Record<string, string>,
     settings?: IProviderSetting,
-    serverEnv?: Record<string, string>,
+    serverEnv?: Env,
   ): Promise<ModelInfo[]> {
     const { apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: settings,
-      serverEnv: serverEnv as any,
+      serverEnv,
       defaultBaseUrlKey: '',
       defaultApiTokenKey: 'GOOGLE_GENERATIVE_AI_API_KEY',
     });
@@ -120,7 +120,7 @@ export default class GoogleProvider extends BaseProvider {
 
   getModelInstance(options: {
     model: string;
-    serverEnv: any;
+    serverEnv: Env;
     apiKeys?: Record<string, string>;
     providerSettings?: Record<string, IProviderSetting>;
   }): LanguageModelV1 {
@@ -129,7 +129,7 @@ export default class GoogleProvider extends BaseProvider {
     const { apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: providerSettings?.[this.name],
-      serverEnv: serverEnv as any,
+      serverEnv,
       defaultBaseUrlKey: '',
       defaultApiTokenKey: 'GOOGLE_GENERATIVE_AI_API_KEY',
     });

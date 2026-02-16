@@ -66,7 +66,7 @@ export default class LMStudioProvider extends BaseProvider {
     let { baseUrl } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: providerSettings?.[this.name],
-      serverEnv: serverEnv as any,
+      serverEnv,
       defaultBaseUrlKey: 'LMSTUDIO_API_BASE_URL',
       defaultApiTokenKey: '',
     });

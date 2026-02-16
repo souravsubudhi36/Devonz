@@ -36,7 +36,7 @@ const llmCallRequestSchema = z.object({
 async function getModelList(options: {
   apiKeys?: Record<string, string>;
   providerSettings?: Record<string, IProviderSetting>;
-  serverEnv?: Record<string, string>;
+  serverEnv?: Env;
 }) {
   const llmManager = LLMManager.getInstance(import.meta.env);
   return llmManager.updateModelList(options);
@@ -139,7 +139,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
             content: `${message}`,
           },
         ],
-        env: context.cloudflare?.env as any,
+        env: context.cloudflare?.env,
         apiKeys,
         providerSettings,
       });
@@ -184,7 +184,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
     }
   } else {
     try {
-      const models = await getModelList({ apiKeys, providerSettings, serverEnv: context.cloudflare?.env as any });
+      const models = await getModelList({ apiKeys, providerSettings, serverEnv: context.cloudflare?.env });
       const modelDetails = models.find((m: ModelInfo) => m.name === model);
 
       if (!modelDetails) {
@@ -229,7 +229,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
         ],
         model: providerInfo.getModelInstance({
           model: modelDetails.name,
-          serverEnv: context.cloudflare?.env as any,
+          serverEnv: context.cloudflare?.env,
           apiKeys,
           providerSettings,
         }),

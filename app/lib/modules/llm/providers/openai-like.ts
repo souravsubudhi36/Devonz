@@ -156,7 +156,7 @@ export default class OpenAILikeProvider extends BaseProvider {
     const { baseUrl, apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: providerSettings?.[this.name],
-      serverEnv: serverEnv as any,
+      serverEnv,
       defaultBaseUrlKey: 'OPENAI_LIKE_API_BASE_URL',
       defaultApiTokenKey: 'OPENAI_LIKE_API_KEY',
     });

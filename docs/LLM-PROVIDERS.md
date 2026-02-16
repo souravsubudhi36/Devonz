@@ -137,12 +137,12 @@ export default class MyProvider extends BaseProvider {
   async getDynamicModels(
     apiKeys?: Record<string, string>,
     settings?: IProviderSetting,
-    serverEnv?: Record<string, string>,
+    serverEnv?: Env,
   ): Promise<ModelInfo[]> {
     const { apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: settings,
-      serverEnv: serverEnv as any,
+      serverEnv,
       defaultBaseUrlKey: '',
       defaultApiTokenKey: 'MY_PROVIDER_API_KEY',
     });
@@ -164,7 +164,7 @@ export default class MyProvider extends BaseProvider {
     const { apiKey, baseUrl } = this.getProviderBaseUrlAndKey({
       apiKeys: options.apiKeys,
       providerSettings: options.providerSettings?.[this.name],
-      serverEnv: options.serverEnv as any,
+      serverEnv: options.serverEnv,
       defaultBaseUrlKey: '',
       defaultApiTokenKey: 'MY_PROVIDER_API_KEY',
     });
