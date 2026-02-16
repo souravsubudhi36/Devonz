@@ -41,8 +41,13 @@ export class LLMManager {
 
           try {
             this.registerProvider(provider);
-          } catch (error: any) {
-            logger.warn('Failed To Register Provider: ', provider.name, 'error:', error.message);
+          } catch (error: unknown) {
+            logger.warn(
+              'Failed To Register Provider: ',
+              provider.name,
+              'error:',
+              error instanceof Error ? error.message : String(error),
+            );
           }
         }
       }

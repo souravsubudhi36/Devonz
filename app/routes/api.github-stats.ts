@@ -1,4 +1,4 @@
-import { json } from '@remix-run/node';
+import { json, type LoaderFunctionArgs } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
 import type { GitHubUserResponse, GitHubStats } from '~/types/GitHub';
@@ -6,7 +6,7 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('GitHubStats');
 
-async function githubStatsLoader({ request, context }: { request: Request; context: any }) {
+async function githubStatsLoader({ request, context }: LoaderFunctionArgs) {
   try {
     // Get API keys from cookies (server-side only)
     const cookieHeader = request.headers.get('Cookie');

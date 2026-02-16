@@ -39,8 +39,10 @@ export class TerminalStore {
       }
 
       await this.#boltTerminal.init(wc, terminal);
-    } catch (error: any) {
-      terminal.write(coloredText.red('Failed to spawn bolt shell\n\n') + error.message);
+    } catch (error: unknown) {
+      terminal.write(
+        coloredText.red('Failed to spawn bolt shell\n\n') + (error instanceof Error ? error.message : String(error)),
+      );
       return;
     }
   }
@@ -57,8 +59,10 @@ export class TerminalStore {
 
       const shellProcess = await newShellProcess(wc, terminal);
       this.#terminals.push({ terminal, process: shellProcess });
-    } catch (error: any) {
-      terminal.write(coloredText.red('Failed to spawn shell\n\n') + error.message);
+    } catch (error: unknown) {
+      terminal.write(
+        coloredText.red('Failed to spawn shell\n\n') + (error instanceof Error ? error.message : String(error)),
+      );
       return;
     }
   }

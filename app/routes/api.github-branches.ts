@@ -1,4 +1,4 @@
-import { json } from '@remix-run/node';
+import { json, type LoaderFunctionArgs } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
 import { createScopedLogger } from '~/utils/logger';
@@ -21,7 +21,7 @@ interface BranchInfo {
   isDefault: boolean;
 }
 
-async function githubBranchesLoader({ request, context }: { request: Request; context: any }) {
+async function githubBranchesLoader({ request, context }: LoaderFunctionArgs) {
   try {
     let owner: string;
     let repo: string;

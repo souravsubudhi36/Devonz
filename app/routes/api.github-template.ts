@@ -1,11 +1,11 @@
-import { json } from '@remix-run/node';
+import { json, type AppLoadContext, type LoaderFunctionArgs } from '@remix-run/node';
 import JSZip from 'jszip';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('GitHubTemplate');
 
 // Function to detect if we're running in Cloudflare
-function isCloudflareEnvironment(context: any): boolean {
+function isCloudflareEnvironment(context: AppLoadContext): boolean {
   // Check if we're in production AND have Cloudflare Pages specific env vars
   const isProduction = process.env.NODE_ENV === 'production';
   const hasCfPagesVars = !!(
@@ -204,7 +204,7 @@ async function fetchRepoContentsZip(repo: string, githubToken?: string) {
   return results.filter(Boolean);
 }
 
-export async function loader({ request, context }: { request: Request; context: any }) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const repo = url.searchParams.get('repo');
 

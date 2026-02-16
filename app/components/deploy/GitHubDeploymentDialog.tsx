@@ -266,9 +266,9 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
             private: isPrivate,
           });
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // 404 means repo doesn't exist, which is what we want for new repos
-        if (error.status !== 404) {
+        if (error && typeof error === 'object' && 'status' in error && (error as { status: number }).status !== 404) {
           throw error;
         }
       }

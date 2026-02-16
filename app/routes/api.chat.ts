@@ -426,7 +426,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             (async () => {
               for await (const part of result.fullStream) {
                 if (part.type === 'error') {
-                  const error: any = part.error;
+                  const error = part.error;
                   logger.error(`${error}`);
 
                   return;
@@ -467,14 +467,15 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             streamRecovery.updateActivity();
 
             if (part.type === 'error') {
-              const error: any = part.error;
+              const error = part.error;
+              const errorMessage = error instanceof Error ? error.message : String(error);
               logger.error('Streaming error:', error);
               streamRecovery.stop();
 
               // Enhanced error handling for common streaming issues
-              if (error.message?.includes('Invalid JSON response')) {
+              if (errorMessage.includes('Invalid JSON response')) {
                 logger.error('Invalid JSON response detected - likely malformed API response');
-              } else if (error.message?.includes('token')) {
+              } else if (errorMessage.includes('token')) {
                 logger.error('Token-related error detected - possible token limit exceeded');
               }
 
@@ -485,9 +486,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         })();
         result.mergeIntoDataStream(dataStream);
       },
-      onError: (error: any) => {
+      onError: (error: unknown) => {
         // Provide more specific error messages for common issues
-        const errorMessage = error.message || 'Unknown error';
+        const errorMessage = error instanceof Error ? error.message : String(error);
 
         if (errorMessage.includes('model') && errorMessage.includes('not found')) {
           return 'Custom error: Invalid model selected. Please check that the model name is correct and available.';
@@ -566,18 +567,21 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         'Text-Encoding': 'chunked',
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(error);
+
+    const errMsg = error instanceof Error ? error.message : String(error);
+    const errObj = (error && typeof error === 'object' ? error : {}) as Record<string, unknown>;
 
     const errorResponse = {
       error: true,
-      message: error.message || 'An unexpected error occurred',
-      statusCode: error.statusCode || 500,
-      isRetryable: error.isRetryable !== false, // Default to retryable unless explicitly false
-      provider: error.provider || 'unknown',
+      message: errMsg || 'An unexpected error occurred',
+      statusCode: (errObj.statusCode as number) || 500,
+      isRetryable: errObj.isRetryable !== false, // Default to retryable unless explicitly false
+      provider: (errObj.provider as string) || 'unknown',
     };
 
-    if (error.message?.includes('API key')) {
+    if (errMsg?.includes('API key')) {
       return new Response(
         JSON.stringify({
           ...errorResponse,

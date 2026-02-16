@@ -7,7 +7,7 @@
  * - Remove domain
  */
 
-import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/node';
+import { json, type ActionFunctionArgs, type AppLoadContext, type LoaderFunctionArgs } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
 import { createScopedLogger } from '~/utils/logger';
@@ -30,7 +30,7 @@ interface DomainRequest {
 /**
  * Get Vercel token from request
  */
-function getVercelToken(request: Request, context: any): string | null {
+function getVercelToken(request: Request, context: AppLoadContext): string | null {
   // Try cookies first
   const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromCookie(cookieHeader);

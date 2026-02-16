@@ -346,12 +346,14 @@ const getFs = (
           birthtime: new Date(),
           atime: new Date(),
         };
-      } catch (error: any) {
-        if (!error.code) {
-          error.code = 'ENOENT';
-          error.errno = -2;
-          error.syscall = 'stat';
-          error.path = path;
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && !('code' in error)) {
+          Object.assign(error, {
+            code: 'ENOENT',
+            errno: -2,
+            syscall: 'stat',
+            path,
+          });
         }
 
         throw error;

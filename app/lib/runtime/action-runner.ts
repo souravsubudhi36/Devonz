@@ -188,7 +188,7 @@ export class ActionRunner {
         case 'supabase': {
           try {
             await this.handleSupabaseAction(action as SupabaseAction);
-          } catch (error: any) {
+          } catch (error: unknown) {
             // Update action status
             this.#updateAction(actionId, {
               status: 'failed',

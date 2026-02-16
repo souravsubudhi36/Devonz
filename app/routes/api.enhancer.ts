@@ -134,7 +134,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       try {
         for await (const part of result.fullStream) {
           if (part.type === 'error') {
-            const error: any = part.error;
+            const error = part.error;
             logger.error('Streaming error:', error);
             break;
           }

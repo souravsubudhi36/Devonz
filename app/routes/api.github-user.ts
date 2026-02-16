@@ -1,11 +1,11 @@
-import { json } from '@remix-run/node';
+import { json, type LoaderFunctionArgs, type ActionFunctionArgs } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('GitHubUser');
 
-async function githubUserLoader({ request, context }: { request: Request; context: any }) {
+async function githubUserLoader({ request, context }: LoaderFunctionArgs) {
   try {
     // Get API keys from cookies (server-side only)
     const cookieHeader = request.headers.get('Cookie');
@@ -73,7 +73,7 @@ export const loader = withSecurity(githubUserLoader, {
   allowedMethods: ['GET'],
 });
 
-async function githubUserAction({ request, context }: { request: Request; context: any }) {
+async function githubUserAction({ request, context }: ActionFunctionArgs) {
   try {
     let action: string | null = null;
     let repoFullName: string | null = null;
