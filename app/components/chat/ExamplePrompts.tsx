@@ -38,19 +38,19 @@ export function ExamplePrompts({ sendMessage }: ExamplePromptsProps) {
   }, []);
 
   const buttonStyle = {
-    backgroundColor: '#1a2332',
-    color: '#9ca3af',
-    border: '1px solid #333333',
+    backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+    color: 'var(--bolt-elements-textSecondary)',
+    border: '1px solid var(--bolt-elements-borderColor)',
   };
 
   const hoverIn = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = '#2a2a2a';
-    e.currentTarget.style.color = '#ffffff';
+    e.currentTarget.style.backgroundColor = 'var(--bolt-elements-bg-depth-4)';
+    e.currentTarget.style.color = 'var(--bolt-elements-textPrimary)';
   };
 
   const hoverOut = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = '#1a2332';
-    e.currentTarget.style.color = '#9ca3af';
+    e.currentTarget.style.backgroundColor = 'var(--bolt-elements-bg-depth-3)';
+    e.currentTarget.style.color = 'var(--bolt-elements-textSecondary)';
   };
 
   return (

@@ -169,17 +169,17 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
           <RadixDialog.Content
             aria-describedby={undefined}
             onEscapeKeyDown={handleClose}
-            className="dark relative z-[101] w-[1000px] h-[80vh] rounded-xl shadow-2xl border border-[#333] flex overflow-hidden"
+            className="dark relative z-[101] w-[1000px] h-[80vh] rounded-xl shadow-2xl border border-bolt-elements-borderColor flex overflow-hidden"
             style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
           >
             {/* Sidebar */}
             <div
-              className="w-48 border-r border-[#333] flex flex-col"
+              className="w-48 border-r border-bolt-elements-borderColor flex flex-col"
               style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)' }}
             >
               {/* Header */}
               <div
-                className="px-4 py-4 border-b border-[#333]"
+                className="px-4 py-4 border-b border-bolt-elements-borderColor"
                 style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)' }}
               >
                 <h2 className="text-sm font-semibold text-white">Settings</h2>
@@ -227,7 +227,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
             >
               {/* Content Header */}
               <div
-                className="flex items-center justify-between px-6 py-4 border-b border-[#333]"
+                className="flex items-center justify-between px-6 py-4 border-b border-bolt-elements-borderColor"
                 style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
               >
                 <DialogTitle className="text-sm font-semibold text-white">
@@ -235,7 +235,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                 </DialogTitle>
                 <button
                   onClick={handleClose}
-                  className="p-1.5 rounded hover:bg-[#333] transition-colors"
+                  className="p-1.5 rounded hover:bg-bolt-elements-bg-depth-4 transition-colors"
                   style={{ backgroundColor: 'var(--bolt-elements-borderColor)' }}
                 >
                   <div className="i-ph:x w-4 h-4 text-gray-400" />

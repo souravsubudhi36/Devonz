@@ -135,7 +135,7 @@ export const RecentChats: React.FC<RecentChatsProps> = ({ maxItems = 10 }) => {
 
         {/* View All Link */}
         {chats.length >= maxItems && (
-          <div className="px-4 py-3 border-t border-[#3d5a7f]/20 bg-[#0b0d13]/50">
+          <div className="px-4 py-3 border-t border-[#3d5a7f]/20 bg-bolt-elements-bg-depth-1/50">
             <button
               onClick={() => {
                 /* Could navigate to a full history page or open sidebar */

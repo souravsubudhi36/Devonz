@@ -70,12 +70,12 @@ const StarterTemplates: React.FC = () => {
           onClick={() => scroll('left')}
           className={`absolute left-0 top-1/2 -translate-y-1/2 z-10
             w-8 h-8 flex items-center justify-center
-            bg-[#1a2332]/90 backdrop-blur-sm rounded-full
+            bg-bolt-elements-bg-depth-3/90 backdrop-blur-sm rounded-full
             border border-bolt-elements-borderColor
             text-bolt-elements-textSecondary hover:text-purple-400
             transition-all duration-300
             ${canScrollLeft && isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 pointer-events-none'}
-            hover:bg-[#2a2a2a] hover:border-purple-500/50`}
+            hover:bg-bolt-elements-bg-depth-4 hover:border-purple-500/50`}
           aria-label="Scroll left"
         >
           <span className="i-ph:caret-left text-lg" />
@@ -111,12 +111,12 @@ const StarterTemplates: React.FC = () => {
           onClick={() => scroll('right')}
           className={`absolute right-0 top-1/2 -translate-y-1/2 z-10
             w-8 h-8 flex items-center justify-center
-            bg-[#1a2332]/90 backdrop-blur-sm rounded-full
+            bg-bolt-elements-bg-depth-3/90 backdrop-blur-sm rounded-full
             border border-bolt-elements-borderColor
             text-bolt-elements-textSecondary hover:text-purple-400
             transition-all duration-300
             ${canScrollRight && isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2 pointer-events-none'}
-            hover:bg-[#2a2a2a] hover:border-purple-500/50`}
+            hover:bg-bolt-elements-bg-depth-4 hover:border-purple-500/50`}
           aria-label="Scroll right"
         >
           <span className="i-ph:caret-right text-lg" />
