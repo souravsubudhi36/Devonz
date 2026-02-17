@@ -520,26 +520,56 @@ export const DiffPreviewModal = memo(() => {
                   {/* Footer with actions */}
                   <div
                     className="flex items-center justify-between px-4 py-3 rounded-b-lg"
-                    style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', borderTop: '1px solid #333' }}
+                    style={{
+                      backgroundColor: 'var(--bolt-elements-background-depth-4)',
+                      borderTop: '1px solid var(--bolt-elements-borderColor)',
+                    }}
                   >
                     {/* Keyboard hints */}
-                    <div className="flex items-center gap-4 text-xs" style={{ color: '#6b7280' }}>
+                    <div
+                      className="flex items-center gap-4 text-xs"
+                      style={{ color: 'var(--bolt-elements-textTertiary)' }}
+                    >
                       <span>
-                        <kbd className="px-1.5 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#9ca3af' }}>
+                        <kbd
+                          className="px-1.5 py-0.5 rounded"
+                          style={{
+                            backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+                            color: 'var(--bolt-elements-textSecondary)',
+                          }}
+                        >
                           ←
                         </kbd>{' '}
                         /{' '}
-                        <kbd className="px-1.5 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#9ca3af' }}>
+                        <kbd
+                          className="px-1.5 py-0.5 rounded"
+                          style={{
+                            backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+                            color: 'var(--bolt-elements-textSecondary)',
+                          }}
+                        >
                           →
                         </kbd>{' '}
                         Navigate
                       </span>
                       <span>
-                        <kbd className="px-1.5 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#9ca3af' }}>
+                        <kbd
+                          className="px-1.5 py-0.5 rounded"
+                          style={{
+                            backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+                            color: 'var(--bolt-elements-textSecondary)',
+                          }}
+                        >
                           Ctrl
                         </kbd>
                         +
-                        <kbd className="px-1.5 py-0.5 rounded" style={{ backgroundColor: '#2a2a2a', color: '#9ca3af' }}>
+                        <kbd
+                          className="px-1.5 py-0.5 rounded"
+                          style={{
+                            backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+                            color: 'var(--bolt-elements-textSecondary)',
+                          }}
+                        >
                           Enter
                         </kbd>{' '}
                         Accept

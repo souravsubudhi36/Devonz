@@ -42,8 +42,8 @@ function ProviderCard({
     <Card
       className="w-full transition-all duration-300 shadow-sm hover:shadow-md"
       style={{
-        backgroundColor: '#0b0d13',
-        borderColor: provider.settings.enabled ? 'rgba(139, 92, 246, 0.3)' : '#333',
+        backgroundColor: 'var(--bolt-elements-bg-depth-1)',
+        borderColor: provider.settings.enabled ? 'rgba(139, 92, 246, 0.3)' : 'var(--bolt-elements-borderColor)',
       }}
     >
       <CardContent className="!p-4">
@@ -52,7 +52,9 @@ function ProviderCard({
             <div
               className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300"
               style={{
-                backgroundColor: provider.settings.enabled ? 'rgba(139, 92, 246, 0.1)' : '#21262d',
+                backgroundColor: provider.settings.enabled
+                  ? 'rgba(139, 92, 246, 0.1)'
+                  : 'var(--bolt-elements-bg-depth-3)',
                 boxShadow: provider.settings.enabled ? '0 0 0 1px rgba(139, 92, 246, 0.3)' : 'none',
               }}
             >
@@ -82,7 +84,7 @@ function ProviderCard({
                       placeholder={`Enter ${provider.name} base URL`}
                       className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200 shadow-sm"
                       style={{
-                        backgroundColor: '#21262d',
+                        backgroundColor: 'var(--bolt-elements-bg-depth-3)',
                         borderColor: 'rgba(139, 92, 246, 0.3)',
                         border: '1px solid rgba(139, 92, 246, 0.3)',
                       }}
@@ -105,8 +107,8 @@ function ProviderCard({
                       onClick={onStartEditing}
                       className="w-full px-4 py-3 rounded-lg text-sm hover:shadow-sm transition-all duration-200 text-left group"
                       style={{
-                        backgroundColor: '#252525',
-                        border: '1px solid #333',
+                        backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+                        border: '1px solid var(--bolt-elements-borderColor)',
                       }}
                     >
                       <div className="flex items-center gap-3 text-gray-400 group-hover:text-white">

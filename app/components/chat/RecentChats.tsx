@@ -94,7 +94,7 @@ export const RecentChats: React.FC<RecentChatsProps> = ({ maxItems = 10 }) => {
         className={classNames(
           'rounded-xl overflow-hidden',
           'border border-[#3d5a7f]/30',
-          'bg-gradient-to-b from-[#1e3a5f]/10 to-[#0b0d13]/90',
+          'bg-gradient-to-b from-bolt-elements-bg-depth-2 to-bolt-elements-bg-depth-1',
         )}
       >
         {/* Table Header */}

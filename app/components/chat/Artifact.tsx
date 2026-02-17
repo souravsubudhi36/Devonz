@@ -89,7 +89,10 @@ export const Artifact = memo(({ artifactId }: ArtifactProps) => {
     <>
       <div
         className="artifact border border-white/10 flex flex-col overflow-hidden rounded-xl w-full transition-all duration-150"
-        style={{ background: 'linear-gradient(180deg, #1a2332 0%, #131a24 100%)' }}
+        style={{
+          background:
+            'linear-gradient(180deg, var(--bolt-elements-bg-depth-3) 0%, var(--bolt-elements-bg-depth-2) 100%)',
+        }}
       >
         {/* Header - Glossy dark style */}
         <button

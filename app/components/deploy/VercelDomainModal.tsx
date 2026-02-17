@@ -143,7 +143,10 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
             <RadixDialog.Content asChild>
               <motion.div
                 className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] w-[520px] max-w-[90vw] focus:outline-none rounded-xl shadow-2xl dark"
-                style={{ backgroundColor: '#1a2332', border: '1px solid #333333' }}
+                style={{
+                  backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+                  border: '1px solid var(--bolt-elements-borderColor)',
+                }}
                 initial="closed"
                 animate="open"
                 exit="closed"
@@ -151,12 +154,12 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
               >
                 <div
                   className="flex items-center justify-between px-6 py-4"
-                  style={{ borderBottom: '1px solid #333333' }}
+                  style={{ borderBottom: '1px solid var(--bolt-elements-borderColor)' }}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: '#2a2a2a' }}
+                      style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
                     >
                       <svg className="w-5 h-5" viewBox="0 0 76 65" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" fill="#ffffff" />
@@ -166,13 +169,16 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                       <RadixDialog.Title className="text-lg font-semibold" style={{ color: '#ffffff' }}>
                         Domain Settings
                       </RadixDialog.Title>
-                      <RadixDialog.Description className="text-sm" style={{ color: '#9ca3af' }}>
+                      <RadixDialog.Description
+                        className="text-sm"
+                        style={{ color: 'var(--bolt-elements-textSecondary)' }}
+                      >
                         Customize your Vercel deployment domain
                       </RadixDialog.Description>
                     </div>
                   </div>
                   <RadixDialog.Close asChild>
-                    <IconButton icon="i-ph:x" className="text-[#9ca3af] hover:text-white" />
+                    <IconButton icon="i-ph:x" className="text-bolt-elements-textSecondary hover:text-white" />
                   </RadixDialog.Close>
                 </div>
 
@@ -184,7 +190,10 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                     <div className="flex items-center gap-2">
                       <div
                         className="flex items-center flex-1 rounded-lg overflow-hidden"
-                        style={{ backgroundColor: '#131a24', border: '1px solid #333333' }}
+                        style={{
+                          backgroundColor: 'var(--bolt-elements-bg-depth-2)',
+                          border: '1px solid var(--bolt-elements-borderColor)',
+                        }}
                       >
                         <input
                           type="text"
@@ -198,7 +207,13 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                           style={{ color: '#ffffff' }}
                           disabled={isSaving}
                         />
-                        <span className="px-3 py-2.5 text-sm" style={{ color: '#6b7280', backgroundColor: '#0b0d13' }}>
+                        <span
+                          className="px-3 py-2.5 text-sm"
+                          style={{
+                            color: 'var(--bolt-elements-textTertiary)',
+                            backgroundColor: 'var(--bolt-elements-bg-depth-1)',
+                          }}
+                        >
                           .vercel.app
                         </span>
                       </div>
@@ -207,9 +222,15 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                         disabled={isSaving || !newSubdomain.trim()}
                         className="px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
                         style={{
-                          backgroundColor: isSaving || !newSubdomain.trim() ? '#2a2a2a' : '#333333',
-                          color: isSaving || !newSubdomain.trim() ? '#6b7280' : '#ffffff',
-                          border: '1px solid #444444',
+                          backgroundColor:
+                            isSaving || !newSubdomain.trim()
+                              ? 'var(--bolt-elements-bg-depth-3)'
+                              : 'var(--bolt-elements-bg-depth-4)',
+                          color:
+                            isSaving || !newSubdomain.trim()
+                              ? 'var(--bolt-elements-textTertiary)'
+                              : 'var(--bolt-elements-textPrimary)',
+                          border: '1px solid var(--bolt-elements-borderColor)',
                           opacity: isSaving || !newSubdomain.trim() ? 0.5 : 1,
                           cursor: isSaving || !newSubdomain.trim() ? 'not-allowed' : 'pointer',
                         }}
@@ -224,7 +245,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                         )}
                       </button>
                     </div>
-                    <p className="mt-2 text-xs" style={{ color: '#6b7280' }}>
+                    <p className="mt-2 text-xs" style={{ color: 'var(--bolt-elements-textTertiary)' }}>
                       Add a custom .vercel.app subdomain for your project
                     </p>
                   </div>
@@ -253,9 +274,9 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                         disabled={isLoading}
                         className="text-xs px-2 py-1 rounded transition-colors"
                         style={{
-                          color: '#9ca3af',
-                          backgroundColor: '#2a2a2a',
-                          border: '1px solid #444444',
+                          color: 'var(--bolt-elements-textSecondary)',
+                          backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+                          border: '1px solid var(--bolt-elements-borderColor)',
                         }}
                       >
                         {isLoading ? (
@@ -269,14 +290,20 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                     {isLoading ? (
                       <div
                         className="flex items-center justify-center py-8 rounded-lg"
-                        style={{ backgroundColor: '#131a24' }}
+                        style={{ backgroundColor: 'var(--bolt-elements-bg-depth-2)' }}
                       >
-                        <div className="i-svg-spinners:90-ring-with-bg w-6 h-6" style={{ color: '#9ca3af' }} />
+                        <div
+                          className="i-svg-spinners:90-ring-with-bg w-6 h-6"
+                          style={{ color: 'var(--bolt-elements-textSecondary)' }}
+                        />
                       </div>
                     ) : domains.length === 0 ? (
                       <div
                         className="text-center py-8 rounded-lg"
-                        style={{ backgroundColor: '#131a24', color: '#6b7280' }}
+                        style={{
+                          backgroundColor: 'var(--bolt-elements-bg-depth-2)',
+                          color: 'var(--bolt-elements-textTertiary)',
+                        }}
                       >
                         <div className="i-ph:globe-simple w-8 h-8 mx-auto mb-2 opacity-50" />
                         <p className="text-sm">No domains configured</p>
@@ -287,7 +314,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                           <div
                             key={domain.name}
                             className="flex items-center justify-between px-4 py-3 rounded-lg group"
-                            style={{ backgroundColor: '#131a24' }}
+                            style={{ backgroundColor: 'var(--bolt-elements-bg-depth-2)' }}
                           >
                             <div className="flex items-center gap-3">
                               <div
@@ -334,7 +361,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                   </div>
 
                   {currentUrl && (
-                    <div className="pt-4" style={{ borderTop: '1px solid #333333' }}>
+                    <div className="pt-4" style={{ borderTop: '1px solid var(--bolt-elements-borderColor)' }}>
                       <h3 className="text-sm font-medium mb-2" style={{ color: '#ffffff' }}>
                         Current Deployment
                       </h3>
@@ -352,14 +379,17 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                   )}
                 </div>
 
-                <div className="flex justify-end gap-3 px-6 py-4" style={{ borderTop: '1px solid #333333' }}>
+                <div
+                  className="flex justify-end gap-3 px-6 py-4"
+                  style={{ borderTop: '1px solid var(--bolt-elements-borderColor)' }}
+                >
                   <button
                     onClick={onClose}
                     className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                     style={{
-                      backgroundColor: '#2a2a2a',
-                      color: '#ffffff',
-                      border: '1px solid #444444',
+                      backgroundColor: 'var(--bolt-elements-bg-depth-3)',
+                      color: 'var(--bolt-elements-textPrimary)',
+                      border: '1px solid var(--bolt-elements-borderColor)',
                     }}
                   >
                     Close

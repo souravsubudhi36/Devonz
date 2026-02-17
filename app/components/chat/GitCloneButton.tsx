@@ -176,13 +176,13 @@ ${escapeBoltTags(file.content)}
         className={classNames(
           'flex gap-2',
           'text-gray-300 hover:text-white',
-          'border border-[#333333] hover:border-purple-500/50',
+          'border border-bolt-elements-borderColor hover:border-purple-500/50',
           'h-10 px-4 py-2 justify-center',
           'transition-all duration-200 ease-in-out',
           'hover:shadow-[0_0_12px_rgba(168,85,247,0.15)]',
           className,
         )}
-        style={{ backgroundColor: '#2a2a2a', ...style }}
+        style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)', ...style }}
         disabled={!ready || loading}
       >
         Clone a repo
@@ -196,15 +196,15 @@ ${escapeBoltTags(file.content)}
       {isDialogOpen && !selectedProvider && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div
-            className="rounded-xl shadow-2xl border border-[#333333] max-w-md w-full"
-            style={{ backgroundColor: '#1a2332' }}
+            className="rounded-xl shadow-2xl border border-bolt-elements-borderColor max-w-md w-full"
+            style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">Choose Repository Provider</h3>
                 <button
                   onClick={() => setIsDialogOpen(false)}
-                  className="p-2 rounded-lg bg-transparent hover:bg-[#2a2a2a] text-gray-400 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                  className="p-2 rounded-lg bg-transparent hover:bg-bolt-elements-bg-depth-3 text-gray-400 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <div className="i-ph:x size-5 transition-transform duration-200 hover:rotate-90" />
                 </button>
@@ -213,8 +213,8 @@ ${escapeBoltTags(file.content)}
               <div className="space-y-3">
                 <button
                   onClick={() => setSelectedProvider('github')}
-                  className="w-full p-4 rounded-lg border border-[#333333] hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
-                  style={{ backgroundColor: '#2a2a2a' }}
+                  className="w-full p-4 rounded-lg border border-bolt-elements-borderColor hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+                  style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
@@ -229,8 +229,8 @@ ${escapeBoltTags(file.content)}
 
                 <button
                   onClick={() => setSelectedProvider('gitlab')}
-                  className="w-full p-4 rounded-lg border border-[#333333] hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
-                  style={{ backgroundColor: '#2a2a2a' }}
+                  className="w-full p-4 rounded-lg border border-bolt-elements-borderColor hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+                  style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">

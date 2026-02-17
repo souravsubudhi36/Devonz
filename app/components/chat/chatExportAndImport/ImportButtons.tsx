@@ -69,12 +69,12 @@ export function ImportButtons(importChat: ((description: string, messages: Messa
             className={classNames(
               'gap-2',
               'text-gray-300 hover:text-white',
-              'border border-[#333333] hover:border-purple-500/50',
+              'border border-bolt-elements-borderColor hover:border-purple-500/50',
               'h-10 px-4 py-2 min-w-[120px] justify-center',
               'transition-all duration-200 ease-in-out',
               'hover:shadow-[0_0_12px_rgba(168,85,247,0.15)]',
             )}
-            style={{ backgroundColor: '#2a2a2a' }}
+            style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
           >
             <span className="i-ph:upload-simple w-4 h-4" />
             Import Chat
@@ -84,12 +84,12 @@ export function ImportButtons(importChat: ((description: string, messages: Messa
             className={classNames(
               'gap-2',
               'text-gray-300 hover:text-white',
-              'border border-[#333333] hover:border-purple-500/50',
+              'border border-bolt-elements-borderColor hover:border-purple-500/50',
               'h-10 px-4 py-2 min-w-[120px] justify-center',
               'transition-all duration-200 ease-in-out rounded-lg',
               'hover:shadow-[0_0_12px_rgba(168,85,247,0.15)]',
             )}
-            style={{ backgroundColor: '#2a2a2a' }}
+            style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
           />
         </div>
       </div>

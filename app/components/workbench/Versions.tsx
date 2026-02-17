@@ -30,7 +30,8 @@ const VersionCard = memo(({ version, onRestore, onRevert }: VersionCardProps) =>
       <div
         className="w-32 h-20 rounded-lg flex-shrink-0 overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #1a2332 0%, #0d1117 100%)',
+          background:
+            'linear-gradient(135deg, var(--bolt-elements-bg-depth-3) 0%, var(--bolt-elements-bg-depth-1) 100%)',
           border: '1px solid rgba(255,255,255,0.1)',
         }}
       >

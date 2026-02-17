@@ -400,15 +400,16 @@ export default function FeaturesTab() {
   return (
     <div className="flex flex-col">
       {/* Tab Navigation */}
-      <div className="flex gap-2 border-b border-[#333] pb-2 mb-6">
+      <div className="flex gap-2 border-b border-bolt-elements-borderColor pb-2 mb-6">
         {featureTabSections.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveSection(tab.id)}
             className="px-4 py-2 text-sm font-medium rounded-t-lg transition-colors"
             style={{
-              backgroundColor: activeSection === tab.id ? '#21262d' : 'transparent',
-              color: activeSection === tab.id ? '#fff' : '#9ca3af',
+              backgroundColor: activeSection === tab.id ? 'var(--bolt-elements-bg-depth-3)' : 'transparent',
+              color:
+                activeSection === tab.id ? 'var(--bolt-elements-textPrimary)' : 'var(--bolt-elements-textTertiary)',
               borderBottom: activeSection === tab.id ? '2px solid #a855f7' : '2px solid transparent',
             }}
           >
