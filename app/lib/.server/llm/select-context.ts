@@ -206,8 +206,6 @@ export async function selectContext(props: {
     if (!filePaths.includes(fullPath)) {
       logger.error(`File ${path} is not in the list of files above.`);
       return;
-
-      // throw new Error(`File ${path} is not in the list of files above.`);
     }
 
     if (currrentFiles.includes(path)) {
@@ -221,14 +219,16 @@ export async function selectContext(props: {
     onFinish(resp);
   }
 
-  const totalFiles = Object.keys(filteredFiles).length;
-  logger.info(`Total files: ${totalFiles}`);
+  // Merge surviving context files with newly included files
+  const mergedFiles: FileMap = { ...contextFiles, ...filteredFiles };
+  const totalFiles = Object.keys(mergedFiles).length;
+  logger.info(`Total files: ${totalFiles} (${Object.keys(contextFiles).length} existing, ${Object.keys(filteredFiles).length} new)`);
 
-  if (totalFiles == 0) {
-    throw new Error(`Bolt failed to select files`);
+  if (totalFiles === 0) {
+    logger.warn('No files selected for context — returning empty context');
   }
 
-  return filteredFiles;
+  return mergedFiles;
 
   // generateText({
 }
