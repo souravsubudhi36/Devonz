@@ -449,14 +449,14 @@ export const CombinedModelSelector = ({
         <div
           className={classNames(
             'z-50 w-full rounded-xl overflow-hidden',
-            'border border-bolt-elements-borderColor',
+            'border border-white/8',
             'bg-[#0b0d13]',
             'shadow-xl shadow-black/50',
             'max-h-[400px] flex flex-col',
           )}
         >
           {/* Section Tabs */}
-          <div className="flex border-b border-bolt-elements-borderColor bg-[#0b0d13]">
+          <div className="flex border-b border-white/8 bg-[#0b0d13]">
             <button
               type="button"
               className={classNames(
@@ -464,7 +464,7 @@ export const CombinedModelSelector = ({
                 'flex items-center justify-center gap-2',
                 activeSection === 'provider'
                   ? 'bg-[#1e3a5f]/40 text-[#8badd4] border-b-2 border-[#4d6a8f]'
-                  : 'bg-[#0b0d13] text-bolt-elements-textSecondary hover:bg-[#1a2332] hover:text-bolt-elements-textPrimary',
+                  : 'bg-[#0b0d13] text-[#8b949e] hover:bg-[#1a2332] hover:text-[#e6edf3]',
               )}
               onClick={() => {
                 setActiveSection('provider');
@@ -482,7 +482,7 @@ export const CombinedModelSelector = ({
                 'flex items-center justify-center gap-2',
                 activeSection === 'model'
                   ? 'bg-[#1e3a5f]/40 text-[#8badd4] border-b-2 border-[#4d6a8f]'
-                  : 'bg-[#0b0d13] text-bolt-elements-textSecondary hover:bg-[#1a2332] hover:text-bolt-elements-textPrimary',
+                  : 'bg-[#0b0d13] text-[#8b949e] hover:bg-[#1a2332] hover:text-[#e6edf3]',
               )}
               onClick={() => {
                 setActiveSection('model');
@@ -512,7 +512,7 @@ export const CombinedModelSelector = ({
           </div>
 
           {/* Search Input */}
-          <div className="p-3 border-b border-bolt-elements-borderColor/50">
+          <div className="p-3 border-b border-white/[0.04]">
             <div className="relative">
               <input
                 ref={searchInputRef}
@@ -522,8 +522,8 @@ export const CombinedModelSelector = ({
                 placeholder={`Search ${activeSection === 'provider' ? 'providers' : 'models'}... (⌘K to clear)`}
                 className={classNames(
                   'w-full pl-9 pr-9 py-2 rounded-lg text-sm',
-                  'bg-[#1a2332] border border-bolt-elements-borderColor',
-                  'text-bolt-elements-textPrimary placeholder:text-bolt-elements-textTertiary',
+                  'bg-[#1a2332] border border-white/8',
+                  'text-[#e6edf3] placeholder:text-[#6e7681]',
                   'focus:outline-none focus:ring-2 focus:ring-[#4d6a8f]/50 focus:border-[#4d6a8f]',
                   'transition-all',
                 )}
@@ -532,7 +532,7 @@ export const CombinedModelSelector = ({
                 aria-label={`Search ${activeSection}`}
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                <span className="i-ph:magnifying-glass text-bolt-elements-textTertiary" />
+                <span className="i-ph:magnifying-glass text-[#6e7681]" />
               </div>
               {searchQuery && (
                 <button
@@ -544,7 +544,7 @@ export const CombinedModelSelector = ({
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-[#2a2a2a] transition-colors"
                   aria-label="Clear search"
                 >
-                  <span className="i-ph:x text-bolt-elements-textTertiary text-sm" />
+                  <span className="i-ph:x text-[#6e7681] text-sm" />
                 </button>
               )}
             </div>
@@ -562,14 +562,14 @@ export const CombinedModelSelector = ({
                     'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all',
                     showFreeModelsOnly
                       ? 'bg-[#1e3a5f]/30 text-[#8badd4] border border-[#4d6a8f]/30'
-                      : 'bg-[#1a2332] text-bolt-elements-textSecondary border border-bolt-elements-borderColor hover:border-[#4d6a8f]/30',
+                      : 'bg-[#1a2332] text-[#8b949e] border border-white/8 hover:border-[#4d6a8f]/30',
                   )}
                 >
                   <span className="i-ph:gift" />
                   Free models only
                 </button>
                 {showFreeModelsOnly && (
-                  <span className="text-xs text-bolt-elements-textTertiary">
+                  <span className="text-xs text-[#6e7681]">
                     {filteredModels.length} free model{filteredModels.length !== 1 ? 's' : ''}
                   </span>
                 )}
@@ -578,7 +578,7 @@ export const CombinedModelSelector = ({
 
             {/* Search Result Count */}
             {debouncedSearchQuery && currentList.length > 0 && (
-              <div className="text-xs text-bolt-elements-textTertiary mt-2">
+              <div className="text-xs text-[#6e7681] mt-2">
                 {currentList.length} {activeSection}
                 {currentList.length !== 1 ? 's' : ''} found
               </div>
@@ -590,7 +590,7 @@ export const CombinedModelSelector = ({
             className={classNames(
               'flex-1 overflow-y-auto',
               '[&::-webkit-scrollbar]:w-1.5',
-              '[&::-webkit-scrollbar-thumb]:bg-bolt-elements-borderColor',
+              '[&::-webkit-scrollbar-thumb]:bg-white/10',
               '[&::-webkit-scrollbar-thumb]:hover:bg-[#4d6a8f]/50',
               '[&::-webkit-scrollbar-thumb]:rounded-full',
               '[&::-webkit-scrollbar-track]:bg-transparent',
@@ -598,13 +598,13 @@ export const CombinedModelSelector = ({
           >
             {currentList.length === 0 ? (
               <div className="px-4 py-6 text-center">
-                <div className="text-bolt-elements-textTertiary text-sm mb-1">
+                <div className="text-[#6e7681] text-sm mb-1">
                   {debouncedSearchQuery
                     ? `No ${activeSection}s match "${debouncedSearchQuery}"`
                     : `No ${activeSection}s found`}
                 </div>
                 {debouncedSearchQuery && (
-                  <div className="text-xs text-bolt-elements-textTertiary">Try a different search term</div>
+                  <div className="text-xs text-[#6e7681]">Try a different search term</div>
                 )}
               </div>
             ) : activeSection === 'provider' ? (
@@ -619,7 +619,7 @@ export const CombinedModelSelector = ({
                     'flex items-center gap-3',
                     provider?.name === p.name
                       ? 'bg-[#1e3a5f]/20 text-[#8badd4]'
-                      : 'text-bolt-elements-textPrimary hover:bg-[#1a2332]',
+                      : 'text-[#e6edf3] hover:bg-[#1a2332]',
                     focusedIndex === index ? 'ring-1 ring-inset ring-[#4d6a8f]/50 bg-[#1a2332]' : '',
                   )}
                   onClick={(e) => {
@@ -659,7 +659,7 @@ export const CombinedModelSelector = ({
                     'px-4 py-3 cursor-pointer transition-all',
                     model === m.name
                       ? 'bg-[#1e3a5f]/20 text-[#8badd4]'
-                      : 'text-bolt-elements-textPrimary hover:bg-[#1a2332]',
+                      : 'text-[#e6edf3] hover:bg-[#1a2332]',
                     focusedIndex === index ? 'ring-1 ring-inset ring-[#4d6a8f]/50 bg-[#1a2332]' : '',
                   )}
                   onClick={(e) => {
@@ -680,7 +680,7 @@ export const CombinedModelSelector = ({
                         }}
                       />
                       {m.maxTokenAllowed > 0 && (
-                        <div className="text-xs text-bolt-elements-textTertiary mt-0.5">
+                        <div className="text-xs text-[#6e7681] mt-0.5">
                           {formatContextSize(m.maxTokenAllowed)} context
                         </div>
                       )}
@@ -698,24 +698,24 @@ export const CombinedModelSelector = ({
           </div>
 
           {/* Footer Hint */}
-          <div className="px-4 py-2 border-t border-bolt-elements-borderColor/50 bg-[#0b0d13]">
-            <div className="flex items-center justify-between text-xs text-bolt-elements-textTertiary">
+          <div className="px-4 py-2 border-t border-white/[0.04] bg-[#0b0d13]">
+            <div className="flex items-center justify-between text-xs text-[#6e7681]">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded bg-[#1a2332] border border-bolt-elements-borderColor">↑↓</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded bg-[#1a2332] border border-white/8">↑↓</kbd>
                   navigate
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded bg-[#1a2332] border border-bolt-elements-borderColor">Tab</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded bg-[#1a2332] border border-white/8">Tab</kbd>
                   switch
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 rounded bg-[#1a2332] border border-bolt-elements-borderColor">↵</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded bg-[#1a2332] border border-white/8">↵</kbd>
                   select
                 </span>
               </div>
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 rounded bg-[#1a2332] border border-bolt-elements-borderColor">Esc</kbd>
+                <kbd className="px-1.5 py-0.5 rounded bg-[#1a2332] border border-white/8">Esc</kbd>
                 close
               </span>
             </div>
