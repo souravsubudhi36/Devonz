@@ -126,7 +126,7 @@ export function initializeVercelConnection() {
 
   if (envToken && !vercelConnection.get().token) {
     updateVercelConnection({ token: envToken });
-    fetchVercelStats(envToken).catch(console.error);
+    fetchVercelStats(envToken).catch((error) => logger.error('Failed to fetch Vercel stats during init', error));
   }
 }
 

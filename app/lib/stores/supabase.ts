@@ -90,7 +90,9 @@ export const isFetchingStats = atom(false);
 export const isFetchingApiKeys = atom(false);
 
 if (initialState.token && !initialState.stats) {
-  fetchSupabaseStats(initialState.token).catch(console.error);
+  fetchSupabaseStats(initialState.token).catch((error) =>
+    logger.error('Failed to fetch initial Supabase stats', error),
+  );
 }
 
 export function updateSupabaseConnection(connection: Partial<SupabaseConnectionState>) {
@@ -152,7 +154,7 @@ export function initializeSupabaseConnection() {
 
   if (envToken && !supabaseConnection.get().token) {
     updateSupabaseConnection({ token: envToken });
-    fetchSupabaseStats(envToken).catch(console.error);
+    fetchSupabaseStats(envToken).catch((error) => logger.error('Failed to fetch Supabase stats during init', error));
   }
 }
 

@@ -5,6 +5,9 @@ import { useStore } from '@nanostores/react';
 import { chatId } from '~/lib/persistence/useChatHistory';
 import { fetchSupabaseStats } from '~/lib/stores/supabase';
 import { Dialog, DialogRoot, DialogClose, DialogTitle, DialogButton } from '~/components/ui/Dialog';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('SupabaseConnection');
 
 export function SupabaseConnection() {
   const {
@@ -65,13 +68,15 @@ export function SupabaseConnection() {
 
   useEffect(() => {
     if (isConnected && supabaseConn.token) {
-      fetchSupabaseStats(supabaseConn.token).catch(console.error);
+      fetchSupabaseStats(supabaseConn.token).catch((error) => logger.error('Failed to fetch Supabase stats', error));
     }
   }, [isConnected, supabaseConn.token]);
 
   useEffect(() => {
     if (isConnected && supabaseConn.selectedProjectId && supabaseConn.token && !supabaseConn.credentials) {
-      fetchProjectApiKeys(supabaseConn.selectedProjectId).catch(console.error);
+      fetchProjectApiKeys(supabaseConn.selectedProjectId).catch((error) =>
+        logger.error('Failed to fetch project API keys', error),
+      );
     }
   }, [isConnected, supabaseConn.selectedProjectId, supabaseConn.token, supabaseConn.credentials]);
 
