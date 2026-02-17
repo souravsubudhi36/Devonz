@@ -317,7 +317,7 @@ export function SupabaseConnection() {
 interface ButtonProps {
   active?: boolean;
   disabled?: boolean;
-  children?: any;
+  children?: React.ReactNode;
   onClick?: VoidFunction;
   className?: string;
 }

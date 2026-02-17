@@ -134,7 +134,7 @@ const LogEntryItem = ({ log, isExpanded: forceExpanded, use24Hour, showTimestamp
     }
   }, [log.level, log.category]);
 
-  const renderDetails = (details: any) => {
+  const renderDetails = (details: Record<string, React.ReactNode>) => {
     if (log.category === 'provider') {
       return (
         <div className="flex flex-col gap-2">
@@ -237,7 +237,7 @@ const LogEntryItem = ({ log, isExpanded: forceExpanded, use24Hour, showTimestamp
                 >
                   {localExpanded ? 'Hide' : 'Show'} Details
                 </button>
-                {localExpanded && renderDetails(log.details)}
+                {localExpanded && renderDetails(log.details as Record<string, React.ReactNode>)}
               </>
             )}
             <div className="flex items-center gap-2">

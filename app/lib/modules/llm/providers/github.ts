@@ -98,11 +98,17 @@ export default class GithubProvider extends BaseProvider {
       });
 
       if (response.ok) {
-        const data = (await response.json()) as { data?: any[] };
+        const data = (await response.json()) as {
+          data?: Array<{
+            id: string;
+            name?: string;
+            limits?: { max_input_tokens?: number; max_output_tokens?: number };
+          }>;
+        };
         logger.info('GitHub: Successfully fetched models from API');
 
         if (data.data && Array.isArray(data.data)) {
-          return data.data.map((model: any) => ({
+          return data.data.map((model) => ({
             name: model.id,
             label: model.name || model.id.split('/').pop() || model.id,
             provider: 'Github',
