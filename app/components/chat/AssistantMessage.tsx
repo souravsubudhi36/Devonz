@@ -182,7 +182,7 @@ export const AssistantMessage = memo(
         </div>
 
         {/* Message Content */}
-        <div className="text-bolt-elements-textPrimary text-sm leading-relaxed pl-8">
+        <div className="text-bolt-elements-textPrimary text-sm leading-relaxed">
           <Markdown
             append={append}
             chatMode={chatMode}
@@ -196,7 +196,7 @@ export const AssistantMessage = memo(
         </div>
 
         {toolInvocations && toolInvocations.length > 0 && (
-          <div className="pl-8 mt-3">
+          <div className="mt-3">
             <ToolInvocations
               toolInvocations={toolInvocations}
               toolCallAnnotations={toolCallAnnotations}
