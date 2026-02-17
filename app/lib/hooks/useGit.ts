@@ -1,4 +1,4 @@
-import type { WebContainer } from '@webcontainer/api';
+import type { WebContainer, BufferEncoding as WCBufferEncoding } from '@webcontainer/api';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { webcontainer as webcontainerPromise } from '~/lib/webcontainer';
 import git, { type GitAuth, type PromiseFsClient } from 'isomorphic-git';
@@ -6,6 +6,11 @@ import http from 'isomorphic-git/http/web';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 import { createScopedLogger } from '~/utils/logger';
+
+interface FileEntry {
+  data: Uint8Array | string;
+  encoding?: string;
+}
 
 const logger = createScopedLogger('Git');
 
@@ -35,7 +40,7 @@ export function useGit() {
   const [ready, setReady] = useState(false);
   const [webcontainer, setWebcontainer] = useState<WebContainer>();
   const [fs, setFs] = useState<PromiseFsClient>();
-  const fileData = useRef<Record<string, { data: any; encoding?: string }>>({});
+  const fileData = useRef<Record<string, FileEntry>>({});
   useEffect(() => {
     webcontainerPromise.then((container) => {
       fileData.current = {};
@@ -132,7 +137,7 @@ export function useGit() {
           },
         });
 
-        const data: Record<string, { data: any; encoding?: string }> = {};
+        const data: Record<string, FileEntry> = {};
 
         for (const [key, value] of Object.entries(fileData.current)) {
           data[key] = value;
@@ -184,24 +189,23 @@ export function useGit() {
   return { ready, gitClone };
 }
 
-const getFs = (
-  webcontainer: WebContainer,
-  record: MutableRefObject<Record<string, { data: any; encoding?: string }>>,
-) => ({
+const getFs = (webcontainer: WebContainer, record: MutableRefObject<Record<string, FileEntry>>) => ({
   promises: {
-    readFile: async (path: string, options: any) => {
+    readFile: async (path: string, options?: { encoding?: string }) => {
       const encoding = options?.encoding;
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
-        const result = await webcontainer.fs.readFile(relativePath, encoding);
+        if (encoding) {
+          return await webcontainer.fs.readFile(relativePath, encoding as WCBufferEncoding);
+        }
 
-        return result;
+        return await webcontainer.fs.readFile(relativePath);
       } catch (error) {
         throw error;
       }
     },
-    writeFile: async (path: string, data: any, options: any = {}) => {
+    writeFile: async (path: string, data: Uint8Array | string, options: { encoding?: string } = {}) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       if (record.current) {
@@ -225,7 +229,7 @@ const getFs = (
         throw error;
       }
     },
-    mkdir: async (path: string, options: any) => {
+    mkdir: async (path: string, options?: { recursive?: boolean; mode?: number }) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
@@ -236,18 +240,20 @@ const getFs = (
         throw error;
       }
     },
-    readdir: async (path: string, options: any) => {
+    readdir: async (path: string, options?: { withFileTypes?: boolean }) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
-        const result = await webcontainer.fs.readdir(relativePath, options);
+        if (options?.withFileTypes) {
+          return await webcontainer.fs.readdir(relativePath, { withFileTypes: true as const });
+        }
 
-        return result;
+        return await webcontainer.fs.readdir(relativePath);
       } catch (error) {
         throw error;
       }
     },
-    rm: async (path: string, options: any) => {
+    rm: async (path: string, options?: { recursive?: boolean; force?: boolean }) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
@@ -258,7 +264,7 @@ const getFs = (
         throw error;
       }
     },
-    rmdir: async (path: string, options: any) => {
+    rmdir: async (path: string, options?: { recursive?: boolean }) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {

@@ -63,11 +63,17 @@ export function GitUrlImport() {
 
           const fileContents = filePaths
             .map((filePath) => {
-              const { data: content, encoding } = data[filePath];
+              const { data: content } = data[filePath];
+              const textContent: string =
+                typeof content === 'string'
+                  ? content
+                  : content instanceof Uint8Array
+                    ? textDecoder.decode(content)
+                    : '';
+
               return {
                 path: filePath,
-                content:
-                  encoding === 'utf8' ? content : content instanceof Uint8Array ? textDecoder.decode(content) : '',
+                content: textContent,
               };
             })
             .filter((f) => f.content);

@@ -77,7 +77,7 @@ export default function GitCloneButton({ importChat, className, style }: GitClon
         const fileContents = [];
 
         for (const filePath of filePaths) {
-          const { data: content, encoding } = data[filePath];
+          const { data: content } = data[filePath];
 
           // Skip binary files
           if (
@@ -89,8 +89,8 @@ export default function GitCloneButton({ importChat, className, style }: GitClon
           }
 
           try {
-            const textContent =
-              encoding === 'utf8' ? content : content instanceof Uint8Array ? textDecoder.decode(content) : '';
+            const textContent: string =
+              typeof content === 'string' ? content : content instanceof Uint8Array ? textDecoder.decode(content) : '';
 
             if (!textContent) {
               continue;
