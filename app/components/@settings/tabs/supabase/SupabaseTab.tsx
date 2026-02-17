@@ -724,8 +724,8 @@ export default function SupabaseTab() {
                   placeholder="Enter your Supabase access token"
                   className={classNames(
                     'w-full px-3 py-2 rounded-lg text-sm',
-                    'bg-[#F8F8F8] dark:bg-[#1a2332]',
-                    'border border-[#E5E5E5] dark:border-[#333333]',
+                    'bg-bolt-elements-bg-depth-2',
+                    'border border-bolt-elements-borderColor',
                     'text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary',
                     'focus:outline-none focus:ring-1 focus:ring-bolt-elements-borderColorActive',
                     'disabled:opacity-50',
@@ -749,7 +749,7 @@ export default function SupabaseTab() {
                 disabled={connecting || !tokenInput}
                 className={classNames(
                   'px-4 py-2 rounded-lg text-sm flex items-center gap-2',
-                  'bg-[#303030] text-white',
+                  'bg-bolt-elements-bg-depth-3 text-bolt-elements-textPrimary',
                   'hover:bg-[#5E41D0] hover:text-white',
                   'disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200',
                   'transform active:scale-95',
