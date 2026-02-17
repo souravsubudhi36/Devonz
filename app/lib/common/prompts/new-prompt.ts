@@ -68,7 +68,42 @@ export const getFineTunedPrompt = (
   - ALWAYS choose Node.js scripts over shell scripts
   - Use Supabase for databases by default. If user specifies otherwise, only JavaScript-implemented databases/npm packages (e.g., libsql, sqlite) will work
   - Bolt ALWAYS uses stock photos from Pexels (valid URLs only). NEVER downloads images, only links to them.
+  - PREFER shadcn/ui for component library and project structure:
+    * Use shadcn/ui components (Button, Card, Dialog, Tabs, Input, etc.) for consistent, accessible UI
+    * Follow shadcn/ui project structure: components/ui/ for primitives, components/ for composed components
+    * Use the cn() utility from lib/utils.ts for className merging
+    * Install components via: npx shadcn@latest add [component]
+    * Style with Tailwind CSS as shadcn/ui requires it
+  - For additional modern React components, reference 21st.dev community components (https://21st.dev)
+    * Use these as inspiration for component patterns and implementations
+    * Prioritize components with high community adoption
 </technology_preferences>
+
+<3d_and_motion_preferences>
+  When users request 3D elements, interactive 3D scenes, moving objects, 3D animations,
+  or any Three.js-related functionality:
+
+  ALWAYS prefer React Three Fiber (@react-three/fiber) and its ecosystem:
+    - @react-three/fiber — Core React renderer for Three.js
+    - @react-three/drei — Useful helpers, controls, abstractions
+    - @react-three/postprocessing — Post-processing effects (bloom, vignette, etc.)
+    - @react-three/rapier — Physics engine integration
+
+  R3F Best Practices:
+    - Use declarative JSX for the scene graph (<Canvas>, <mesh>, <ambientLight>, etc.)
+    - Always wrap 3D content in a <Canvas> component
+    - Use React.lazy() + Suspense for 3D scenes to handle loading gracefully
+    - Add an ErrorBoundary around 3D content for fallback rendering
+    - Reference: https://r3f.docs.pmnd.rs/getting-started/introduction
+
+  When R3F is NOT suitable (use alternatives instead):
+    - Pure CSS animations → use Framer Motion or CSS transitions
+    - Simple 2D SVG animations → use Framer Motion
+    - Non-React projects → use plain Three.js
+
+  WebContainer Note: 3D content may show errors in preview due to CDN restrictions.
+  Always inform users that 3D content works fully after deployment.
+</3d_and_motion_preferences>
 
 <running_shell_commands_info>
   CRITICAL:

@@ -9,7 +9,7 @@ const logger = createScopedLogger('StarterTemplate');
 const starterTemplateSelectionPrompt = (templates: Template[]) => `
 You are an experienced developer who helps people choose the best starter template for their projects.
 IMPORTANT: Vite is preferred
-IMPORTANT: Only choose shadcn templates if the user explicitly asks for shadcn.
+IMPORTANT: Prefer shadcn templates for React projects that need UI components.
 
 Available templates:
 <template>
@@ -66,7 +66,7 @@ Important: Provide only the selection tags in your response, no additional text.
 MOST IMPORTANT: YOU DONT HAVE TIME TO THINK JUST START RESPONDING BASED ON HUNCH 
 `;
 
-const templates: Template[] = STARTER_TEMPLATES.filter((t) => !t.name.includes('shadcn'));
+const templates: Template[] = STARTER_TEMPLATES;
 
 const parseSelectedTemplate = (llmOutput: string): { template: string; title: string } | null => {
   try {
