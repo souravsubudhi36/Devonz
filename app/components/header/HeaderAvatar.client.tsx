@@ -5,12 +5,15 @@ import { motion } from 'framer-motion';
 import { profileStore } from '~/lib/stores/profile';
 import { classNames } from '~/utils/classNames';
 import { ControlPanel } from '~/components/@settings/core/ControlPanel';
+import type { TabType } from '~/components/@settings/core/types';
 
 export function HeaderAvatar() {
   const profile = useStore(profileStore);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [initialTab, setInitialTab] = useState<TabType | undefined>(undefined);
 
-  const handleOpenSettings = () => {
+  const handleOpenSettings = (tab?: TabType) => {
+    setInitialTab(tab);
     setIsSettingsOpen(true);
   };
 
@@ -66,7 +69,7 @@ export function HeaderAvatar() {
                 'cursor-pointer transition-colors',
                 'outline-none',
               )}
-              onClick={() => handleOpenSettings()}
+              onClick={() => handleOpenSettings('profile')}
             >
               <div className="i-ph:user-circle w-4 h-4 text-bolt-elements-textSecondary" />
               Edit Profile
@@ -107,7 +110,7 @@ export function HeaderAvatar() {
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
 
-      <ControlPanel open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <ControlPanel open={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} initialTab={initialTab} />
     </>
   );
 }

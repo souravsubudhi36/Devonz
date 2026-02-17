@@ -42,12 +42,13 @@ const TabLoadingFallback = () => (
 interface ControlPanelProps {
   open: boolean;
   onClose: () => void;
+  initialTab?: TabType;
 }
 
 // Beta status for experimental features
 const BETA_TABS = new Set<TabType>(['local-providers', 'mcp']);
 
-export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
+export const ControlPanel = ({ open, onClose, initialTab }: ControlPanelProps) => {
   // State
   const [activeTab, setActiveTab] = useState<TabType | null>(null);
 
@@ -89,10 +90,12 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
 
   // Reset to default view when modal opens/closes
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      setActiveTab(initialTab ?? null);
+    } else {
       setActiveTab(null);
     }
-  }, [open]);
+  }, [open, initialTab]);
 
   // Handle closing
   const handleClose = useCallback(() => {
