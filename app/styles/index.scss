@@ -16,22 +16,8 @@ body {
   background-color: var(--bolt-elements-bg-depth-1);
 }
 
-// Modern scrollbar styling - hidden by default, scroll still works
-html,
-body,
-.chat-container,
-.editor-panel,
-.file-tree,
-.terminal-container,
-.settings-panel,
-.message-list,
-.code-block,
-pre,
-textarea,
-[class*="overflow-auto"],
-[class*="overflow-y-auto"],
-[class*="overflow-x-auto"],
-[class*="overflow-scroll"] {
+// Hide all scrollbars globally — scroll still works via trackpad/wheel/keyboard
+* {
   scrollbar-width: none;
 
   &::-webkit-scrollbar {

@@ -180,6 +180,10 @@ editor/
 └── codemirror/    # CodeMirror 6 setup, extensions, themes
 ```
 
+### `Page Scroll Areas`
+w-full h-auto = User text chat scroll
+.xterm-viewport = Terminal chat scroll
+
 ### `git/` — Git Operations UI
 
 Git-specific UI components for repository management.
