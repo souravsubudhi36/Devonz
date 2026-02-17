@@ -173,6 +173,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             typeof x === 'object' && x !== null && 'type' in x && (x as Record<string, unknown>).type === 'progress',
         ) as ProgressAnnotation[];
         setProgressAnnotations(progressList);
+      } else {
+        setProgressAnnotations([]);
       }
     }, [data]);
     useEffect(() => {

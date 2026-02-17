@@ -294,6 +294,16 @@ export const ChatImpl = memo(
       chatStore.setKey('aborted', true);
       workbenchStore.abortAllActions();
 
+      // Clear progress annotations so "Analysing Request" doesn't persist
+      setData(undefined);
+
+      // Remove empty assistant message created by the aborted stream
+      const lastMsg = messages[messages.length - 1];
+
+      if (lastMsg?.role === 'assistant' && !lastMsg.content?.trim()) {
+        setMessages(messages.slice(0, -1));
+      }
+
       logStore.logProvider('Chat response aborted', {
         component: 'Chat',
         action: 'abort',

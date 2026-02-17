@@ -325,6 +325,11 @@ ${codeContext}
     }
   }
 
+  // Filter out empty assistant messages (can occur from aborted requests)
+  const cleanedMessages = processedMessages.filter(
+    (m) => !(m.role === 'assistant' && typeof m.content === 'string' && !m.content.trim()),
+  );
+
   const streamParams = {
     model: provider.getModelInstance({
       model: modelDetails.name,
@@ -334,7 +339,7 @@ ${codeContext}
     }),
     system: chatMode === 'build' ? systemPrompt : discussPrompt(),
     ...tokenParams,
-    messages: convertToCoreMessages(processedMessages as any),
+    messages: convertToCoreMessages(cleanedMessages as any),
     ...filteredOptions,
 
     // Set temperature to 1 for reasoning models (required by OpenAI API)
