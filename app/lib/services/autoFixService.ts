@@ -16,6 +16,7 @@ import {
   resetAutoFix,
   type ErrorSource,
 } from '~/lib/stores/autofix';
+import { workbenchStore } from '~/lib/stores/workbench';
 
 const logger = createScopedLogger('AutoFixService');
 
@@ -90,6 +91,9 @@ export function formatErrorForLLM(error: AutoFixError): AutoFixMessage {
 export function handleFixSuccess(): void {
   logger.info('Auto-fix successful - error resolved');
   markFixComplete();
+
+  // Clear the terminal/preview error alert since the fix succeeded
+  workbenchStore.clearAlert();
 
   // Optionally show success notification
   const state = autoFixStore.get();

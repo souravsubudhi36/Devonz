@@ -24,6 +24,7 @@ export default function ChatAlert({ alert, clearAlert, postMessage }: Props) {
     /*
      * Reset error handlers so the same error can be caught again after fix.
      * For terminal errors, also interrupt any running process (Ctrl+C).
+     * Clear the alert immediately — user has engaged, no need to keep showing it.
      */
     if (isPreview) {
       resetPreviewErrorHandler();
@@ -31,6 +32,8 @@ export default function ChatAlert({ alert, clearAlert, postMessage }: Props) {
       resetTerminalErrorDetector();
       workbenchStore.interruptTerminal();
     }
+
+    clearAlert();
 
     postMessage(
       `*Fix this ${isPreview ? 'preview' : 'terminal'} error* \n\`\`\`${isPreview ? 'js' : 'sh'}\n${content}\n\`\`\`\n`,
