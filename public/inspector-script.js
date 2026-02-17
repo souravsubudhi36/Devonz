@@ -1,4 +1,17 @@
 (function () {
+  // Inject scrollbar styling to match parent app theme
+  (function injectScrollbarStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(100, 100, 100, 0.4); border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(100, 100, 100, 0.6); }
+      html { scrollbar-width: thin; scrollbar-color: rgba(100, 100, 100, 0.4) transparent; }
+    `;
+    (document.head || document.documentElement).appendChild(style);
+  })();
+
   let isInspectorActive = false;
   let inspectorStyle = null;
   let currentHighlight = null;
