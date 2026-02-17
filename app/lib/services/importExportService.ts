@@ -7,8 +7,23 @@ const logger = createScopedLogger('ImportExportService');
 
 interface ExtendedMessage extends Message {
   name?: string;
-  function_call?: any;
+  function_call?: Record<string, unknown>;
   timestamp?: number;
+}
+
+/** Shape of data from comprehensive import format (v2.0) */
+interface ImportData {
+  _meta?: { version?: string; exportDate?: string; appVersion?: string };
+  core?: Record<string, unknown>;
+  providers?: Record<string, unknown>;
+  features?: Record<string, unknown>;
+  ui?: Record<string, unknown>;
+  connections?: Record<string, unknown>;
+  debug?: Record<string, unknown>;
+  updates?: Record<string, unknown>;
+  chatSnapshots?: Record<string, unknown>;
+  _raw?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 /**
@@ -20,7 +35,7 @@ export class ImportExportService {
    * @param db The IndexedDB database instance
    * @returns A promise that resolves to the export data
    */
-  static async exportAllChats(db: IDBDatabase): Promise<{ chats: any[]; exportDate: string }> {
+  static async exportAllChats(db: IDBDatabase): Promise<{ chats: Record<string, unknown>[]; exportDate: string }> {
     if (!db) {
       throw new Error('Database not initialized');
     }
@@ -62,7 +77,7 @@ export class ImportExportService {
    * Export application settings to a JSON file
    * @returns A promise that resolves to the settings data
    */
-  static async exportSettings(): Promise<any> {
+  static async exportSettings(): Promise<Record<string, unknown>> {
     try {
       // Get all cookies
       const allCookies = Cookies.get();
@@ -184,7 +199,7 @@ export class ImportExportService {
    * Import settings from a JSON file
    * @param importedData The imported data
    */
-  static async importSettings(importedData: any): Promise<void> {
+  static async importSettings(importedData: ImportData): Promise<void> {
     // Check if this is the new comprehensive format (v2.0)
     const isNewFormat = importedData._meta?.version === '2.0';
 
@@ -201,7 +216,7 @@ export class ImportExportService {
    * Import API keys from a JSON file
    * @param keys The API keys to import
    */
-  static importAPIKeys(keys: Record<string, any>): Record<string, string> {
+  static importAPIKeys(keys: Record<string, unknown>): Record<string, string> {
     // Get existing keys from cookies
     const existingKeys = (() => {
       const storedApiKeys = Cookies.get('apiKeys');
@@ -251,7 +266,7 @@ export class ImportExportService {
    * Create an API keys template
    * @returns The API keys template
    */
-  static createAPIKeysTemplate(): Record<string, any> {
+  static createAPIKeysTemplate(): Record<string, string> {
     /*
      * Create a template with provider names as keys
      * This matches how the application stores API keys in cookies
@@ -368,7 +383,7 @@ export class ImportExportService {
    * Import settings from a comprehensive format
    * @param data The imported data
    */
-  private static async _importComprehensiveFormat(data: any): Promise<void> {
+  private static async _importComprehensiveFormat(data: ImportData): Promise<void> {
     // Import core settings
     if (data.core) {
       Object.entries(data.core).forEach(([key, value]) => {
@@ -396,7 +411,7 @@ export class ImportExportService {
       // Import API keys and other provider cookies
       const providerCookies = ['apiKeys', 'selectedModel', 'selectedProvider', 'providers'];
       providerCookies.forEach((key) => {
-        if (data.providers[key]) {
+        if (data.providers?.[key]) {
           try {
             this._safeSetCookie(key, data.providers[key]);
           } catch (err) {
@@ -441,7 +456,7 @@ export class ImportExportService {
       // Import UI cookies
       const uiCookies = ['tabConfiguration', 'cachedPrompt'];
       uiCookies.forEach((key) => {
-        if (data.ui[key]) {
+        if (data.ui?.[key]) {
           try {
             this._safeSetCookie(key, data.ui[key]);
           } catch (err) {
@@ -485,7 +500,7 @@ export class ImportExportService {
       ];
 
       debugLocalStorageKeys.forEach((key) => {
-        if (data.debug[key] !== null && data.debug[key] !== undefined) {
+        if (data.debug?.[key] !== null && data.debug?.[key] !== undefined) {
           try {
             this._safeSetItem(key, data.debug[key]);
           } catch (err) {
@@ -497,7 +512,7 @@ export class ImportExportService {
       // Import debug cookies
       const debugCookies = ['isDebugEnabled', 'eventLogs'];
       debugCookies.forEach((key) => {
-        if (data.debug[key]) {
+        if (data.debug?.[key]) {
           try {
             this._safeSetCookie(key, data.debug[key]);
           } catch (err) {
@@ -544,7 +559,7 @@ export class ImportExportService {
    * Import settings from a legacy format
    * @param data The imported data
    */
-  private static async _importLegacyFormat(data: any): Promise<void> {
+  private static async _importLegacyFormat(data: Record<string, unknown>): Promise<void> {
     /**
      * Handle legacy format (v1.0 or earlier)
      * This is a simplified version that tries to import whatever is available
@@ -588,7 +603,7 @@ export class ImportExportService {
    * @param key The key to get
    * @returns The value or null if not found
    */
-  private static _safeGetItem(key: string): any {
+  private static _safeGetItem(key: string): unknown {
     try {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : null;
@@ -602,8 +617,8 @@ export class ImportExportService {
    * Get all localStorage items
    * @returns All localStorage items
    */
-  private static _getAllLocalStorage(): Record<string, any> {
-    const result: Record<string, any> = {};
+  private static _getAllLocalStorage(): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
 
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -630,8 +645,8 @@ export class ImportExportService {
    * @param _cookies The cookies object
    * @returns GitHub connections
    */
-  private static _getGitHubConnections(_cookies: Record<string, string>): Record<string, any> {
-    const result: Record<string, any> = {};
+  private static _getGitHubConnections(_cookies: Record<string, string>): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
 
     // Get GitHub connections from localStorage
     const localStorageKeys = Object.keys(localStorage).filter((key) => key.startsWith('github_'));
@@ -652,8 +667,8 @@ export class ImportExportService {
    * Get chat snapshots from localStorage
    * @returns Chat snapshots
    */
-  private static _getChatSnapshots(): Record<string, any> {
-    const result: Record<string, any> = {};
+  private static _getChatSnapshots(): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
 
     // Get chat snapshots from localStorage
     const snapshotKeys = Object.keys(localStorage).filter((key) => key.startsWith('snapshot:'));
@@ -675,7 +690,7 @@ export class ImportExportService {
    * @param key The key to set
    * @param value The value to set
    */
-  private static _safeSetItem(key: string, value: any): void {
+  private static _safeSetItem(key: string, value: unknown): void {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (err) {
@@ -688,7 +703,7 @@ export class ImportExportService {
    * @param key The key to set
    * @param value The value to set
    */
-  private static _safeSetCookie(key: string, value: any): void {
+  private static _safeSetCookie(key: string, value: unknown): void {
     try {
       Cookies.set(key, typeof value === 'string' ? value : JSON.stringify(value), { expires: 365 });
     } catch (err) {

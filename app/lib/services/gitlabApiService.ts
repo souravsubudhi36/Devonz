@@ -19,7 +19,7 @@ interface CacheEntry<T> {
 }
 
 class GitLabCache {
-  private _cache = new Map<string, CacheEntry<any>>();
+  private _cache = new Map<string, CacheEntry<unknown>>();
 
   set<T>(key: string, data: T, duration = CACHE_DURATION): void {
     const timestamp = Date.now();
@@ -42,7 +42,7 @@ class GitLabCache {
       return null;
     }
 
-    return entry.data;
+    return entry.data as T;
   }
 
   clear(): void {
@@ -188,7 +188,7 @@ export class GitLabApiService {
       return cached;
     }
 
-    let allProjects: any[] = [];
+    let allProjects: GitLabProjectResponse[] = [];
     let page = 1;
     const maxPages = 10; // Limit to prevent excessive API calls
 
@@ -210,7 +210,7 @@ export class GitLabApiService {
         throw new Error(errorMessage);
       }
 
-      const projects: any[] = await response.json();
+      const projects: GitLabProjectResponse[] = await response.json();
 
       if (projects.length === 0) {
         break;
@@ -227,7 +227,7 @@ export class GitLabApiService {
     }
 
     // Transform to our interface
-    const transformedProjects: GitLabProjectInfo[] = allProjects.map((project: any) => ({
+    const transformedProjects: GitLabProjectInfo[] = allProjects.map((project) => ({
       id: project.id,
       name: project.name,
       path_with_namespace: project.path_with_namespace,
@@ -252,9 +252,9 @@ export class GitLabApiService {
       throw new Error(`Failed to fetch events: ${response.statusText}`);
     }
 
-    const events: any[] = await response.json();
+    const events: GitLabEvent[] = await response.json();
 
-    return events.slice(0, 5).map((event: any) => ({
+    return events.slice(0, 5).map((event) => ({
       id: event.id,
       action_name: event.action_name,
       project_id: event.project_id,
@@ -273,7 +273,7 @@ export class GitLabApiService {
     return [];
   }
 
-  async getSnippets(): Promise<any[]> {
+  async getSnippets(): Promise<unknown[]> {
     const response = await this._request('/snippets');
 
     if (response.ok) {
@@ -340,7 +340,7 @@ export class GitLabApiService {
     return null;
   }
 
-  async createBranch(projectId: number, branchName: string, ref: string): Promise<any> {
+  async createBranch(projectId: number, branchName: string, ref: string): Promise<unknown> {
     const response = await this._request(`/projects/${projectId}/repository/branches`, {
       method: 'POST',
       body: JSON.stringify({
@@ -356,7 +356,7 @@ export class GitLabApiService {
     return await response.json();
   }
 
-  async commitFiles(projectId: number, commitRequest: GitLabCommitRequest): Promise<any> {
+  async commitFiles(projectId: number, commitRequest: GitLabCommitRequest): Promise<unknown> {
     const response = await this._request(`/projects/${projectId}/repository/commits`, {
       method: 'POST',
       body: JSON.stringify(commitRequest),
