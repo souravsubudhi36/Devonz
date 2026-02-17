@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { Checkbox } from '~/components/ui/Checkbox';
@@ -55,27 +55,31 @@ export function LockManager() {
   }, []);
 
   // Filter and sort the locked items
-  const filteredAndSortedItems = lockedItems
-    .filter((item) => {
-      // Apply type filter
-      if (filter === 'files' && item.type !== 'file') {
-        return false;
-      }
+  const filteredAndSortedItems = useMemo(
+    () =>
+      lockedItems
+        .filter((item) => {
+          // Apply type filter
+          if (filter === 'files' && item.type !== 'file') {
+            return false;
+          }
 
-      if (filter === 'folders' && item.type !== 'folder') {
-        return false;
-      }
+          if (filter === 'folders' && item.type !== 'folder') {
+            return false;
+          }
 
-      // Apply search filter
-      if (searchTerm && !item.path.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false;
-      }
+          // Apply search filter
+          if (searchTerm && !item.path.toLowerCase().includes(searchTerm.toLowerCase())) {
+            return false;
+          }
 
-      return true;
-    })
-    .sort((a, b) => {
-      return a.path.localeCompare(b.path);
-    });
+          return true;
+        })
+        .sort((a, b) => {
+          return a.path.localeCompare(b.path);
+        }),
+    [lockedItems, filter, searchTerm],
+  );
 
   // Handle selecting/deselecting a single item
   const handleSelectItem = (path: string) => {

@@ -54,7 +54,7 @@ const SliderButton = memo(({ selected, children, setSelected }: SliderButtonProp
       onClick={setSelected}
       className="bg-transparent text-sm px-2.5 py-0.5 rounded-full relative"
       style={{
-        color: selected ? '#60a5fa' : 'rgba(255,255,255,0.5)',
+        color: selected ? 'var(--bolt-elements-button-primary-text)' : 'var(--bolt-elements-textTertiary)',
       }}
     >
       <span className="relative z-10">{children}</span>
@@ -63,7 +63,7 @@ const SliderButton = memo(({ selected, children, setSelected }: SliderButtonProp
           layoutId="pill-tab"
           transition={{ duration: 0.2, ease: cubicEasingFn }}
           className="absolute inset-0 z-0 rounded-full"
-          style={{ background: 'rgba(59, 130, 246, 0.15)' }}
+          style={{ background: 'var(--bolt-elements-button-primary-background)' }}
         ></motion.span>
       )}
     </button>

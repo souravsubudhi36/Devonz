@@ -23,7 +23,7 @@ const VersionCard = memo(({ version, onRestore, onRevert }: VersionCardProps) =>
       onMouseLeave={() => setIsHovered(false)}
       className="flex gap-4 p-4 rounded-xl transition-colors"
       style={{
-        background: isHovered ? 'rgba(255,255,255,0.03)' : 'transparent',
+        background: isHovered ? 'var(--bolt-elements-bg-depth-4)' : 'transparent',
       }}
     >
       {/* Thumbnail placeholder */}
@@ -38,7 +38,7 @@ const VersionCard = memo(({ version, onRestore, onRevert }: VersionCardProps) =>
         {version.thumbnail ? (
           <img src={version.thumbnail} alt="Version preview" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/20">
+          <div className="w-full h-full flex items-center justify-center text-bolt-elements-textTertiary">
             <div className="i-ph:image text-2xl" />
           </div>
         )}
@@ -50,14 +50,14 @@ const VersionCard = memo(({ version, onRestore, onRevert }: VersionCardProps) =>
           {/* Version ID badge */}
           <span
             className="px-2 py-0.5 rounded text-xs font-mono"
-            style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}
+            style={{ background: 'var(--bolt-elements-button-secondary-background)', color: 'var(--bolt-elements-textSecondary)' }}
           >
             {version.id}
           </span>
 
           {/* Latest badge */}
           {version.isLatest && (
-            <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: '#3b82f6', color: 'white' }}>
+            <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: 'var(--bolt-elements-button-primary-background)', color: 'var(--bolt-elements-button-primary-text)' }}>
               Latest
             </span>
           )}
@@ -69,8 +69,8 @@ const VersionCard = memo(({ version, onRestore, onRevert }: VersionCardProps) =>
                 onClick={() => onRestore(version.id)}
                 className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs transition-colors"
                 style={{
-                  background: 'rgba(59, 130, 246, 0.15)',
-                  color: '#60a5fa',
+                  background: 'var(--bolt-elements-button-primary-background)',
+                  color: 'var(--bolt-elements-button-primary-text)',
                 }}
               >
                 <div className="i-ph:arrow-counter-clockwise text-sm" />
@@ -81,8 +81,8 @@ const VersionCard = memo(({ version, onRestore, onRevert }: VersionCardProps) =>
               onClick={() => onRevert(version.id)}
               className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs transition-colors"
               style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                color: 'rgba(255, 255, 255, 0.7)',
+                background: 'var(--bolt-elements-button-secondary-background)',
+                color: 'var(--bolt-elements-textSecondary)',
               }}
             >
               <div className="i-ph:arrow-u-up-left text-sm" />
@@ -92,11 +92,11 @@ const VersionCard = memo(({ version, onRestore, onRevert }: VersionCardProps) =>
         </div>
 
         {/* Title and description */}
-        <h3 className="text-sm font-medium text-white/90 truncate mb-0.5">{version.title}</h3>
-        <p className="text-xs text-white/50 line-clamp-2 mb-1">{version.description}</p>
+        <h3 className="text-sm font-medium text-bolt-elements-textPrimary truncate mb-0.5">{version.title}</h3>
+        <p className="text-xs text-bolt-elements-textTertiary line-clamp-2 mb-1">{version.description}</p>
 
         {/* Timestamp */}
-        <div className="flex items-center gap-1 text-xs text-white/40">
+        <div className="flex items-center gap-1 text-xs text-bolt-elements-textTertiary">
           <div className="i-ph:clock text-xs" />
           <span>Saved {versionsStore.formatRelativeTime(version.timestamp)}</span>
         </div>
@@ -153,29 +153,29 @@ export const Versions = memo(() => {
   };
 
   return (
-    <div className="h-full flex flex-col" style={{ background: '#0d1117' }}>
+    <div className="h-full flex flex-col" style={{ background: 'var(--bolt-elements-bg-depth-1)' }}>
       {/* Header */}
-      <div className="p-4 border-b border-white/10">
+      <div className="p-4 border-b border-bolt-elements-borderColor">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-white">Versions</h2>
-          <span className="text-sm text-white/50">
+          <h2 className="text-lg font-semibold text-bolt-elements-textPrimary">Versions</h2>
+          <span className="text-sm text-bolt-elements-textTertiary">
             {filteredVersions.length} of {allVersions.length}
           </span>
         </div>
-        <p className="text-sm text-white/50 mb-4">View and restore previous versions of your project.</p>
+        <p className="text-sm text-bolt-elements-textTertiary mb-4">View and restore previous versions of your project.</p>
 
         {/* Search */}
         <div className="relative">
-          <div className="i-ph:magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+          <div className="i-ph:magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-bolt-elements-textTertiary" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search versions by description or ID..."
-            className="w-full pl-9 pr-4 py-2 rounded-lg text-sm text-white placeholder-white/40 outline-none"
+            className="w-full pl-9 pr-4 py-2 rounded-lg text-sm text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary outline-none"
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'var(--bolt-elements-button-secondary-background)',
+              border: '1px solid var(--bolt-elements-borderColor)',
             }}
           />
         </div>
@@ -196,9 +196,9 @@ export const Versions = memo(() => {
           </AnimatePresence>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
-            <div className="i-ph:clock-clockwise text-4xl text-white/20 mb-4" />
-            <h3 className="text-sm font-medium text-white/60 mb-1">No versions yet</h3>
-            <p className="text-xs text-white/40 max-w-xs">
+            <div className="i-ph:clock-clockwise text-4xl text-bolt-elements-textTertiary mb-4" />
+            <h3 className="text-sm font-medium text-bolt-elements-textSecondary mb-1">No versions yet</h3>
+            <p className="text-xs text-bolt-elements-textTertiary max-w-xs">
               Versions are automatically created when the AI makes changes to your project.
             </p>
           </div>

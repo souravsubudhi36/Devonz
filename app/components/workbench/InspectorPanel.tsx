@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, memo } from 'react';
 import type { ElementInfo } from './Inspector';
 import { BoxModelEditor } from './BoxModelEditor';
 import { AiQuickActions } from './AIQuickActions';
@@ -21,6 +21,65 @@ interface BulkStyleChange {
   value: string;
 }
 
+const RELEVANT_STYLE_PROPS = [
+  'color',
+  'background-color',
+  'background',
+  'font-size',
+  'font-weight',
+  'font-family',
+  'text-align',
+  'padding',
+  'margin',
+  'border',
+  'border-radius',
+  'width',
+  'height',
+  'display',
+  'position',
+  'flex-direction',
+  'justify-content',
+  'align-items',
+  'gap',
+];
+
+const getRelevantStyles = (styles: Record<string, string>): Record<string, string> => {
+  return RELEVANT_STYLE_PROPS.reduce(
+    (acc, prop) => {
+      const value = styles[prop];
+
+      if (value) {
+        acc[prop] = value;
+      }
+
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+};
+
+const isColorProperty = (prop: string): boolean => {
+  return prop.includes('color') || prop === 'background' || prop.includes('border');
+};
+
+const parseColorFromValue = (value: string): string | null => {
+  // Try to extract hex color
+  const hexMatch = value.match(/#([0-9a-fA-F]{3,8})/);
+
+  if (hexMatch) {
+    return hexMatch[0];
+  }
+
+  // Try to extract rgb/rgba
+  const rgbMatch = value.match(/rgba?\([^)]+\)/);
+
+  if (rgbMatch) {
+    return rgbMatch[0];
+  }
+
+  return null;
+};
+
 interface InspectorPanelProps {
   selectedElement: ElementInfo | null;
   isVisible: boolean;
@@ -40,7 +99,7 @@ interface InspectorPanelProps {
   onClearBulkChanges?: () => void;
 }
 
-export const InspectorPanel = ({
+export const InspectorPanel = memo(({
   selectedElement,
   isVisible,
   onClose,
@@ -175,65 +234,6 @@ export const InspectorPanel = ({
   if (!isVisible || !selectedElement) {
     return null;
   }
-
-  const getRelevantStyles = (styles: Record<string, string>) => {
-    const relevantProps = [
-      'color',
-      'background-color',
-      'background',
-      'font-size',
-      'font-weight',
-      'font-family',
-      'text-align',
-      'padding',
-      'margin',
-      'border',
-      'border-radius',
-      'width',
-      'height',
-      'display',
-      'position',
-      'flex-direction',
-      'justify-content',
-      'align-items',
-      'gap',
-    ];
-
-    return relevantProps.reduce(
-      (acc, prop) => {
-        const value = styles[prop];
-
-        if (value) {
-          acc[prop] = value;
-        }
-
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
-  };
-
-  const isColorProperty = (prop: string) => {
-    return prop.includes('color') || prop === 'background' || prop.includes('border');
-  };
-
-  const parseColorFromValue = (value: string): string | null => {
-    // Try to extract hex color
-    const hexMatch = value.match(/#([0-9a-fA-F]{3,8})/);
-
-    if (hexMatch) {
-      return hexMatch[0];
-    }
-
-    // Try to extract rgb/rgba
-    const rgbMatch = value.match(/rgba?\([^)]+\)/);
-
-    if (rgbMatch) {
-      return rgbMatch[0];
-    }
-
-    return null;
-  };
 
   return (
     <div className="fixed right-4 top-20 w-80 bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor rounded-lg shadow-lg z-[9999] max-h-[calc(100vh-6rem)] overflow-hidden">
@@ -475,4 +475,6 @@ export const InspectorPanel = ({
       </div>
     </div>
   );
-};
+});
+
+InspectorPanel.displayName = 'InspectorPanel';

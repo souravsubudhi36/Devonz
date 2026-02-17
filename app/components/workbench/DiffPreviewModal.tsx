@@ -205,13 +205,13 @@ const DiffLineRow = memo(({ line }: DiffLineRowProps) => {
       {/* Line numbers */}
       <div
         className="w-12 flex-shrink-0 text-right pr-2 select-none border-r border-bolt-elements-borderColor"
-        style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', color: '#6b7280' }}
+        style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', color: 'var(--bolt-elements-textSecondary)' }}
       >
         {line.lineNumberBefore ?? ''}
       </div>
       <div
         className="w-12 flex-shrink-0 text-right pr-2 select-none border-r border-bolt-elements-borderColor"
-        style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', color: '#6b7280' }}
+        style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', color: 'var(--bolt-elements-textSecondary)' }}
       >
         {line.lineNumberAfter ?? ''}
       </div>
@@ -258,11 +258,11 @@ const DiffContent = memo(({ change }: DiffContentProps) => {
       {/* Stats bar */}
       <div
         className="flex items-center gap-4 px-4 py-2"
-        style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', borderBottom: '1px solid #333' }}
+        style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', borderBottom: '1px solid var(--bolt-elements-borderColor)' }}
       >
         <span className="text-sm text-green-400">+{stats.added} additions</span>
         <span className="text-sm text-red-400">-{stats.removed} deletions</span>
-        <span className="text-sm" style={{ color: '#6b7280' }}>
+        <span className="text-sm" style={{ color: 'var(--bolt-elements-textSecondary)' }}>
           {diffLines.filter((l) => l.type === 'unchanged').length} unchanged
         </span>
       </div>
@@ -430,7 +430,7 @@ export const DiffPreviewModal = memo(() => {
                   className="w-[90vw] max-w-5xl h-[85vh] rounded-lg shadow-xl flex flex-col focus:outline-none"
                   style={{
                     backgroundColor: 'var(--bolt-elements-bg-depth-3)',
-                    borderColor: '#333',
+                    borderColor: 'var(--bolt-elements-borderColor)',
                     borderWidth: '1px',
                     borderStyle: 'solid',
                   }}
@@ -457,17 +457,17 @@ export const DiffPreviewModal = memo(() => {
                     className="flex items-center justify-between px-4 py-3 rounded-t-lg"
                     style={{
                       backgroundColor: 'var(--bolt-elements-background-depth-4)',
-                      borderBottom: '1px solid #333',
+                      borderBottom: '1px solid var(--bolt-elements-borderColor)',
                     }}
                   >
                     <div className="flex items-center gap-3">
                       {/* File icon and path */}
                       <div className={classNames('w-5 h-5', getFileIcon(change.filePath))} />
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium" style={{ color: '#ffffff' }}>
+                        <span className="text-sm font-medium" style={{ color: 'var(--bolt-elements-textPrimary)' }}>
                           {fileName}
                         </span>
-                        <span className="text-xs" style={{ color: '#6b7280' }}>
+                        <span className="text-xs" style={{ color: 'var(--bolt-elements-textSecondary)' }}>
                           {change.filePath}
                         </span>
                       </div>
@@ -487,7 +487,7 @@ export const DiffPreviewModal = memo(() => {
                     <div className="flex items-center gap-2">
                       {position.total > 1 && (
                         <>
-                          <span className="text-sm" style={{ color: '#6b7280' }}>
+                          <span className="text-sm" style={{ color: 'var(--bolt-elements-textSecondary)' }}>
                             {position.current} of {position.total}
                           </span>
                           <IconButton
@@ -500,14 +500,14 @@ export const DiffPreviewModal = memo(() => {
                             onClick={() => selectNextChange()}
                             title="Next change (])"
                           />
-                          <div className="w-px h-6 mx-2" style={{ backgroundColor: '#333' }} />
+                          <div className="w-px h-6 mx-2" style={{ backgroundColor: 'var(--bolt-elements-borderColor)' }} />
                         </>
                       )}
                       <IconButton
                         icon="i-ph:x"
                         onClick={handleClose}
                         title="Close (Escape)"
-                        className="text-[#6b7280]"
+                        className="text-bolt-elements-textSecondary"
                       />
                     </div>
                   </div>
@@ -583,7 +583,7 @@ export const DiffPreviewModal = memo(() => {
                           variant="ghost"
                           onClick={handleSkip}
                           disabled={isProcessing}
-                          style={{ backgroundColor: '#333', color: '#9ca3af' }}
+                          style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)', color: 'var(--bolt-elements-textSecondary)' }}
                         >
                           Skip
                         </Button>

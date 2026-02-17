@@ -164,7 +164,12 @@ export const EditorPanel = memo(
             </Panel>
 
             <PanelResizeHandle />
-            <Panel className="flex flex-col" defaultSize={80} minSize={20} style={{ background: '#0d1117' }}>
+            <Panel
+              className="flex flex-col"
+              defaultSize={80}
+              minSize={20}
+              style={{ background: 'var(--bolt-elements-bg-depth-1)' }}
+            >
               <PanelHeader className="overflow-x-auto">
                 {activeFileSegments?.length && (
                   <div className="flex items-center flex-1 text-sm">

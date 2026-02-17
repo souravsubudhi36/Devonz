@@ -30,7 +30,7 @@ const CardTitle = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHead
       <h3
         ref={ref}
         className={classNames('text-2xl font-semibold leading-none tracking-tight', className)}
-        style={{ color: '#fff', ...style }}
+        style={{ color: 'var(--bolt-elements-textPrimary)', ...style }}
         {...props}
       />
     );

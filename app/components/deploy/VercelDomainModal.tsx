@@ -166,7 +166,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                       </svg>
                     </div>
                     <div>
-                      <RadixDialog.Title className="text-lg font-semibold" style={{ color: '#ffffff' }}>
+                      <RadixDialog.Title className="text-lg font-semibold" style={{ color: 'var(--bolt-elements-textPrimary)' }}>
                         Domain Settings
                       </RadixDialog.Title>
                       <RadixDialog.Description
@@ -184,7 +184,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
 
                 <div className="p-6 space-y-6">
                   <div>
-                    <h3 className="text-sm font-medium mb-3" style={{ color: '#ffffff' }}>
+                    <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--bolt-elements-textPrimary)' }}>
                       Add Custom Subdomain
                     </h3>
                     <div className="flex items-center gap-2">
@@ -204,7 +204,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                           }}
                           placeholder="my-custom-domain"
                           className="flex-1 px-4 py-2.5 bg-transparent text-sm focus:outline-none"
-                          style={{ color: '#ffffff' }}
+                          style={{ color: 'var(--bolt-elements-textPrimary)' }}
                           disabled={isSaving}
                         />
                         <span
@@ -254,19 +254,19 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                     <div
                       className="px-4 py-3 rounded-lg text-sm flex items-center gap-2"
                       style={{
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        backgroundColor: 'var(--bolt-elements-button-danger-background)',
+                        border: '1px solid var(--bolt-elements-button-danger-backgroundHover)',
                       }}
                     >
                       <div className="i-ph:warning-circle text-red-400 w-5 h-5 flex-shrink-0" />
-                      <span style={{ color: '#f87171' }}>{error}</span>
+                      <span style={{ color: 'var(--bolt-elements-button-danger-text)' }}>{error}</span>
                     </div>
                   )}
 
                   <div>
                     <h3
                       className="text-sm font-medium mb-3 flex items-center justify-between"
-                      style={{ color: '#ffffff' }}
+                      style={{ color: 'var(--bolt-elements-textPrimary)' }}
                     >
                       Connected Domains
                       <button
@@ -323,7 +323,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                                   domain.verified ? 'bg-green-500' : 'bg-yellow-500',
                                 )}
                               />
-                              <span className="text-sm" style={{ color: '#ffffff' }}>
+                              <span className="text-sm" style={{ color: 'var(--bolt-elements-textPrimary)' }}>
                                 {domain.name}
                               </span>
                               {domain.verified && (
@@ -349,7 +349,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                                 onClick={() => handleRemoveDomain(domain.name)}
                                 disabled={isSaving}
                                 className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/10"
-                                style={{ color: '#ef4444' }}
+                                style={{ color: 'var(--bolt-elements-button-danger-text)' }}
                               >
                                 <div className="i-ph:trash w-4 h-4" />
                               </button>
@@ -362,7 +362,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
 
                   {currentUrl && (
                     <div className="pt-4" style={{ borderTop: '1px solid var(--bolt-elements-borderColor)' }}>
-                      <h3 className="text-sm font-medium mb-2" style={{ color: '#ffffff' }}>
+                      <h3 className="text-sm font-medium mb-2" style={{ color: 'var(--bolt-elements-textPrimary)' }}>
                         Current Deployment
                       </h3>
                       <a
@@ -370,7 +370,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-sm hover:underline"
-                        style={{ color: '#60a5fa' }}
+                        style={{ color: 'var(--bolt-elements-messages-linkColor)' }}
                       >
                         <div className="i-ph:link w-4 h-4" />
                         {currentUrl}
