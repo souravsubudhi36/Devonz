@@ -8,7 +8,7 @@ export type Theme = 'dark' | 'light';
 
 export const kTheme = 'devonz_theme';
 
-export const DEFAULT_THEME = 'light';
+export const DEFAULT_THEME = 'dark';
 
 export const themeStore = atom<Theme>(initStore());
 
