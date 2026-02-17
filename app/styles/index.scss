@@ -16,7 +16,7 @@ body {
   background-color: var(--bolt-elements-bg-depth-1);
 }
 
-// Modern scrollbar styling - apply only to scrollable containers
+// Modern scrollbar styling - hidden by default, scroll still works
 html,
 body,
 .chat-container,
@@ -32,31 +32,10 @@ textarea,
 [class*="overflow-y-auto"],
 [class*="overflow-x-auto"],
 [class*="overflow-scroll"] {
-  scrollbar-width: thin;
-  scrollbar-color: #444444 #131a24;
+  scrollbar-width: none;
 
   &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #131a24;
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #444444;
-    border-radius: 4px;
-    border: 2px solid #131a24;
-
-    &:hover {
-      background-color: #555555;
-    }
-  }
-
-  &::-webkit-scrollbar-corner {
-    background: #131a24;
+    display: none;
   }
 }
 
