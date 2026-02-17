@@ -65,6 +65,10 @@
 
   --bolt-elements-prompt-background: theme('colors.alpha.white.80');
 
+  --bolt-chat-bg: linear-gradient(145deg, rgba(200, 215, 235, 0.3), rgba(245, 245, 245, 0.95));
+  --bolt-chat-border: rgba(180, 195, 215, 0.5);
+  --bolt-chat-shadow: rgba(180, 195, 215, 0.2);
+
   --bolt-elements-sidebar-dropdownShadow: theme('colors.alpha.gray.10');
   --bolt-elements-sidebar-buttonBackgroundDefault: theme('colors.alpha.accent.10');
   --bolt-elements-sidebar-buttonBackgroundHover: theme('colors.alpha.accent.20');
@@ -174,6 +178,10 @@
   --bolt-elements-dividerColor: rgba(255, 255, 255, 0.08);
 
   --bolt-elements-prompt-background: rgba(19, 26, 36, 0.9);
+
+  --bolt-chat-bg: linear-gradient(145deg, rgba(30, 58, 95, 0.15), rgba(26, 26, 26, 0.95));
+  --bolt-chat-border: rgba(61, 90, 127, 0.4);
+  --bolt-chat-shadow: rgba(30, 58, 95, 0.2);
 
   --bolt-elements-sidebar-dropdownShadow: rgba(0, 0, 0, 0.3);
   --bolt-elements-sidebar-buttonBackgroundDefault: rgba(59, 130, 246, 0.1);

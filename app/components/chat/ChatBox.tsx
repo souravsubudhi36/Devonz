@@ -67,13 +67,13 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
 
   return (
     <div
-      className={classNames(
-        'relative p-4 rounded-xl w-full max-w-chat mx-auto z-prompt',
-        'border border-[#3d5a7f]/40',
-        'shadow-xl shadow-[#1e3a5f]/20',
-      )}
+      className={classNames('relative p-4 rounded-xl w-full max-w-chat mx-auto z-prompt', 'shadow-xl')}
       style={{
-        background: 'linear-gradient(145deg, rgba(30, 58, 95, 0.15), rgba(26, 26, 26, 0.95))',
+        background: 'var(--bolt-chat-bg)',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: 'var(--bolt-chat-border)',
+        boxShadow: '0 20px 25px -5px var(--bolt-chat-shadow)',
         backdropFilter: 'blur(24px)',
       }}
     >
