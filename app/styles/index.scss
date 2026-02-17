@@ -49,51 +49,19 @@ textarea,
 
 .modern-scrollbar {
   overflow: auto;
+  scrollbar-width: none;
 
-  // WebKit scrollbar styling
   &::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    display: none;
   }
-
-  &::-webkit-scrollbar-track {
-    background: var(--modern-scrollbar-track-background, #131a24);
-  }
-
-  &::-webkit-scrollbar-thumb {
-    // Use CSS variables for colors
-    background-color: var(--modern-scrollbar-thumb-background);
-    border-radius: 5px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    // Use CSS variable for hover color
-    background-color: var(--modern-scrollbar-thumb-backgroundHover);
-  }
-
-  &::-webkit-scrollbar-corner {
-    background: var(--modern-scrollbar-track-background, #131a24);
-  }
-
-  // Firefox support
-  scrollbar-width: thin;
-  // Use CSS variables for Firefox colors
-  scrollbar-color: var(--modern-scrollbar-thumb-background) var(--modern-scrollbar-track-background, #131a24);
 }
 
 .modern-scrollbar-invert {
-  &::-webkit-scrollbar-thumb {
-    // Override with a contrasting color, e.g., primary text color with transparency
-    background-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 70%);
-  }
+  scrollbar-width: none;
 
-  &::-webkit-scrollbar-thumb:hover {
-    // Darker/more opaque version on hover
-    background-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%);
+  &::-webkit-scrollbar {
+    display: none;
   }
-
-  // Firefox support for inverted colors
-  scrollbar-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%) transparent;
 }
 
 // Content visibility optimization for long message lists
