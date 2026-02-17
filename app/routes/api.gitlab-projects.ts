@@ -21,7 +21,7 @@ interface GitLabProject {
 
 async function gitlabProjectsLoader({ request }: { request: Request }) {
   try {
-    const body: any = await request.json();
+    const body = (await request.json()) as { token?: string; gitlabUrl?: string };
     const { token, gitlabUrl = 'https://gitlab.com' } = body;
 
     if (!token) {

@@ -228,7 +228,9 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     }
 
     // Filter out .git files for both methods
-    const filteredFiles = fileList.filter((file: any) => !file.path.startsWith('.git'));
+    const filteredFiles = fileList.filter(
+      (file): file is { name: string; path: string; content: string } => file != null && !file.path.startsWith('.git'),
+    );
 
     return json(filteredFiles);
   } catch (error) {

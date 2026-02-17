@@ -107,7 +107,7 @@ async function netlifyUserAction({ request, context }: ActionFunctionArgs) {
         name: string;
         url: string;
         admin_url: string;
-        build_settings: any;
+        build_settings: Record<string, unknown>;
         created_at: string;
         updated_at: string;
       }>;

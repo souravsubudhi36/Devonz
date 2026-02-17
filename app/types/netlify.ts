@@ -58,6 +58,7 @@ export interface NetlifyBuild {
   name?: string;
   state?: string;
   sha?: string;
+  commit_ref?: string;
   done: boolean;
   error?: string;
   created_at: string;

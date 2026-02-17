@@ -21,7 +21,7 @@ interface MessagesProps {
   setChatMode?: (mode: 'discuss' | 'build') => void;
   model?: string;
   provider?: ProviderInfo;
-  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
+  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: unknown }) => void;
 }
 
 export const Messages = forwardRef<HTMLDivElement, MessagesProps>(

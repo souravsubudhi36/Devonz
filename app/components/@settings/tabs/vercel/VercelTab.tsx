@@ -54,8 +54,10 @@ export default function VercelTab() {
   } = useConnectionTest({
     testEndpoint: '/api/vercel-user',
     serviceName: 'Vercel',
-    getUserIdentifier: (data: VercelUserResponse) =>
-      data.username || data.user?.username || data.email || data.user?.email || 'Vercel User',
+    getUserIdentifier: (data: unknown) => {
+      const d = data as VercelUserResponse;
+      return d.username || d.user?.username || d.email || d.user?.email || 'Vercel User';
+    },
     getToken: () => vercelConnection.get().token || null,
   });
 

@@ -303,11 +303,13 @@ export const ChatImpl = memo(
     };
 
     const handleError = useCallback(
-      (error: any, context: 'chat' | 'template' | 'llmcall' = 'chat') => {
+      (error: unknown, context: 'chat' | 'template' | 'llmcall' = 'chat') => {
         logger.error(`${context} request failed`, error);
 
         stop();
         setFakeLoading(false);
+
+        const errorMessage = error instanceof Error ? error.message : String(error);
 
         let errorInfo = {
           message: 'An unexpected error occurred',
@@ -318,17 +320,17 @@ export const ChatImpl = memo(
           retryDelay: 0,
         };
 
-        if (error.message) {
+        if (errorMessage) {
           try {
-            const parsed = JSON.parse(error.message);
+            const parsed = JSON.parse(errorMessage);
 
             if (parsed.error || parsed.message) {
               errorInfo = { ...errorInfo, ...parsed };
             } else {
-              errorInfo.message = error.message;
+              errorInfo.message = errorMessage;
             }
           } catch {
-            errorInfo.message = error.message;
+            errorInfo.message = errorMessage;
           }
         }
 

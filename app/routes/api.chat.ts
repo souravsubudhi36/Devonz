@@ -135,7 +135,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   const { messages, files, promptId, contextOptimization, supabase, chatMode, designScheme, maxLLMSteps, agentMode } =
     parsed.data as {
       messages: Messages;
-      files: any;
+      files: FileMap | undefined;
       promptId?: string;
       contextOptimization: boolean;
       chatMode: 'discuss' | 'build';
@@ -258,7 +258,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             messages: [...processedMessages],
             env: context.cloudflare?.env,
             apiKeys,
-            files,
+            files: files || {},
             providerSettings,
             promptId,
             contextOptimization,

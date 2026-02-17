@@ -6,6 +6,28 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('GitHubStats');
 
+interface GitHubRepoApiResponse {
+  id: number;
+  name: string;
+  full_name: string;
+  html_url: string;
+  clone_url?: string;
+  description: string | null;
+  private: boolean;
+  language: string | null;
+  updated_at: string;
+  stargazers_count: number;
+  forks_count: number;
+  watchers_count: number;
+  topics: string[];
+  fork: boolean;
+  archived: boolean;
+  size: number;
+  default_branch: string;
+  languages_url: string;
+  branches_count?: number;
+}
+
 async function githubStatsLoader({ request, context }: LoaderFunctionArgs) {
   try {
     // Get API keys from cookies (server-side only)
@@ -45,7 +67,7 @@ async function githubStatsLoader({ request, context }: LoaderFunctionArgs) {
     const user = (await userResponse.json()) as GitHubUserResponse;
 
     // Fetch repositories with pagination
-    let allRepos: any[] = [];
+    let allRepos: GitHubRepoApiResponse[] = [];
     let page = 1;
     let hasMore = true;
 
@@ -65,7 +87,7 @@ async function githubStatsLoader({ request, context }: LoaderFunctionArgs) {
         throw new Error(`GitHub API error: ${repoResponse.status}`);
       }
 
-      const repos: any[] = await repoResponse.json();
+      const repos = (await repoResponse.json()) as GitHubRepoApiResponse[];
       allRepos = allRepos.concat(repos);
 
       if (repos.length < 100) {
@@ -147,14 +169,14 @@ async function githubStatsLoader({ request, context }: LoaderFunctionArgs) {
 
     const stats: GitHubStats = {
       repos: allRepos.map((repo) => ({
-        id: repo.id,
+        id: String(repo.id),
         name: repo.name,
         full_name: repo.full_name,
         html_url: repo.html_url,
         clone_url: repo.clone_url || '',
-        description: repo.description,
+        description: repo.description || '',
         private: repo.private,
-        language: repo.language,
+        language: repo.language || '',
         updated_at: repo.updated_at,
         stargazers_count: repo.stargazers_count || 0,
         forks_count: repo.forks_count || 0,

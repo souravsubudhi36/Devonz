@@ -1,7 +1,7 @@
 export interface ServiceError {
   code?: string;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
   service: string;
   operation: string;
 }

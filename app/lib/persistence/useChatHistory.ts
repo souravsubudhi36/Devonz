@@ -245,10 +245,12 @@ export function useChatHistory() {
         const filteredAnnotations = (annotations?.filter(
           (annotation: JSONValue) =>
             annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),
-        ) || []) as { type: string; value: any } & { [key: string]: any }[];
+        ) || []) as (Record<string, unknown> & { type: string })[];
 
         if (filteredAnnotations.find((annotation) => annotation.type === 'chatSummary')) {
-          chatSummary = filteredAnnotations.find((annotation) => annotation.type === 'chatSummary')?.summary;
+          chatSummary = filteredAnnotations.find((annotation) => annotation.type === 'chatSummary')?.summary as
+            | string
+            | undefined;
         }
       }
 

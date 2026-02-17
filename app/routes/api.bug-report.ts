@@ -160,7 +160,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
 
     // Parse and validate request body
     const formData = await request.formData();
-    const rawData: any = Object.fromEntries(formData.entries());
+    const rawData = Object.fromEntries(formData.entries()) as Record<string, unknown>;
 
     // Parse environment info if provided
     if (rawData.environmentInfo && typeof rawData.environmentInfo === 'string') {

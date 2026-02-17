@@ -180,7 +180,7 @@ export function useGitHubStats(
             throw new Error('GitHub authentication required');
           }
 
-          const errorData: any = await response.json();
+          const errorData = (await response.json()) as { error?: string };
           throw new Error(errorData.error || 'Failed to fetch stats from server');
         }
 

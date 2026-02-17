@@ -48,7 +48,7 @@ function initializeCache(): LockedItem[] {
         const items = JSON.parse(lockedItemsJson);
 
         // Handle legacy format (without isFolder property)
-        const normalizedItems = items.map((item: any) => ({
+        const normalizedItems = items.map((item: { chatId: string; path: string; isFolder?: boolean }) => ({
           ...item,
           isFolder: item.isFolder !== undefined ? item.isFolder : false,
         }));

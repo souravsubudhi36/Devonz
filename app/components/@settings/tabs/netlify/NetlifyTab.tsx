@@ -1169,7 +1169,7 @@ export default function NetlifyTab() {
                         </h4>
                       </div>
                       <div className="space-y-2">
-                        {connection.stats.builds.slice(0, 8).map((build: any) => (
+                        {connection.stats.builds.slice(0, 8).map((build: NetlifyBuild) => (
                           <div
                             key={build.id}
                             className="bg-bolt-elements-background dark:bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-lg p-3"

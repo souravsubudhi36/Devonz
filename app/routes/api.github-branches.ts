@@ -29,7 +29,7 @@ async function githubBranchesLoader({ request, context }: LoaderFunctionArgs) {
 
     if (request.method === 'POST') {
       // Handle POST request with token in body (from BranchSelector)
-      const body: any = await request.json();
+      const body = (await request.json()) as { owner: string; repo: string; token: string };
       owner = body.owner;
       repo = body.repo;
       githubToken = body.token;
@@ -91,7 +91,7 @@ async function githubBranchesLoader({ request, context }: LoaderFunctionArgs) {
       throw new Error(`GitHub API error: ${repoResponse.status}`);
     }
 
-    const repoInfo: any = await repoResponse.json();
+    const repoInfo = (await repoResponse.json()) as { default_branch: string };
     const defaultBranch = repoInfo.default_branch;
 
     // Fetch branches

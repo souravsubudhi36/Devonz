@@ -5,7 +5,7 @@ import { createScopedLogger } from '~/utils/logger';
 const logger = createScopedLogger('DiskInfo');
 
 // Only import child_process if we're not in a Cloudflare environment
-let execSync: any;
+let execSync: ((command: string, options?: { encoding?: string }) => string) | null = null;
 
 try {
   // Check if we're in a Node.js environment
@@ -88,7 +88,7 @@ const getDiskInfo = (): DiskInfo[] => {
     if (platform === 'darwin') {
       // macOS - use df command to get disk information
       try {
-        const output = execSync('df -k', { encoding: 'utf-8' }).toString().trim();
+        const output = execSync!('df -k', { encoding: 'utf-8' }).toString().trim();
 
         // Skip the header line
         const lines = output.split('\n').slice(1);
@@ -140,7 +140,7 @@ const getDiskInfo = (): DiskInfo[] => {
     } else if (platform === 'linux') {
       // Linux - use df command to get disk information
       try {
-        const output = execSync('df -k', { encoding: 'utf-8' }).toString().trim();
+        const output = execSync!('df -k', { encoding: 'utf-8' }).toString().trim();
 
         // Skip the header line
         const lines = output.split('\n').slice(1);
@@ -192,7 +192,7 @@ const getDiskInfo = (): DiskInfo[] => {
     } else if (platform === 'win32') {
       // Windows - use PowerShell to get disk information
       try {
-        const output = execSync(
+        const output = execSync!(
           'powershell "Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free, @{Name=\'Size\';Expression={$_.Used + $_.Free}} | ConvertTo-Json"',
           { encoding: 'utf-8' },
         )

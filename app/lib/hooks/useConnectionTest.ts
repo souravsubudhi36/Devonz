@@ -4,7 +4,7 @@ import type { ConnectionTestResult } from '~/components/@settings/shared/service
 interface UseConnectionTestOptions {
   testEndpoint: string;
   serviceName: string;
-  getUserIdentifier?: (data: any) => string;
+  getUserIdentifier?: (data: unknown) => string;
 
   /** Optional function to get the current auth token */
   getToken?: () => string | null;

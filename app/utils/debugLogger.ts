@@ -20,7 +20,13 @@ declare global {
 
 /** Shape of the lazily-loaded LogStore used for alert collection */
 interface LazyLogStore {
-  getLogs?: () => Array<{ level: string; message: string; category: string }>;
+  getLogs?: () => Array<{
+    level: string;
+    message: string;
+    category: string;
+    timestamp?: string;
+    details?: Record<string, unknown>;
+  }>;
 }
 
 // Lazy import to avoid circular dependencies
@@ -168,7 +174,7 @@ export interface LogEntry {
   level: 'trace' | 'debug' | 'info' | 'warn' | 'error';
   scope?: string;
   message: string;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 export interface ErrorEntry {
@@ -180,7 +186,7 @@ export interface ErrorEntry {
   line?: number;
   column?: number;
   userAgent?: string;
-  context?: any;
+  context?: Record<string, unknown>;
 }
 
 export interface NetworkEntry {
@@ -205,7 +211,7 @@ export interface PerformanceEntry {
     total: number;
     limit: number;
   };
-  timing: any; // Using any instead of deprecated PerformanceTiming
+  timing: PerformanceTiming;
 }
 
 export interface StateEntry {
@@ -225,7 +231,7 @@ export interface UserActionEntry {
   timestamp: string;
   action: string;
   target?: string;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 export interface TerminalEntry {
@@ -655,7 +661,7 @@ class DebugLogger {
     }
   }
 
-  captureUserAction(action: string, target?: string, data?: any): void {
+  captureUserAction(action: string, target?: string, data?: Record<string, unknown>): void {
     if (!this._isCapturing) {
       return;
     }
@@ -779,8 +785,8 @@ class DebugLogger {
 
       const logs = store.getLogs?.() || [];
 
-      return logs.slice(0, 500).map((log: any) => ({
-        timestamp: log.timestamp,
+      return logs.slice(0, 500).map((log) => ({
+        timestamp: log.timestamp ?? new Date().toISOString(),
         level: log.level as LogEntry['level'],
         scope: log.category,
         message: log.message,
@@ -1265,7 +1271,7 @@ export function captureTerminalLog(
   }
 }
 
-export function captureUserAction(action: string, target?: string, data?: any): void {
+export function captureUserAction(action: string, target?: string, data?: Record<string, unknown>): void {
   try {
     debugLogger.captureUserAction(action, target, data);
   } catch (error) {

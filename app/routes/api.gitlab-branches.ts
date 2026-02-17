@@ -25,7 +25,7 @@ interface BranchInfo {
 
 async function gitlabBranchesLoader({ request }: { request: Request }) {
   try {
-    const body: any = await request.json();
+    const body = (await request.json()) as { token?: string; gitlabUrl?: string; projectId?: string };
     const { token, gitlabUrl = 'https://gitlab.com', projectId } = body;
 
     if (!token) {
@@ -82,7 +82,7 @@ async function gitlabBranchesLoader({ request }: { request: Request }) {
     let defaultBranchName = 'main'; // fallback
 
     if (projectResponse.ok) {
-      const projectInfo: any = await projectResponse.json();
+      const projectInfo = (await projectResponse.json()) as { default_branch?: string };
       defaultBranchName = projectInfo.default_branch || 'main';
     }
 

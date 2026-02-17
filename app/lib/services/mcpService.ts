@@ -119,7 +119,7 @@ export class MCPService {
     return MCPService._instance;
   }
 
-  private _validateServerConfig(serverName: string, config: any): MCPServerConfig {
+  private _validateServerConfig(serverName: string, config: Record<string, unknown>): MCPServerConfig {
     const hasStdioField = config.command !== undefined;
     const hasUrlField = config.url !== undefined;
 
@@ -135,7 +135,7 @@ export class MCPService {
       throw new Error(`missing "type" field, only "sse" and "streamable-http" are valid options.`);
     }
 
-    if (!['stdio', 'sse', 'streamable-http'].includes(config.type)) {
+    if (!['stdio', 'sse', 'streamable-http'].includes(config.type as string)) {
       throw new Error(`provided "type" is invalid, only "stdio", "sse" or "streamable-http" are valid options.`);
     }
 
@@ -144,7 +144,7 @@ export class MCPService {
       throw new Error(`missing "command" field.`);
     }
 
-    if (['sse', 'streamable-http'].includes(config.type) && !hasUrlField) {
+    if (['sse', 'streamable-http'].includes(config.type as string) && !hasUrlField) {
       throw new Error(`missing "url" field.`);
     }
 

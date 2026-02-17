@@ -125,7 +125,7 @@ function getColorForLevel(level: DebugLevel): string {
 export const renderLogger = createScopedLogger('Render');
 
 // Debug logging integration
-let debugLogger: any = null;
+let debugLogger: { captureLog(level: DebugLevel, scope: string | undefined, messages: unknown[]): void } | null = null;
 
 // Lazy load debug logger to avoid circular dependencies
 const getDebugLogger = () => {

@@ -4,6 +4,7 @@ import { computed } from 'nanostores';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import type { FileHistory } from '~/types/actions';
+import type { IChatMetadata } from '~/lib/persistence/db';
 import {
   type OnChangeCallback as OnEditorChange,
   type OnScrollCallback as OnEditorScroll,
@@ -38,7 +39,7 @@ interface WorkspaceProps {
   metadata?: {
     gitUrl?: string;
   };
-  updateChatMestaData?: (metadata: any) => void;
+  updateChatMestaData?: (metadata: IChatMetadata) => void;
   setSelectedElement?: (element: ElementInfo | null) => void;
 
   /** The width of the workbench panel in pixels */
