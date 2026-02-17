@@ -204,13 +204,13 @@ const DiffLineRow = memo(({ line }: DiffLineRowProps) => {
     <div className={classNames('flex text-sm font-mono', bgColor)}>
       {/* Line numbers */}
       <div
-        className="w-12 flex-shrink-0 text-right pr-2 select-none border-r border-[#333]"
+        className="w-12 flex-shrink-0 text-right pr-2 select-none border-r border-bolt-elements-borderColor"
         style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', color: '#6b7280' }}
       >
         {line.lineNumberBefore ?? ''}
       </div>
       <div
-        className="w-12 flex-shrink-0 text-right pr-2 select-none border-r border-[#333]"
+        className="w-12 flex-shrink-0 text-right pr-2 select-none border-r border-bolt-elements-borderColor"
         style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)', color: '#6b7280' }}
       >
         {line.lineNumberAfter ?? ''}

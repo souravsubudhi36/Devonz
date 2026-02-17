@@ -200,7 +200,7 @@ export const Workbench = memo(
                             'min-w-[240px] z-[9999]',
                             'bg-bolt-elements-background-depth-2',
                             'rounded-lg shadow-lg',
-                            'border border-gray-200/50 dark:border-gray-800/50',
+                            'border border-bolt-elements-borderColor',
                             'animate-in fade-in-0 zoom-in-95',
                             'py-1',
                           )}

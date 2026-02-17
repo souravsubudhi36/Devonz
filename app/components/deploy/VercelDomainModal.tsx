@@ -313,8 +313,8 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                                 href={`https://${domain.name}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#2a2a2a]"
-                                style={{ color: '#9ca3af' }}
+                                className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-bolt-elements-bg-depth-3"
+                                style={{ color: 'var(--bolt-elements-textSecondary)' }}
                               >
                                 <div className="i-ph:arrow-square-out w-4 h-4" />
                               </a>
