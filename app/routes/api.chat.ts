@@ -2,7 +2,7 @@ import { type ActionFunctionArgs } from '@remix-run/node';
 import { createDataStream, generateId } from 'ai';
 import { z } from 'zod';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS, type FileMap } from '~/lib/.server/llm/constants';
-import { CONTINUE_PROMPT } from '~/lib/common/prompts/prompts';
+import { CONTINUE_PROMPT } from '~/lib/common/prompts/new-prompt';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
 import type { IProviderSetting } from '~/types/model';
