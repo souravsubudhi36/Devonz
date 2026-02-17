@@ -16,6 +16,11 @@ interface DisplayMatch {
   matchCharEnd: number;
 }
 
+interface ApiSearchMatch {
+  preview: { text: string; matches: Array<{ startLineNumber: number }> };
+  ranges: Array<{ startLineNumber: number; startColumn: number; endColumn: number }>;
+}
+
 async function performTextSearch(
   instance: WebContainer,
   query: string,
@@ -33,13 +38,13 @@ async function performTextSearch(
     folders: [WORK_DIR],
   };
 
-  const progressCallback: TextSearchOnProgressCallback = (filePath: any, apiMatches: any[]) => {
+  const progressCallback: TextSearchOnProgressCallback = (filePath: string, apiMatches: ApiSearchMatch[]) => {
     const displayMatches: DisplayMatch[] = [];
 
-    apiMatches.forEach((apiMatch: { preview: { text: string; matches: string | any[] }; ranges: any[] }) => {
+    apiMatches.forEach((apiMatch) => {
       const previewLines = apiMatch.preview.text.split('\n');
 
-      apiMatch.ranges.forEach((range: { startLineNumber: number; startColumn: any; endColumn: any }) => {
+      apiMatch.ranges.forEach((range) => {
         let previewLineText = '(Preview line not found)';
         let lineIndexInPreview = -1;
 

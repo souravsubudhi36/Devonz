@@ -6,7 +6,7 @@ import { Octokit } from '@octokit/rest';
 import { classNames } from '~/utils/classNames';
 import { createScopedLogger } from '~/utils/logger';
 import { getLocalStorage } from '~/lib/persistence/localStorage';
-import type { GitHubUserResponse, GitHubRepoInfo } from '~/types/GitHub';
+import type { GitHubUserResponse, GitHubRepoInfo, GitHubConnection } from '~/types/GitHub';
 import { logStore } from '~/lib/stores/logs';
 import { chatId } from '~/lib/persistence/useChatHistory';
 import { useStore } from '@nanostores/react';
@@ -60,10 +60,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
 
   useEffect(() => {
     if (isOpen) {
-      const connection = getLocalStorage('github_connection');
-
-      // Set a default repository name based on the project name with proper sanitization
-      setRepoName(sanitizeRepoName(projectName));
+      const connection = getLocalStorage<GitHubConnection>('github_connection');
 
       if (connection?.user && connection?.token) {
         setUser(connection.user);
@@ -137,7 +134,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
             toast.error('GitHub token expired. Please reconnect your account.');
 
             // Clear invalid token
-            const connection = getLocalStorage('github_connection');
+            const connection = getLocalStorage<GitHubConnection>('github_connection');
 
             if (connection) {
               localStorage.removeItem('github_connection');
@@ -191,7 +188,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const connection = getLocalStorage('github_connection');
+    const connection = getLocalStorage<GitHubConnection>('github_connection');
 
     if (!connection?.token || !connection?.user) {
       toast.error('Please connect your GitHub account in Settings > Connections first');
@@ -548,7 +545,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
     setShowAuthDialog(false);
 
     // Refresh user data after auth
-    const connection = getLocalStorage('github_connection');
+    const connection = getLocalStorage<GitHubConnection>('github_connection');
 
     if (connection?.user && connection?.token) {
       setUser(connection.user);

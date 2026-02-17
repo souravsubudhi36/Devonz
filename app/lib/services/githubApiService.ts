@@ -5,6 +5,8 @@ import type {
   GitHubOrganization,
   GitHubStats,
   GitHubLanguageStats,
+  GitHubEvent,
+  GitHubRateLimits,
 } from '~/types/GitHub';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -62,7 +64,9 @@ export class GitHubApiServiceClass {
     });
 
     if (!response.ok) {
-      const errorData: any = await response.json().catch(() => ({ message: response.statusText }));
+      const errorData: { message?: string; code?: string } = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
       const error: GitHubApiError = {
         message: errorData.message || response.statusText,
         status: response.status,
@@ -359,7 +363,7 @@ export class GitHubApiServiceClass {
       // Fetch additional data in parallel
       const [organizations, recentActivity] = await Promise.allSettled([
         this._makeRequestInternal<GitHubOrganization[]>('/user/orgs'),
-        this._makeRequestInternal<any[]>(`/users/${userData.login}/events?per_page=10`),
+        this._makeRequestInternal<GitHubEvent[]>(`/users/${userData.login}/events?per_page=10`),
       ]);
 
       // Calculate aggregated metrics
@@ -371,7 +375,7 @@ export class GitHubApiServiceClass {
         repos: detailedRepos,
         recentActivity:
           recentActivity.status === 'fulfilled'
-            ? recentActivity.value.slice(0, 10).map((event: any) => ({
+            ? recentActivity.value.slice(0, 10).map((event: GitHubEvent) => ({
                 id: event.id,
                 type: event.type,
                 repo: { name: event.repo.name, url: event.repo.url },
@@ -412,12 +416,12 @@ export class GitHubApiServiceClass {
   async fetchUser(
     token: string,
     tokenType: 'classic' | 'fine-grained' = 'classic',
-  ): Promise<{ user: GitHubUserResponse; rateLimit: any }> {
+  ): Promise<{ user: GitHubUserResponse; rateLimit: GitHubRateLimits }> {
     this.configure({ token, tokenType });
 
     const [user, rateLimit] = await Promise.all([
       this.getAuthenticatedUser(),
-      this._makeRequestInternal('/rate_limit'),
+      this._makeRequestInternal<GitHubRateLimits>('/rate_limit'),
     ]);
 
     return { user, rateLimit };

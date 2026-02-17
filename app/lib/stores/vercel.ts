@@ -1,5 +1,5 @@
 import { atom } from 'nanostores';
-import type { VercelConnection, VercelUserResponse } from '~/types/vercel';
+import type { VercelConnection, VercelUserResponse, VercelProject } from '~/types/vercel';
 import { logStore } from './logs';
 import { toast } from 'react-toastify';
 import { vercelApi } from '~/lib/api/vercel-client';
@@ -137,7 +137,7 @@ export async function fetchVercelStats(token: string) {
     isFetchingStats.set(true);
 
     // Fetch projects via proxy (bypasses CORS)
-    const projectsResult = await vercelApi.get<{ projects: any[] }>('/v9/projects', token);
+    const projectsResult = await vercelApi.get<{ projects: VercelProject[] }>('/v9/projects', token);
 
     if (!projectsResult.success || !projectsResult.data) {
       throw new Error(projectsResult.error || 'Failed to fetch projects');
@@ -147,12 +147,11 @@ export async function fetchVercelStats(token: string) {
 
     // Fetch latest deployment for each project
     const projectsWithDeployments = await Promise.all(
-      projects.map(async (project: any) => {
+      projects.map(async (project: VercelProject) => {
         try {
-          const deploymentsResult = await vercelApi.get<{ deployments: any[] }>(
-            `/v6/deployments?projectId=${project.id}&limit=1`,
-            token,
-          );
+          const deploymentsResult = await vercelApi.get<{
+            deployments: NonNullable<VercelProject['latestDeployments']>;
+          }>(`/v6/deployments?projectId=${project.id}&limit=1`, token);
 
           if (deploymentsResult.success && deploymentsResult.data) {
             return {

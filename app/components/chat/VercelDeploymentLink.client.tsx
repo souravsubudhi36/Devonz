@@ -5,6 +5,7 @@ import { vercelApi } from '~/lib/api/vercel-client';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { useEffect, useState } from 'react';
 import { createScopedLogger } from '~/utils/logger';
+import type { VercelProject, VercelDeployment } from '~/types/vercel';
 
 const logger = createScopedLogger('VercelDeployLink');
 
@@ -31,7 +32,7 @@ export function VercelDeploymentLink() {
 
       try {
         // Fetch projects via proxy (bypasses CORS)
-        const projectsResult = await vercelApi.get<{ projects: any[] }>('/v9/projects', connection.token);
+        const projectsResult = await vercelApi.get<{ projects: VercelProject[] }>('/v9/projects', connection.token);
 
         if (!projectsResult.success || !projectsResult.data) {
           throw new Error(projectsResult.error || 'Failed to fetch projects');
@@ -47,7 +48,10 @@ export function VercelDeploymentLink() {
 
         if (project) {
           // Fetch project details via proxy
-          const projectDetailsResult = await vercelApi.get<any>(`/v9/projects/${project.id}`, connection.token);
+          const projectDetailsResult = await vercelApi.get<VercelProject>(
+            `/v9/projects/${project.id}`,
+            connection.token,
+          );
 
           if (projectDetailsResult.success && projectDetailsResult.data) {
             const projectDetails = projectDetailsResult.data;
@@ -71,7 +75,7 @@ export function VercelDeploymentLink() {
           }
 
           // If no aliases or project details failed, try fetching deployments
-          const deploymentsResult = await vercelApi.get<{ deployments: any[] }>(
+          const deploymentsResult = await vercelApi.get<{ deployments: VercelDeployment[] }>(
             `/v6/deployments?projectId=${project.id}&limit=1`,
             connection.token,
           );

@@ -7,6 +7,7 @@ import { useState } from 'react';
 import type { ActionCallbackData } from '~/lib/runtime/message-parser';
 import { chatId } from '~/lib/persistence/useChatHistory';
 import { getLocalStorage } from '~/lib/persistence/localStorage';
+import type { GitHubConnection } from '~/types/GitHub';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('GitHubDeploy');
@@ -16,7 +17,7 @@ export function useGitHubDeploy() {
   const currentChatId = useStore(chatId);
 
   const handleGitHubDeploy = async () => {
-    const connection = getLocalStorage('github_connection');
+    const connection = getLocalStorage<GitHubConnection>('github_connection');
 
     if (!connection?.token || !connection?.user) {
       toast.error('Please connect your GitHub account in Settings > Connections first');
@@ -169,6 +170,6 @@ export function useGitHubDeploy() {
   return {
     isDeploying,
     handleGitHubDeploy,
-    isConnected: !!getLocalStorage('github_connection')?.user,
+    isConnected: !!getLocalStorage<GitHubConnection>('github_connection')?.user,
   };
 }

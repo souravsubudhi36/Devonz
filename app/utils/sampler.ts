@@ -14,7 +14,7 @@ export function createSampler<T extends (...args: any[]) => any>(fn: T, sampleIn
   let timeout: NodeJS.Timeout | null = null;
 
   // Create a function with the same type as the input function
-  const sampled = function (this: any, ...args: Parameters<T>) {
+  const sampled = function (this: unknown, ...args: Parameters<T>) {
     const now = Date.now();
     lastArgs = args;
 

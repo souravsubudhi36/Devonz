@@ -54,7 +54,10 @@ export function useDataOperations({
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
   const [progressMessage, setProgressMessage] = useState<string>('');
   const [progressPercent, setProgressPercent] = useState<number>(0);
-  const [lastOperation, setLastOperation] = useState<{ type: string; data: any } | null>(null);
+  const [lastOperation, setLastOperation] = useState<{
+    type: string;
+    data: Record<string, unknown> & { previous?: Record<string, unknown> & { chats?: unknown[] } };
+  } | null>(null);
 
   /**
    * Show progress toast with percentage
@@ -179,7 +182,7 @@ export function useDataOperations({
         // Step 2: Filter settings by category
         showProgress('Filtering selected categories', 40);
 
-        const filteredSettings: Record<string, any> = {
+        const filteredSettings: Record<string, unknown> = {
           exportDate: allSettings.exportDate,
         };
 
@@ -285,7 +288,7 @@ export function useDataOperations({
       });
 
       // Direct database query approach for more reliable access
-      const directChats = await new Promise<any[]>((resolve, reject) => {
+      const directChats = await new Promise<unknown[]>((resolve, reject) => {
         try {
           logger.debug(`Creating transaction on '${db.name}' database, objectStore 'chats'`);
 
@@ -408,7 +411,7 @@ export function useDataOperations({
 
         // Create an array to store the promises for getting each chat
         const chatPromises = chatIds.map((chatId) => {
-          return new Promise<any>((resolve, reject) => {
+          return new Promise<unknown>((resolve, reject) => {
             const request = store.get(chatId);
             request.onsuccess = () => resolve(request.result);
             request.onerror = () => reject(request.error);
@@ -595,13 +598,13 @@ export function useDataOperations({
         // Step 3: Validate each chat object
         showProgress('Validating chat data', 60);
 
-        const validatedChats = importedData.chats.map((chat: any) => {
+        const validatedChats = importedData.chats.map((chat: Record<string, unknown>) => {
           if (!chat.id || !Array.isArray(chat.messages)) {
             throw new Error('Invalid chat format: missing required fields');
           }
 
           // Ensure each message has required fields
-          const validatedMessages = chat.messages.map((msg: any) => {
+          const validatedMessages = chat.messages.map((msg: Record<string, unknown>) => {
             if (!msg.role || !msg.content) {
               throw new Error('Invalid message format: missing required fields');
             }
@@ -1075,7 +1078,7 @@ export function useDataOperations({
       switch (lastOperation.type) {
         case 'import-settings': {
           // Restore previous settings
-          await ImportExportService.importSettings(lastOperation.data.previous);
+          await ImportExportService.importSettings(lastOperation.data.previous as Record<string, unknown>);
 
           // Dismiss progress toast before showing success toast
           toast.dismiss('progress-toast');
@@ -1100,7 +1103,7 @@ export function useDataOperations({
           const transaction = db.transaction(['chats'], 'readwrite');
           const store = transaction.objectStore('chats');
 
-          for (const chat of lastOperation.data.previous.chats) {
+          for (const chat of lastOperation.data.previous!.chats!) {
             store.put(chat);
           }
 
@@ -1126,7 +1129,7 @@ export function useDataOperations({
 
         case 'reset-settings': {
           // Restore previous settings
-          await ImportExportService.importSettings(lastOperation.data.previous);
+          await ImportExportService.importSettings(lastOperation.data.previous as Record<string, unknown>);
 
           // Dismiss progress toast before showing success toast
           toast.dismiss('progress-toast');
@@ -1148,7 +1151,7 @@ export function useDataOperations({
           const chatTransaction = db.transaction(['chats'], 'readwrite');
           const chatStore = chatTransaction.objectStore('chats');
 
-          for (const chat of lastOperation.data.previous.chats) {
+          for (const chat of lastOperation.data.previous!.chats!) {
             chatStore.put(chat);
           }
 
@@ -1174,7 +1177,7 @@ export function useDataOperations({
 
         case 'import-api-keys': {
           // Restore previous API keys
-          const previousAPIKeys = lastOperation.data.previous;
+          const previousAPIKeys = lastOperation.data.previous as Record<string, unknown>;
           const newKeys = ImportExportService.importAPIKeys(previousAPIKeys);
           const apiKeysJson = JSON.stringify(newKeys);
           document.cookie = `apiKeys=${apiKeysJson}; path=/; max-age=31536000`;

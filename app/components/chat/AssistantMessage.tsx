@@ -32,7 +32,7 @@ interface AssistantMessageProps {
   parts:
     | (TextUIPart | ReasoningUIPart | ToolInvocationUIPart | SourceUIPart | FileUIPart | StepStartUIPart)[]
     | undefined;
-  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
+  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: unknown }) => void;
 }
 
 function openArtifactInWorkbench(filePath: string) {
@@ -77,7 +77,7 @@ export const AssistantMessage = memo(
     const filteredAnnotations = (annotations?.filter(
       (annotation: JSONValue) =>
         annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),
-    ) || []) as { type: string; value: any } & { [key: string]: any }[];
+    ) || []) as Array<{ type: string; value?: unknown; summary?: string; files?: string[]; [key: string]: unknown }>;
 
     let chatSummary: string | undefined = undefined;
 
@@ -91,11 +91,9 @@ export const AssistantMessage = memo(
       codeContext = filteredAnnotations.find((annotation) => annotation.type === 'codeContext')?.files;
     }
 
-    const usage: {
-      completionTokens: number;
-      promptTokens: number;
-      totalTokens: number;
-    } = filteredAnnotations.find((annotation) => annotation.type === 'usage')?.value;
+    const usage = filteredAnnotations.find((annotation) => annotation.type === 'usage')?.value as
+      | { completionTokens: number; promptTokens: number; totalTokens: number }
+      | undefined;
 
     const toolInvocations = parts?.filter((part) => part.type === 'tool-invocation');
     const toolCallAnnotations = filteredAnnotations.filter(

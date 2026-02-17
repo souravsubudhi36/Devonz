@@ -5,7 +5,7 @@ const logger = createScopedLogger('LocalStorage');
 // Client-side storage utilities
 const isClient = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
-export function getLocalStorage(key: string): any | null {
+export function getLocalStorage<T = unknown>(key: string): T | null {
   if (!isClient) {
     return null;
   }
@@ -19,7 +19,7 @@ export function getLocalStorage(key: string): any | null {
   }
 }
 
-export function setLocalStorage(key: string, value: any): void {
+export function setLocalStorage(key: string, value: unknown): void {
   if (!isClient) {
     return;
   }

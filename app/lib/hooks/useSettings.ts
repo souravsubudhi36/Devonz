@@ -85,7 +85,7 @@ export function useSettings(): UseSettingsReturn {
   const contextOptimizationEnabled = useStore(enableContextOptimizationStore);
   const tabConfiguration = useStore(tabConfigurationStore);
   const [settings, setSettings] = useState<Settings>(() => {
-    const storedSettings = getLocalStorage('settings');
+    const storedSettings = getLocalStorage<Partial<Settings>>('settings');
     return {
       theme: storedSettings?.theme || 'system',
       language: storedSettings?.language || 'en',

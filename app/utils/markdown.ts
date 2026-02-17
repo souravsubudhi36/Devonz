@@ -61,8 +61,8 @@ export const allowedHTMLElements = [
 
 // Add custom rehype plugin
 function remarkThinkRawContent() {
-  return (tree: any) => {
-    visit(tree, (node: any) => {
+  return (tree: UnistNode) => {
+    visit(tree, (node: UnistNode & { value?: string }) => {
       if (node.type === 'html' && node.value && node.value.startsWith('<think>')) {
         const cleanedContent = node.value.slice(7);
         node.value = `<div class="__boltThought__">${cleanedContent}`;

@@ -100,7 +100,7 @@ function JsonCodeBlock({ className, code, theme }: JsonCodeBlockProps) {
 interface ToolInvocationsProps {
   toolInvocations: ToolInvocationUIPart[];
   toolCallAnnotations: ToolCallAnnotation[];
-  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
+  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: unknown }) => void;
 }
 
 export const ToolInvocations = memo(({ toolInvocations, toolCallAnnotations, addToolResult }: ToolInvocationsProps) => {
@@ -296,7 +296,7 @@ const ToolResultsList = memo(({ toolInvocations, toolCallAnnotations, theme }: T
 interface ToolCallsListProps {
   toolInvocations: ToolInvocationUIPart[];
   toolCallAnnotations: ToolCallAnnotation[];
-  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
+  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: unknown }) => void;
   theme: Theme;
 }
 
