@@ -87,10 +87,40 @@ export function rewriteUnsupportedCommand(command: string): RewriteResult {
     };
   }
 
-  // Generic python/python3 script execution → echo warning
-  const pythonScriptMatch = trimmed.match(/^python3?\s+[\w./-]+\.py/);
+  /*
+   * Python script execution — smart detection:
+   *   If the script name looks like a server (serve.py, server.py, app.py, etc.)
+   *   we auto-rewrite to `npx --yes serve -l PORT`.
+   *   Otherwise, show a clear error message.
+   */
+  const pythonScriptMatch = trimmed.match(/^python3?\s+([\w./-]+\.py)(?:\s+(.*))?$/);
 
   if (pythonScriptMatch) {
+    const scriptName = pythonScriptMatch[1].toLowerCase();
+    const args = pythonScriptMatch[2] || '';
+
+    // Check if script name suggests an HTTP server
+    const serverPatterns = ['serve.py', 'server.py', 'http_server.py', 'httpserver.py', 'web.py', 'webserver.py'];
+    const isLikelyServer = serverPatterns.some(
+      (pattern) => scriptName === pattern || scriptName.endsWith(`/${pattern}`),
+    );
+
+    if (isLikelyServer) {
+      // Try to extract port from args: --port PORT, -p PORT, or bare PORT
+      const portMatch = args.match(/(?:--port\s+|-p\s+)(\d+)/) || args.match(/^(\d+)$/);
+      const port = portMatch ? portMatch[1] : '8000';
+      const rewritten = `npx --yes serve -l ${port}`;
+      logger.info(`Rewrote server script: "${trimmed}" → "${rewritten}"`);
+
+      return {
+        command: rewritten,
+        wasRewritten: true,
+        originalCommand: trimmed,
+        reason: `WebContainer has no Python runtime. Detected "${scriptName}" as HTTP server — replaced with Node.js serve on port ${port}.`,
+      };
+    }
+
+    // Non-server Python script — show error
     logger.warn(`Cannot run Python script in WebContainer: ${trimmed}`);
 
     return {
@@ -98,6 +128,21 @@ export function rewriteUnsupportedCommand(command: string): RewriteResult {
       wasRewritten: true,
       originalCommand: trimmed,
       reason: 'WebContainer only supports Node.js. Python scripts cannot be executed.',
+    };
+  }
+
+  // Generic unsupported runtime commands
+  const genericUnsupported = trimmed.match(/^(python3?|ruby|perl|php)\s/);
+
+  if (genericUnsupported) {
+    const runtime = genericUnsupported[1];
+    logger.warn(`Unsupported runtime "${runtime}" in WebContainer: ${trimmed}`);
+
+    return {
+      command: `echo "Error: WebContainer only supports Node.js. Cannot run ${runtime} commands: ${trimmed.replace(/"/g, '\\"')}"`,
+      wasRewritten: true,
+      originalCommand: trimmed,
+      reason: `WebContainer only supports Node.js. ${runtime} is not available.`,
     };
   }
 

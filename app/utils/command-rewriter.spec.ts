@@ -65,18 +65,84 @@ describe('rewriteUnsupportedCommand', () => {
     });
   });
 
-  describe('Python script execution', () => {
-    it('replaces python script with echo warning', () => {
+  describe('Python script execution — server detection', () => {
+    it('auto-serves serve.py with npx serve', () => {
+      const result = rewriteUnsupportedCommand('python3 serve.py');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toBe('npx --yes serve -l 8000');
+      expect(result.reason).toContain('serve.py');
+    });
+
+    it('auto-serves server.py with npx serve', () => {
+      const result = rewriteUnsupportedCommand('python server.py');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toBe('npx --yes serve -l 8000');
+    });
+
+    it('auto-serves http_server.py with npx serve', () => {
+      const result = rewriteUnsupportedCommand('python3 http_server.py');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toBe('npx --yes serve -l 8000');
+    });
+
+    it('auto-serves web.py with npx serve', () => {
+      const result = rewriteUnsupportedCommand('python3 web.py');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toBe('npx --yes serve -l 8000');
+    });
+
+    it('extracts port from --port argument', () => {
+      const result = rewriteUnsupportedCommand('python3 serve.py --port 3000');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toBe('npx --yes serve -l 3000');
+    });
+
+    it('extracts port from -p argument', () => {
+      const result = rewriteUnsupportedCommand('python3 server.py -p 9090');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toBe('npx --yes serve -l 9090');
+    });
+
+    it('extracts bare port number as argument', () => {
+      const result = rewriteUnsupportedCommand('python3 serve.py 4000');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toBe('npx --yes serve -l 4000');
+    });
+
+    it('shows error for non-server Python scripts', () => {
       const result = rewriteUnsupportedCommand('python3 app.py');
       expect(result.wasRewritten).toBe(true);
       expect(result.command).toContain('echo');
       expect(result.command).toContain('WebContainer only supports Node.js');
     });
 
-    it('handles python script with path', () => {
+    it('shows error for Python script with path', () => {
       const result = rewriteUnsupportedCommand('python ./scripts/start.py');
       expect(result.wasRewritten).toBe(true);
       expect(result.command).toContain('echo');
+    });
+  });
+
+  describe('Generic unsupported runtimes', () => {
+    it('catches ruby commands', () => {
+      const result = rewriteUnsupportedCommand('ruby app.rb');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toContain('echo');
+      expect(result.command).toContain('ruby');
+    });
+
+    it('catches perl commands', () => {
+      const result = rewriteUnsupportedCommand('perl script.pl');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toContain('echo');
+      expect(result.command).toContain('perl');
+    });
+
+    it('catches php commands', () => {
+      const result = rewriteUnsupportedCommand('php index.php');
+      expect(result.wasRewritten).toBe(true);
+      expect(result.command).toContain('echo');
+      expect(result.command).toContain('php');
     });
   });
 
