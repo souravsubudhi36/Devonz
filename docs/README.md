@@ -30,7 +30,7 @@
 | Language | TypeScript (strict) |
 | Styling | UnoCSS + SCSS + Radix UI |
 | State | Nanostores |
-| AI/LLM | Vercel AI SDK v4.3 (19 providers) |
+| AI/LLM | Vercel AI SDK v4.3 (20 providers) |
 | Editor | CodeMirror 6 |
 | Terminal | xterm.js 5.5 |
 | Runtime | WebContainer API |

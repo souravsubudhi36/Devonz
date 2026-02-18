@@ -39,7 +39,7 @@ pnpm run dev
 
 ## Why Devonz?
 
-- **19 AI providers** — OpenAI, Anthropic, Google, Groq, Ollama, and 14 more. Swap models mid-conversation.
+- **20 AI providers** — OpenAI, Anthropic, Google, Groq, Z.ai, Ollama, and more. Swap models mid-conversation.
 - **Full dev environment in the browser** — editor, terminal, live preview, all powered by WebContainers.
 - **One-click deploy** — push to GitHub, GitLab, Netlify, or Vercel directly from the UI.
 - **MCP tools** — extend the agent with Model Context Protocol servers for specialized workflows.
@@ -65,7 +65,7 @@ pnpm run dev
 
 **AI & Code Generation**
 - Natural language to full-stack apps (Node.js-based)
-- 19 LLM providers with hot-swappable model selection
+- 20 LLM providers with hot-swappable model selection
 - MCP (Model Context Protocol) tool integration
 - Automatic error detection and auto-fix from terminal output
 - Attach images to prompts for visual context

@@ -6,7 +6,7 @@
 
 ## Overview
 
-Devonz supports **19 LLM providers** through a pluggable provider system built on the [Vercel AI SDK](https://sdk.vercel.ai/). Each provider is a self-contained class that extends `BaseProvider`.
+Devonz supports **20 LLM providers** through a pluggable provider system built on the [Vercel AI SDK](https://sdk.vercel.ai/). Each provider is a self-contained class that extends `BaseProvider`.
 
 ---
 
@@ -32,6 +32,7 @@ Devonz supports **19 LLM providers** through a pluggable provider system built o
 | Hyperbolic | `HYPERBOLIC_API_KEY` | No | Hyperbolic inference |
 | Ollama | `OLLAMA_API_BASE_URL` | Yes | Local models (no API key) |
 | LM Studio | `LMSTUDIO_API_BASE_URL` | Yes | Local models (no API key) |
+| Z.ai | `ZAI_API_KEY` | No | GLM models (coding endpoint) |
 | OpenAI-Like | `OPENAI_LIKE_API_BASE_URL` | No | Any OpenAI-compatible API |
 
 ---
