@@ -113,6 +113,8 @@ OPENAI_LIKE_API_MODELS=model-name-1,model-name-2
 
 > **Note**: API keys can also be set through the UI settings panel at runtime. They are stored in browser cookies, not on the server.
 
+> See `.env.example` for the full list of 55+ documented environment variables. Copy it as a starting point: `cp .env.example .env.local`
+
 ---
 
 ## Running the App
@@ -154,6 +156,65 @@ Runs build and start in sequence.
 | `pnpm lint:fix` | Auto-fix lint issues + format with Prettier |
 | `pnpm typecheck` | Run TypeScript type checking (`tsc --noEmit`) |
 | `pnpm clean` | Remove build artifacts |
+| `pnpm run update` | Pull latest code, install deps, rebuild (git clone users) |
+| `pnpm docker:build` | Build production Docker image |
+| `pnpm docker:run` | Run Docker container standalone |
+| `pnpm docker:up` | Start via Docker Compose |
+| `pnpm docker:down` | Stop Docker Compose services |
+| `pnpm docker:dev` | Dev mode with hot reload in Docker |
+| `pnpm docker:update` | Pull latest GHCR image and restart |
+
+---
+
+## Running with Docker
+
+### Quick Start (Pull from GHCR)
+
+```bash
+# Copy env template
+cp .env.example .env.local
+# Edit .env.local with your API keys
+
+# Pull and run
+docker compose up -d
+```
+
+### Build Locally
+
+```bash
+pnpm docker:build    # Build image
+pnpm docker:run      # Run standalone
+# or
+docker compose up -d --build   # Build + run via Compose
+```
+
+### Auto-Update (Watchtower)
+
+```bash
+# Automatically pulls new images every 5 minutes
+docker compose --profile auto-update up -d
+```
+
+The `RUNNING_IN_DOCKER=true` environment variable is set automatically in the Docker Compose configuration, which adjusts Ollama and LMStudio base URLs to use `host.docker.internal`.
+
+---
+
+## Updating Devonz
+
+### Git Clone Users
+
+```bash
+pnpm run update              # Pull, install, rebuild
+pnpm run update -- --skip-build  # Pull + install only
+```
+
+### Docker Users
+
+```bash
+pnpm docker:update           # Pull latest image + restart
+```
+
+The app shows a blue banner at the top of the page when a new version is available, with instructions for both update methods.
 
 ---
 
@@ -161,6 +222,10 @@ Runs build and start in sequence.
 
 ```text
 bolt.diy/
+├── .dockerignore         # Docker ignore rules
+├── .github/workflows/    # CI/CD pipelines
+├── Dockerfile            # Production Docker build
+├── docker-compose.yml    # Docker Compose config
 ├── app/                  # Application source code
 │   ├── components/       # React components
 │   ├── lib/              # Core logic

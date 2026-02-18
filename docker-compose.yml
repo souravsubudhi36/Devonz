@@ -13,7 +13,7 @@ services:
   # ── Production ────────────────────────────────────────────
   # Pulls from GHCR by default. Use --build to build locally.
   devonz:
-    image: ghcr.io/zebbern/1337vibe:latest
+    image: ghcr.io/zebbern/devonz:latest
     build:
       context: .
       dockerfile: Dockerfile

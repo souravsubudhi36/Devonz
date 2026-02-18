@@ -138,6 +138,8 @@ describe('MyComponent', () => {
 });
 ```
 
+The project currently has 282 tests across 21 test files.
+
 ### Test File Location
 
 Colocate test files next to source files:
@@ -159,6 +161,8 @@ All API routes live in `app/routes/` with the `api.` prefix:
 api.chat.ts           →  POST /api/chat
 api.models.$provider.ts  →  GET /api/models/:provider
 ```
+
+Every route handler must be wrapped with `withSecurity()` from `~/lib/security`. This is mandatory for all new routes.
 
 ### Request Validation
 
@@ -219,6 +223,7 @@ See [LLM-PROVIDERS.md](LLM-PROVIDERS.md) — step-by-step guide.
 3. Validate input with Zod
 4. Read credentials from cookies
 5. Return `json()` responses with proper status codes
+6. Wrap with `withSecurity()` — import from `~/lib/security` and wrap your handler function
 
 ---
 
@@ -266,3 +271,10 @@ Use conventional commits:
 | `test` | `pnpm test` | Run tests (Vitest) |
 | `test:watch` | `pnpm test:watch` | Watch mode tests |
 | `clean` | `pnpm clean` | Clean build artifacts |
+| `update` | `pnpm run update` | Pull latest and reinstall (git users) |
+| `docker:build` | `pnpm docker:build` | Build Docker image |
+| `docker:run` | `pnpm docker:run` | Run Docker container |
+| `docker:up` | `pnpm docker:up` | Start via Docker Compose |
+| `docker:down` | `pnpm docker:down` | Stop Docker Compose |
+| `docker:dev` | `pnpm docker:dev` | Docker dev mode |
+| `docker:update` | `pnpm docker:update` | Update Docker deployment |

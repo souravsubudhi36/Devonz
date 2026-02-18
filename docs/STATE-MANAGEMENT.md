@@ -192,6 +192,7 @@ All hooks live in `app/lib/hooks/`. They often wrap store access or provide data
 | `useShortcuts` | Keyboard shortcut registration |
 | `useSupabaseConnection` | Supabase connection state |
 | `useViewport` | Responsive breakpoint detection |
+| `useVersionCheck` | Polls `/api/version-check` to detect available updates, drives `UpdateBanner` |
 
 ---
 

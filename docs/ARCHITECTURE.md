@@ -100,9 +100,9 @@ Handles LLM response parsing and action execution:
 
 ### 7. Server Layer (`app/routes/api.*`)
 
-~35 Remix API routes. See [API Routes](API-ROUTES.md).
+~36 Remix API routes. See [API Routes](API-ROUTES.md).
 
-**Key pattern**: Routes use Remix conventions — `action()` for POST/PUT/DELETE, `loader()` for GET. Server-only code lives in `app/lib/.server/`.
+**Key pattern**: Routes use Remix conventions — `action()` for POST/PUT/DELETE, `loader()` for GET. Server-only code lives in `app/lib/.server/`. All route handlers are wrapped with `withSecurity()` from `app/lib/security.ts`, which enforces CORS origin validation, SameSite cookie attributes, and request sanitization.
 
 ---
 
@@ -195,6 +195,12 @@ User enables Agent Mode + sends task
 5. **MCP for extensibility**: Model Context Protocol allows connecting external tools (databases, APIs, filesystems) to the AI assistant without modifying core code.
 
 6. **CSS custom properties for theming**: All theme colors flow through `--bolt-elements-*` variables, enabling runtime theme switching without rebuilds.
+
+7. **Security by default** — Every API route is wrapped with `withSecurity()`, enforcing CORS, SameSite cookies, and a URL allowlist on the git proxy.
+
+8. **Docker-first deployment** — Multi-stage Dockerfile + docker-compose.yml with GHCR CI/CD and optional Watchtower auto-update enables one-command self-hosting.
+
+9. **Startup performance** — Vite `optimizeDeps` pre-bundles critical dependencies and unconfigured LLM providers are skipped during initialization.
 
 ---
 

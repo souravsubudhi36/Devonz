@@ -11,6 +11,8 @@ Devonz uses Remix file-based routing. All API endpoints are in `app/routes/api.*
 - `action()` — Handles POST/PUT/DELETE requests
 - `loader()` — Handles GET requests
 
+All route handlers are wrapped with `withSecurity()` from `app/lib/security.ts`. This middleware enforces CORS origin validation, SameSite=Strict cookie policy, and input sanitization.
+
 ---
 
 ## Chat & AI
@@ -133,6 +135,7 @@ Validated with Zod. Returns a data stream with:
 | `/api/system/git-info` | GET | Git installation and version info |
 | `/api/update` | GET | Check for application updates |
 | `/api/bug-report` | POST | Submit bug reports |
+| `/api/version-check` | GET | Compares local commit hash against latest GitHub commit to detect available updates |
 
 ---
 
@@ -166,6 +169,8 @@ const providerSettings = JSON.parse(cookies['providers'] || '{}');
 
 There is no server-side session management — all auth state lives in browser cookies.
 
+Additionally, all routes are protected by the `withSecurity()` wrapper which validates CORS origins, enforces `SameSite=Strict` on cookies, and applies a domain allowlist on the git proxy route (`/api/git-proxy/*`).
+
 ---
 
 ## Error Handling Pattern
@@ -173,7 +178,9 @@ There is no server-side session management — all auth state lives in browser c
 API routes follow this pattern:
 
 ```typescript
-export async function action({ request }: ActionFunctionArgs) {
+import { withSecurity } from '~/lib/security';
+
+async function myAction({ request }: ActionFunctionArgs) {
   // 1. Parse request body
   const rawBody = await request.json();
 
@@ -193,4 +200,9 @@ export async function action({ request }: ActionFunctionArgs) {
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }
+
+export const action = withSecurity(myAction, {
+  allowedMethods: ['POST'],
+  rateLimit: false,
+});
 ```

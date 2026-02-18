@@ -10,6 +10,101 @@ Devonz supports deploying generated projects to four platforms directly from the
 
 ---
 
+## Docker Self-Hosting
+
+### Quick Start
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/zebbern/Devonz.git
+cd Devonz/bolt.diy
+
+# 2. Copy environment template
+cp .env.example .env.local
+# Edit .env.local with your API keys
+
+# 3. Run with Docker Compose (pulls from GHCR)
+docker compose up -d
+```
+
+### Building Locally
+
+```bash
+pnpm docker:build              # Build image locally
+pnpm docker:run                # Run standalone container
+docker compose up -d --build   # Build + run via Compose
+```
+
+### Docker Image
+
+The project publishes Docker images to GitHub Container Registry on every push to `main`:
+
+- **Image**: `ghcr.io/zebbern/devonz:latest`
+- **Base**: `node:20-slim` with `git` and `curl`
+- **Size**: ~1.5 GB
+- **User**: Non-root (`appuser:1001`)
+
+### Docker Compose Profiles
+
+| Profile | Command | Description |
+| --- | --- | --- |
+| Default | `docker compose up -d` | Production mode |
+| Dev | `docker compose --profile dev up devonz-dev` | Dev mode with hot reload |
+| Auto-Update | `docker compose --profile auto-update up -d` | Adds Watchtower for automatic updates |
+
+### Environment Variables
+
+Set `RUNNING_IN_DOCKER=true` in your Docker environment (automatically set in docker-compose.yml). This adjusts Ollama and LMStudio base URLs to use `host.docker.internal` instead of `localhost`.
+
+See `.env.example` for the complete list of 55+ environment variables.
+
+---
+
+## CI/CD Pipeline
+
+### GitHub Actions
+
+The workflow at `.github/workflows/docker-publish.yml` automatically builds and pushes Docker images to GHCR.
+
+**Triggers:**
+- Push to `main` branch → tags image as `latest` and `sha-<hash>`
+- Push version tag (e.g., `v1.0.0`) → tags image as `1.0.0` and `1.0`
+
+**Features:**
+- Docker Buildx with GitHub Actions cache for fast rebuilds
+- Multi-stage build (base → deps → build → prod-deps → runtime)
+- Automatic authentication via `GITHUB_TOKEN`
+
+---
+
+## Update System
+
+### Version Check
+
+The `/api/version-check` endpoint compares the local git commit hash against the latest commit on `main` via the GitHub API. The `UpdateBanner` component in the UI uses this to show a non-intrusive notification when updates are available.
+
+### Updating
+
+**Git Clone users:**
+```bash
+pnpm run update                # Pulls latest, installs, rebuilds
+pnpm run update -- --skip-build  # Skip rebuild
+```
+
+**Docker users:**
+```bash
+pnpm docker:update   # docker compose pull && docker compose up -d
+```
+
+**Docker auto-update (Watchtower):**
+```bash
+docker compose --profile auto-update up -d
+```
+
+Watchtower polls GHCR every 5 minutes and automatically restarts the container when a new image is available.
+
+---
+
 ## Supported Platforms
 
 | Platform | Push Code | Deploy | Custom Domains | Status Check |

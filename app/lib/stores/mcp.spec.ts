@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { mcpStore, updateMCPSettings } from './mcp';
+import { mcpStore, updateMCPSettings, type MCPSettings } from './mcp';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
@@ -57,11 +57,11 @@ describe('mcpStore', () => {
     });
 
     it('should update settings', () => {
-      const newSettings = {
+      const newSettings: MCPSettings = {
         maxLLMSteps: 10,
         mcpConfig: {
           mcpServers: {
-            testServer: { command: 'test', args: [], env: {} },
+            testServer: { type: 'stdio', command: 'test', args: [], env: {} },
           },
         },
       };

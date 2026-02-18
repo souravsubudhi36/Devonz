@@ -9,7 +9,7 @@ import { withSecurity } from '~/lib/security';
  */
 async function versionCheckLoader(_args: LoaderFunctionArgs) {
   const owner = 'zebbern';
-  const repo = '1337vibe';
+  const repo = 'Devonz';
   const branch = 'main';
 
   // Get local commit hash (set at build time by pre-start.cjs)
