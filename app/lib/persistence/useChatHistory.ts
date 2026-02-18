@@ -1,5 +1,5 @@
 import { useLoaderData, useNavigate, useSearchParams } from '@remix-run/react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { atom } from 'nanostores';
 import { type JSONValue, type Message } from 'ai';
 import { toast } from 'react-toastify';
@@ -50,6 +50,9 @@ export function useChatHistory() {
   const [initialMessages, setInitialMessages] = useState<Message[]>([]);
   const [ready, setReady] = useState<boolean>(false);
   const [urlId, setUrlId] = useState<string | undefined>();
+
+  // Track last snapshot parameters so debounced file-change saves use the same message ID
+  const lastSnapshotParamsRef = useRef<{ chatIdx: string; chatSummary?: string } | null>(null);
 
   useEffect(() => {
     if (!db) {
@@ -159,6 +162,50 @@ export function useChatHistory() {
     [db],
   );
 
+  /*
+   * Debounced file-change subscriber: re-saves the snapshot after file writes settle.
+   * The normal snapshot fires 50ms after the last message change, but file actions
+   * may still be in the async execution queue or watcher buffer at that point.
+   * This subscriber ensures a final snapshot is taken once all files are written.
+   */
+  useEffect(() => {
+    if (!db) {
+      return undefined;
+    }
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const unsubscribe = workbenchStore.files.subscribe(() => {
+      const id = chatId.get();
+      const params = lastSnapshotParamsRef.current;
+
+      if (!id || !params) {
+        return;
+      }
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+
+      debounceTimer = setTimeout(() => {
+        const files = workbenchStore.files.get();
+
+        if (Object.keys(files).length > 0) {
+          logger.debug('Debounced file-change snapshot save');
+          takeSnapshot(params.chatIdx, files, undefined, params.chatSummary);
+        }
+      }, 500);
+    });
+
+    return () => {
+      unsubscribe();
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    };
+  }, [db, takeSnapshot]);
+
   const restoreSnapshot = useCallback(async (id: string, snapshot?: Snapshot) => {
     const container = await webcontainer;
 
@@ -253,6 +300,9 @@ export function useChatHistory() {
             | undefined;
         }
       }
+
+      // Save params so debounced file-change subscriber can re-save with updated files
+      lastSnapshotParamsRef.current = { chatIdx: messages[messages.length - 1].id, chatSummary };
 
       takeSnapshot(messages[messages.length - 1].id, workbenchStore.files.get(), _urlId, chatSummary);
 
