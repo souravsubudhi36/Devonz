@@ -14,6 +14,7 @@ import type {
 } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
 import { rewriteUnsupportedCommand } from '~/utils/command-rewriter';
+import { repairMalformedCommand } from '~/utils/command-repair';
 import { unreachable } from '~/utils/unreachable';
 import type { ActionCallbackData } from './message-parser';
 import type { BoltShell } from '~/utils/shell';
@@ -325,6 +326,13 @@ export class ActionRunner {
 
     if (rewriteResult.wasRewritten) {
       action.content = rewriteResult.command;
+    }
+
+    // Repair malformed commands (e.g. missing "npm" prefix, garbled output)
+    const repairResult = repairMalformedCommand(action.content);
+
+    if (repairResult.wasRepaired) {
+      action.content = repairResult.command;
     }
 
     // Pre-validate command for common issues
