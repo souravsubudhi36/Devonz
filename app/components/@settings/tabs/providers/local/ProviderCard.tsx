@@ -26,13 +26,13 @@ function ProviderCard({
   const getIconClass = (providerName: string) => {
     switch (providerName) {
       case 'Ollama':
-        return 'i-ph:server';
+        return 'i-ph:hard-drive';
       case 'LMStudio':
         return 'i-ph:monitor';
       case 'OpenAILike':
         return 'i-ph:globe';
       default:
-        return 'i-ph:server';
+        return 'i-ph:hard-drive';
     }
   };
 

@@ -2,6 +2,7 @@ import type { Message } from 'ai';
 import { createScopedLogger } from '~/utils/logger';
 import type { ChatHistoryItem } from './useChatHistory';
 import type { Snapshot } from './types'; // Import Snapshot type
+import type { ProjectVersion } from '~/lib/stores/versions';
 
 export interface IChatMetadata {
   gitUrl: string;
@@ -19,7 +20,7 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
   }
 
   return new Promise((resolve) => {
-    const request = indexedDB.open('boltHistory', 2);
+    const request = indexedDB.open('boltHistory', 3);
 
     request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
       const db = (event.target as IDBOpenDBRequest).result;
@@ -36,6 +37,12 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
       if (oldVersion < 2) {
         if (!db.objectStoreNames.contains('snapshots')) {
           db.createObjectStore('snapshots', { keyPath: 'chatId' });
+        }
+      }
+
+      if (oldVersion < 3) {
+        if (!db.objectStoreNames.contains('versions')) {
+          db.createObjectStore('versions', { keyPath: 'chatId' });
         }
       }
     };
@@ -123,45 +130,13 @@ export async function getMessagesById(db: IDBDatabase, id: string): Promise<Chat
 
 export async function deleteById(db: IDBDatabase, id: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['chats', 'snapshots'], 'readwrite'); // Add snapshots store to transaction
-    const chatStore = transaction.objectStore('chats');
-    const snapshotStore = transaction.objectStore('snapshots');
+    const transaction = db.transaction(['chats', 'snapshots', 'versions'], 'readwrite');
 
-    const deleteChatRequest = chatStore.delete(id);
-    const deleteSnapshotRequest = snapshotStore.delete(id); // Also delete snapshot
+    transaction.objectStore('chats').delete(id);
+    transaction.objectStore('snapshots').delete(id);
+    transaction.objectStore('versions').delete(id);
 
-    let chatDeleted = false;
-    let snapshotDeleted = false;
-
-    const checkCompletion = () => {
-      if (chatDeleted && snapshotDeleted) {
-        resolve(undefined);
-      }
-    };
-
-    deleteChatRequest.onsuccess = () => {
-      chatDeleted = true;
-      checkCompletion();
-    };
-    deleteChatRequest.onerror = () => reject(deleteChatRequest.error);
-
-    deleteSnapshotRequest.onsuccess = () => {
-      snapshotDeleted = true;
-      checkCompletion();
-    };
-
-    deleteSnapshotRequest.onerror = (event) => {
-      if ((event.target as IDBRequest).error?.name === 'NotFoundError') {
-        snapshotDeleted = true;
-        checkCompletion();
-      } else {
-        reject(deleteSnapshotRequest.error);
-      }
-    };
-
-    transaction.oncomplete = () => {
-      // This might resolve before checkCompletion if one operation finishes much faster
-    };
+    transaction.oncomplete = () => resolve(undefined);
     transaction.onerror = () => reject(transaction.error);
   });
 }
@@ -339,5 +314,27 @@ export async function deleteSnapshot(db: IDBDatabase, chatId: string): Promise<v
         reject(request.error);
       }
     };
+  });
+}
+
+export async function saveVersions(db: IDBDatabase, chatId: string, versions: ProjectVersion[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('versions', 'readwrite');
+    const store = transaction.objectStore('versions');
+    const request = store.put({ chatId, versions });
+
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export async function getVersionsByChatId(db: IDBDatabase, chatId: string): Promise<ProjectVersion[] | undefined> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('versions', 'readonly');
+    const store = transaction.objectStore('versions');
+    const request = store.get(chatId);
+
+    request.onsuccess = () => resolve(request.result?.versions as ProjectVersion[] | undefined);
+    request.onerror = () => reject(request.error);
   });
 }

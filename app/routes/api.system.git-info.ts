@@ -1,4 +1,5 @@
-import { json, type LoaderFunction, type LoaderFunctionArgs } from '@remix-run/node';
+import { json, type LoaderFunctionArgs } from '@remix-run/node';
+import { withSecurity } from '~/lib/security';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('GitInfo');
@@ -64,7 +65,7 @@ declare const __GIT_REPO_NAME: string;
  * declare const __GIT_REPO_URL: string;
  */
 
-export const loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs & { context: AppContext }) => {
+async function gitInfoSystemLoader({ request, context }: LoaderFunctionArgs & { context: AppContext }) {
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
     return new Response(null, {
@@ -323,4 +324,9 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     },
   });
-};
+}
+
+export const loader = withSecurity(gitInfoSystemLoader as any, {
+  allowedMethods: ['GET'],
+  rateLimit: false,
+});

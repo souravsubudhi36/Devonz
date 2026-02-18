@@ -1,8 +1,15 @@
 import { json } from '@remix-run/node';
 import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('GitProxy');
+
+/**
+ * Only allow proxying to known Git hosting domains.
+ * Prevents SSRF/abuse even when running on localhost.
+ */
+const ALLOWED_DOMAINS = new Set(['github.com', 'api.github.com', 'gitlab.com', 'bitbucket.org']);
 
 // Allowed headers to forward to the target server
 const ALLOW_HEADERS = [
@@ -46,13 +53,15 @@ const EXPOSE_HEADERS = [
 ];
 
 // Handle all HTTP methods
-export async function action({ request, params }: ActionFunctionArgs) {
-  return handleProxyRequest(request, params['*']);
-}
+export const action = withSecurity(
+  async ({ request, params }: ActionFunctionArgs) => handleProxyRequest(request, params['*']),
+  { rateLimit: false },
+);
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  return handleProxyRequest(request, params['*']);
-}
+export const loader = withSecurity(
+  async ({ request, params }: LoaderFunctionArgs) => handleProxyRequest(request, params['*']),
+  { rateLimit: false },
+);
 
 async function handleProxyRequest(request: Request, path: string | undefined) {
   try {
@@ -83,6 +92,12 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
 
     const domain = parts[1];
     const remainingPath = parts[2] || '';
+
+    // Validate domain against allowlist to prevent SSRF
+    if (!ALLOWED_DOMAINS.has(domain.toLowerCase())) {
+      logger.warn(`Blocked proxy request to disallowed domain: ${domain}`);
+      return json({ error: 'Domain not allowed' }, { status: 403 });
+    }
 
     // Reconstruct the target URL with query parameters
     const url = new URL(request.url);
@@ -165,7 +180,6 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       {
         error: 'Proxy error',
         message: error instanceof Error ? error.message : 'Unknown error',
-        url: path ? `https://${path}` : 'Invalid URL',
       },
       { status: 500 },
     );

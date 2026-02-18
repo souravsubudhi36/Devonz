@@ -1,5 +1,6 @@
-import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/node';
+import type { ActionFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
+import { withSecurity } from '~/lib/security';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('DiskInfo');
@@ -267,7 +268,7 @@ const getDiskInfo = (): DiskInfo[] => {
   }
 };
 
-export const loader: LoaderFunction = async ({ request: _request }) => {
+async function diskInfoLoader({ request: _request }: ActionFunctionArgs) {
   try {
     return json(getDiskInfo());
   } catch (error) {
@@ -288,9 +289,9 @@ export const loader: LoaderFunction = async ({ request: _request }) => {
       { status: 500 },
     );
   }
-};
+}
 
-export const action = async ({ request: _request }: ActionFunctionArgs) => {
+async function diskInfoAction({ request: _request }: ActionFunctionArgs) {
   try {
     return json(getDiskInfo());
   } catch (error) {
@@ -311,4 +312,14 @@ export const action = async ({ request: _request }: ActionFunctionArgs) => {
       { status: 500 },
     );
   }
-};
+}
+
+export const loader = withSecurity(diskInfoLoader, {
+  allowedMethods: ['GET'],
+  rateLimit: false,
+});
+
+export const action = withSecurity(diskInfoAction, {
+  allowedMethods: ['POST'],
+  rateLimit: false,
+});

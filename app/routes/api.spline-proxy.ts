@@ -20,6 +20,7 @@
 
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('SplineProxy');
 
@@ -32,11 +33,9 @@ const CACHE_TTL = 1000 * 60 * 30; // 30 minutes cache
 /**
  * CORS headers for cross-origin requests
  */
-function getCorsHeaders(request: Request): HeadersInit {
-  const origin = request.headers.get('Origin') || '*';
-
+function getCorsHeaders(_request: Request): HeadersInit {
   return {
-    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Accept',
     'Access-Control-Max-Age': '86400',
@@ -81,7 +80,7 @@ function handleOptions(request: Request): Response {
 /**
  * Main loader - handles GET requests for Spline scene data
  */
-export async function loader({ request }: LoaderFunctionArgs): Promise<Response> {
+async function splineProxyLoader({ request }: LoaderFunctionArgs): Promise<Response> {
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {
     return handleOptions(request);
@@ -211,10 +210,18 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<Response>
 /**
  * Handle OPTIONS requests for CORS preflight
  */
-export async function action({ request }: LoaderFunctionArgs): Promise<Response> {
+async function splineProxyAction({ request }: LoaderFunctionArgs): Promise<Response> {
   if (request.method === 'OPTIONS') {
     return handleOptions(request);
   }
 
   return new Response('Method not allowed', { status: 405 });
 }
+
+export const loader = withSecurity(splineProxyLoader, {
+  rateLimit: false,
+});
+
+export const action = withSecurity(splineProxyAction, {
+  rateLimit: false,
+});

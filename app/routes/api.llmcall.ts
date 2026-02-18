@@ -9,10 +9,12 @@ import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
-export async function action(args: ActionFunctionArgs) {
-  return llmCallAction(args);
-}
+export const action = withSecurity(llmCallAction, {
+  allowedMethods: ['POST'],
+  rateLimit: false,
+});
 
 const logger = createScopedLogger('api.llmcall');
 

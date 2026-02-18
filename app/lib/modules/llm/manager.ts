@@ -111,6 +111,43 @@ export class LLMManager {
           (provider): provider is BaseProvider & Required<Pick<ProviderInfo, 'getDynamicModels'>> =>
             !!provider.getDynamicModels,
         )
+        .filter((provider) => {
+          /*
+           * Skip providers that clearly lack required API key / base URL.
+           * This avoids unnecessary network requests + error log noise on startup.
+           */
+          const tokenKey = provider.config.apiTokenKey;
+
+          if (tokenKey) {
+            const hasKey =
+              !!apiKeys?.[provider.name] ||
+              !!serverEnv?.[tokenKey] ||
+              !!process?.env?.[tokenKey] ||
+              !!this._env?.[tokenKey];
+
+            if (!hasKey) {
+              logger.debug(`Skipping dynamic model fetch for ${provider.name} — no API key configured`);
+              return false;
+            }
+          }
+
+          const baseUrlKey = provider.config.baseUrlKey;
+
+          if (baseUrlKey && !provider.config.baseUrl) {
+            const hasBaseUrl =
+              !!providerSettings?.[provider.name]?.baseUrl ||
+              !!serverEnv?.[baseUrlKey] ||
+              !!process?.env?.[baseUrlKey] ||
+              !!this._env?.[baseUrlKey];
+
+            if (!hasBaseUrl) {
+              logger.debug(`Skipping dynamic model fetch for ${provider.name} — no base URL configured`);
+              return false;
+            }
+          }
+
+          return true;
+        })
         .map(async (provider) => {
           const cachedModels = provider.getModelsFromCache(options);
 

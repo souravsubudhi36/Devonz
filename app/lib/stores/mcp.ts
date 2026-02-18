@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { map } from 'nanostores';
 import type { MCPConfig, MCPServerTools } from '~/lib/services/mcpService';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -7,101 +7,101 @@ const logger = createScopedLogger('MCPStore');
 const MCP_SETTINGS_KEY = 'mcp_settings';
 const isBrowser = typeof window !== 'undefined';
 
-type MCPSettings = {
+export type MCPSettings = {
   mcpConfig: MCPConfig;
   maxLLMSteps: number;
 };
 
-const defaultSettings = {
+const defaultSettings: MCPSettings = {
   maxLLMSteps: 5,
   mcpConfig: {
     mcpServers: {},
   },
-} satisfies MCPSettings;
+};
 
-type Store = {
+export interface MCPStoreState {
   isInitialized: boolean;
   settings: MCPSettings;
   serverTools: MCPServerTools;
   error: string | null;
   isUpdatingConfig: boolean;
-};
+}
 
-type Actions = {
-  initialize: () => Promise<void>;
-  updateSettings: (settings: MCPSettings) => Promise<void>;
-  checkServersAvailabilities: () => Promise<void>;
-};
-
-export const useMCPStore = create<Store & Actions>((set, get) => ({
+export const mcpStore = map<MCPStoreState>({
   isInitialized: false,
   settings: defaultSettings,
   serverTools: {},
   error: null,
   isUpdatingConfig: false,
-  initialize: async () => {
-    if (get().isInitialized) {
-      return;
+});
+
+export async function initializeMCP(): Promise<void> {
+  if (mcpStore.get().isInitialized) {
+    return;
+  }
+
+  if (isBrowser) {
+    const savedConfig = localStorage.getItem(MCP_SETTINGS_KEY);
+
+    if (savedConfig) {
+      try {
+        const settings = JSON.parse(savedConfig) as MCPSettings;
+        const serverTools = await updateServerConfig(settings.mcpConfig);
+        mcpStore.setKey('settings', settings);
+        mcpStore.setKey('serverTools', serverTools);
+      } catch (error) {
+        logger.error('Error parsing saved mcp config:', error);
+        mcpStore.setKey(
+          'error',
+          `Error parsing saved mcp config: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    } else {
+      localStorage.setItem(MCP_SETTINGS_KEY, JSON.stringify(defaultSettings));
     }
+  }
+
+  mcpStore.setKey('isInitialized', true);
+}
+
+export async function updateMCPSettings(newSettings: MCPSettings): Promise<void> {
+  if (mcpStore.get().isUpdatingConfig) {
+    return;
+  }
+
+  try {
+    mcpStore.setKey('isUpdatingConfig', true);
+
+    const serverTools = await updateServerConfig(newSettings.mcpConfig);
 
     if (isBrowser) {
-      const savedConfig = localStorage.getItem(MCP_SETTINGS_KEY);
-
-      if (savedConfig) {
-        try {
-          const settings = JSON.parse(savedConfig) as MCPSettings;
-          const serverTools = await updateServerConfig(settings.mcpConfig);
-          set(() => ({ settings, serverTools }));
-        } catch (error) {
-          logger.error('Error parsing saved mcp config:', error);
-          set(() => ({
-            error: `Error parsing saved mcp config: ${error instanceof Error ? error.message : String(error)}`,
-          }));
-        }
-      } else {
-        localStorage.setItem(MCP_SETTINGS_KEY, JSON.stringify(defaultSettings));
-      }
+      localStorage.setItem(MCP_SETTINGS_KEY, JSON.stringify(newSettings));
     }
 
-    set(() => ({ isInitialized: true }));
-  },
-  updateSettings: async (newSettings: MCPSettings) => {
-    if (get().isUpdatingConfig) {
-      return;
-    }
+    mcpStore.setKey('settings', newSettings);
+    mcpStore.setKey('serverTools', serverTools);
+  } catch (error) {
+    throw error;
+  } finally {
+    mcpStore.setKey('isUpdatingConfig', false);
+  }
+}
 
-    try {
-      set(() => ({ isUpdatingConfig: true }));
+export async function checkMCPServersAvailabilities(): Promise<void> {
+  const response = await fetch('/api/mcp-check', {
+    method: 'GET',
+  });
 
-      const serverTools = await updateServerConfig(newSettings.mcpConfig);
+  if (!response.ok) {
+    throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+  }
 
-      if (isBrowser) {
-        localStorage.setItem(MCP_SETTINGS_KEY, JSON.stringify(newSettings));
-      }
+  const serverTools = (await response.json()) as MCPServerTools;
 
-      set(() => ({ settings: newSettings, serverTools }));
-    } catch (error) {
-      throw error;
-    } finally {
-      set(() => ({ isUpdatingConfig: false }));
-    }
-  },
-  checkServersAvailabilities: async () => {
-    const response = await fetch('/api/mcp-check', {
-      method: 'GET',
-    });
+  mcpStore.setKey('serverTools', serverTools);
+}
 
-    if (!response.ok) {
-      throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
-    }
-
-    const serverTools = (await response.json()) as MCPServerTools;
-
-    set(() => ({ serverTools }));
-  },
-}));
-
-async function updateServerConfig(config: MCPConfig) {
+async function updateServerConfig(config: MCPConfig): Promise<MCPServerTools> {
   const response = await fetch('/api/mcp-update-config', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -26,7 +26,7 @@ import { supabaseConnection } from '~/lib/stores/supabase';
 import { defaultDesignScheme, type DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import type { TextUIPart, FileUIPart, Attachment } from '@ai-sdk/ui-utils';
-import { useMCPStore } from '~/lib/stores/mcp';
+import { mcpStore } from '~/lib/stores/mcp';
 import type { LlmErrorAlertType } from '~/types/actions';
 import {
   registerAutoFixCallback,
@@ -127,7 +127,7 @@ export const ChatImpl = memo(
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [chatMode, setChatMode] = useState<'discuss' | 'build'>('build');
     const [selectedElement, setSelectedElement] = useState<ElementInfo | null>(null);
-    const mcpSettings = useMCPStore((state) => state.settings);
+    const mcpSettings = useStore(mcpStore).settings;
 
     const {
       messages,

@@ -5,10 +5,12 @@ import type { ProviderInfo } from '~/types/model';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
 import { createScopedLogger } from '~/utils/logger';
 import { z } from 'zod';
+import { withSecurity } from '~/lib/security';
 
-export async function action(args: ActionFunctionArgs) {
-  return enhancerAction(args);
-}
+export const action = withSecurity(enhancerAction, {
+  allowedMethods: ['POST'],
+  rateLimit: false,
+});
 
 const logger = createScopedLogger('api.enhancher');
 

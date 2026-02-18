@@ -238,7 +238,7 @@ export function PreviewErrorFallback({ error, resetErrorBoundary }: ErrorBoundar
         'text-bolt-elements-textPrimary',
       )}
     >
-      <div className="i-ph:monitor-x-duotone text-6xl text-bolt-elements-textTertiary mb-4" />
+      <div className="i-ph:monitor-duotone text-6xl text-bolt-elements-textTertiary mb-4" />
       <h3 className="text-lg font-medium mb-2">Preview Error</h3>
       <p className="text-sm text-bolt-elements-textSecondary mb-4 text-center max-w-md">
         The preview encountered an error. This might be a temporary issue.

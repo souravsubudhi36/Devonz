@@ -1,6 +1,7 @@
 import { json, type AppLoadContext, type LoaderFunctionArgs } from '@remix-run/node';
 import JSZip from 'jszip';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('GitHubTemplate');
 
@@ -206,7 +207,7 @@ async function fetchRepoContentsZip(repo: string, githubToken?: string) {
   return results.filter(Boolean);
 }
 
-export async function loader({ request, context }: LoaderFunctionArgs) {
+async function githubTemplateLoader({ request, context }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const repo = url.searchParams.get('repo');
 
@@ -247,3 +248,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     );
   }
 }
+
+export const loader = withSecurity(githubTemplateLoader, {
+  allowedMethods: ['GET'],
+  rateLimit: false,
+});

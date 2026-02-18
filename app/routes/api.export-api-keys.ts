@@ -1,8 +1,9 @@
-import { type LoaderFunction, json } from '@remix-run/node';
+import { type LoaderFunctionArgs, json } from '@remix-run/node';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { withSecurity } from '~/lib/security';
 
-export const loader: LoaderFunction = async ({ context, request }) => {
+async function exportApiKeysLoader({ context, request }: LoaderFunctionArgs) {
   // Get API keys from cookie
   const cookieHeader = request.headers.get('Cookie');
   const apiKeysFromCookie = getApiKeysFromCookie(cookieHeader);
@@ -41,4 +42,9 @@ export const loader: LoaderFunction = async ({ context, request }) => {
   }
 
   return json(apiKeys);
-};
+}
+
+export const loader = withSecurity(exportApiKeysLoader, {
+  allowedMethods: ['GET'],
+  rateLimit: false,
+});

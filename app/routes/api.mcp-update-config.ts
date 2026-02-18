@@ -1,10 +1,11 @@
 import { type ActionFunctionArgs, json } from '@remix-run/node';
 import { createScopedLogger } from '~/utils/logger';
 import { MCPService, type MCPConfig } from '~/lib/services/mcpService';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('api.mcp-update-config');
 
-export async function action({ request }: ActionFunctionArgs) {
+async function mcpUpdateConfigAction({ request }: ActionFunctionArgs) {
   try {
     const mcpConfig = (await request.json()) as MCPConfig;
 
@@ -21,3 +22,8 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ error: 'Failed to update MCP config' }, { status: 500 });
   }
 }
+
+export const action = withSecurity(mcpUpdateConfigAction, {
+  allowedMethods: ['POST'],
+  rateLimit: false,
+});

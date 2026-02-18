@@ -1,5 +1,6 @@
 import { atom, map } from 'nanostores';
 import { createScopedLogger } from '~/utils/logger';
+import { saveVersions as saveVersionsToDB, getVersionsByChatId } from '~/lib/persistence/db';
 
 const logger = createScopedLogger('VersionsStore');
 
@@ -17,6 +18,86 @@ export interface ProjectVersion {
 class VersionsStore {
   versions = map<Record<string, ProjectVersion>>({});
   currentVersionId = atom<string | null>(null);
+
+  private _db: IDBDatabase | undefined;
+  private _chatId: string | undefined;
+
+  /**
+   * Set the database context for version persistence.
+   * Called by useChatHistory when a chat is loaded or created.
+   */
+  setDBContext(db: IDBDatabase | undefined, chatIdVal: string | undefined) {
+    const contextChanged = this._chatId !== chatIdVal;
+    this._db = db;
+    this._chatId = chatIdVal;
+
+    // Auto-persist any in-memory versions when context is first established
+    if (contextChanged && db && chatIdVal && Object.keys(this.versions.get()).length > 0) {
+      this._persistToDB();
+    }
+  }
+
+  /**
+   * Persist all current versions to IndexedDB (fire-and-forget).
+   */
+  private _persistToDB() {
+    if (!this._db || !this._chatId) {
+      return;
+    }
+
+    const allVersions = Object.values(this.versions.get());
+
+    saveVersionsToDB(this._db, this._chatId, allVersions).catch((error) => {
+      logger.warn('Failed to persist versions to IndexedDB:', error);
+    });
+  }
+
+  /**
+   * Load versions from IndexedDB, falling back to message sync for legacy chats.
+   */
+  async loadFromDB(
+    db: IDBDatabase,
+    chatIdVal: string,
+    messages: { id: string; role: string; content: string; createdAt?: Date }[],
+  ) {
+    this._db = db;
+    this._chatId = chatIdVal;
+
+    try {
+      const stored = await getVersionsByChatId(db, chatIdVal);
+
+      if (stored && stored.length > 0) {
+        this.versions.set({});
+        this.currentVersionId.set(null);
+
+        let latestId: string | null = null;
+
+        for (const v of stored) {
+          this.versions.setKey(v.id, v);
+
+          if (v.isLatest) {
+            latestId = v.id;
+          }
+        }
+
+        if (latestId) {
+          this.currentVersionId.set(latestId);
+        }
+
+        logger.trace(`Loaded ${stored.length} versions from IndexedDB for chat ${chatIdVal}`);
+
+        return;
+      }
+    } catch (error) {
+      logger.warn('Failed to load versions from IndexedDB, falling back to sync:', error);
+    }
+
+    // Fallback: reconstruct from messages (legacy chats without persisted versions)
+    this.syncFromMessages(messages);
+
+    // Persist the reconstructed versions so next reload uses the DB path
+    this._persistToDB();
+  }
 
   /**
    * Create a new version snapshot
@@ -53,6 +134,9 @@ class VersionsStore {
 
     this.versions.setKey(id, newVersion);
     this.currentVersionId.set(id);
+
+    // Persist to IndexedDB
+    this._persistToDB();
 
     return newVersion;
   }

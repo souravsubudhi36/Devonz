@@ -237,7 +237,7 @@ export function VercelDomainModal({ isOpen, onClose, projectId: propProjectId, c
                       >
                         {isSaving ? (
                           <span className="flex items-center gap-2">
-                            <div className="i-svg-spinners90-ring-with-bg w-4 h-4" />
+                            <div className="i-svg-spinners:90-ring-with-bg w-4 h-4" />
                             Saving...
                           </span>
                         ) : (

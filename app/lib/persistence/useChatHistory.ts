@@ -117,8 +117,8 @@ export function useChatHistory() {
           chatId.set(storedMessages.id);
           chatMetadata.set(storedMessages.metadata);
 
-          // Sync versions from chat messages so they appear in the Versions panel
-          versionsStore.syncFromMessages(storedMessages.messages);
+          // Load versions from IndexedDB (with fallback to message sync for legacy chats)
+          await versionsStore.loadFromDB(db, internalChatId, storedMessages.messages);
 
           setReady(true);
         })
@@ -265,6 +265,7 @@ export function useChatHistory() {
         const nextId = await getNextId(db);
 
         chatId.set(nextId);
+        versionsStore.setDBContext(db, nextId);
 
         if (!urlId) {
           navigateChat(nextId);

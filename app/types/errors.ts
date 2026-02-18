@@ -17,7 +17,7 @@ export type ErrorSeverity = 'critical' | 'warning' | 'info';
 /**
  * Error categories for filtering and handling
  */
-export type ErrorCategory = 'preview' | 'terminal' | 'module' | 'network' | 'build' | 'runtime';
+export type ErrorCategory = 'root' | 'preview' | 'terminal' | 'module' | 'network' | 'build' | 'runtime';
 
 /**
  * Structured error information

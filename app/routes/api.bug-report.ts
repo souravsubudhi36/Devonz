@@ -2,6 +2,7 @@ import { json, type ActionFunctionArgs } from '@remix-run/node';
 import { Octokit } from '@octokit/rest';
 import { z } from 'zod';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('BugReport');
 
@@ -144,7 +145,7 @@ function formatIssueBody(data: z.infer<typeof bugReportSchema>): string {
   return body;
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
+async function bugReportAction({ request, context }: ActionFunctionArgs) {
   // Only allow POST requests
   if (request.method !== 'POST') {
     return json({ error: 'Method not allowed' }, { status: 405 });
@@ -253,3 +254,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
     return json({ error: 'Failed to submit bug report. Please try again later.' }, { status: 500 });
   }
 }
+
+export const action = withSecurity(bugReportAction, {
+  allowedMethods: ['POST'],
+  rateLimit: false,
+});

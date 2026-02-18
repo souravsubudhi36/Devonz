@@ -515,7 +515,7 @@ export default function LocalProvidersTab() {
                                   </div>
                                   <div className="flex items-center gap-4 text-xs text-bolt-elements-textSecondary">
                                     <div className="flex items-center gap-1">
-                                      <div className="i-ph:server w-3 h-3" />
+                                      <div className="i-ph:hard-drive w-3 h-3" />
                                       <span>{model.object}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
@@ -545,7 +545,7 @@ export default function LocalProvidersTab() {
           {filteredProviders.length === 0 && (
             <Card className="bg-bolt-elements-background-depth-2">
               <CardContent className="p-8 text-center">
-                <div className="i-ph:server w-16 h-16 mx-auto text-bolt-elements-textTertiary mb-4" />
+                <div className="i-ph:hard-drive w-16 h-16 mx-auto text-bolt-elements-textTertiary mb-4" />
                 <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-2">
                   No Local Providers Available
                 </h3>

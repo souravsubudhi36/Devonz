@@ -2,6 +2,7 @@ import { type ActionFunctionArgs, json } from '@remix-run/node';
 import crypto from 'crypto';
 import type { NetlifySiteInfo, NetlifySite, NetlifyDeployResponse } from '~/types/netlify';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('NetlifyDeploy');
 
@@ -11,7 +12,7 @@ interface DeployRequestBody {
   chatId: string;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+async function netlifyDeployAction({ request }: ActionFunctionArgs) {
   try {
     const { siteId, files, token, chatId } = (await request.json()) as DeployRequestBody & { token: string };
 
@@ -230,3 +231,8 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ error: 'Deployment failed' }, { status: 500 });
   }
 }
+
+export const action = withSecurity(netlifyDeployAction, {
+  allowedMethods: ['POST'],
+  rateLimit: false,
+});

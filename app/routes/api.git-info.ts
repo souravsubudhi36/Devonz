@@ -2,10 +2,11 @@ import { json } from '@remix-run/node';
 import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('GitInfo');
 
-export async function loader() {
+async function gitInfoLoader() {
   try {
     // Check if we're in a git repository
     if (!existsSync('.git')) {
@@ -70,3 +71,8 @@ export async function loader() {
     );
   }
 }
+
+export const loader = withSecurity(gitInfoLoader as any, {
+  allowedMethods: ['GET'],
+  rateLimit: false,
+});

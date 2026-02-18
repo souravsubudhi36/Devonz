@@ -39,7 +39,7 @@ const PROVIDER_ICONS: Record<ProviderName, string> = {
   HuggingFace: 'i-ph:robot',
   Hyperbolic: 'i-ph:cloud',
   Mistral: 'i-ph:brain',
-  OpenAI: 'i-ph:openai-logo',
+  OpenAI: 'i-ph:brain',
   OpenRouter: 'i-ph:cloud',
   Perplexity: 'i-ph:sparkle',
   Together: 'i-ph:cloud',

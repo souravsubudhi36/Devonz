@@ -51,7 +51,7 @@ function StatusDashboard({ onBack }: { onBack: () => void }) {
                           className: 'w-5 h-5 text-bolt-elements-textPrimary',
                         })
                       ) : (
-                        <div className="i-ph:server w-5 h-5 text-bolt-elements-textPrimary" />
+                        <div className="i-ph:hard-drive w-5 h-5 text-bolt-elements-textPrimary" />
                       )}
                     </div>
                     <div>

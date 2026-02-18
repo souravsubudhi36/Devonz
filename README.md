@@ -111,6 +111,29 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 
 4. **Open in Browser**: Navigate to `http://localhost:5173`
 
+### Docker
+
+Run Devonz in a Docker container without installing Node.js locally:
+
+```bash
+# Build the image
+pnpm docker:build
+# or: docker build -t devonz .
+
+# Run with your API keys
+pnpm docker:run
+# or: docker run --rm -p 5173:5173 --env-file .env.local devonz
+
+# Using Docker Compose
+pnpm docker:up     # start in background
+pnpm docker:down   # stop
+
+# Development mode (hot reload)
+pnpm docker:dev
+```
+
+Open `http://localhost:5173` after the container starts.
+
 ---
 
 ## Configuration
@@ -240,6 +263,39 @@ bolt.diy/
 | ------------------ | ---------------------- |
 | `pnpm run clean`   | Clean build artifacts  |
 | `pnpm run prepare` | Set up husky git hooks |
+
+### Docker Scripts
+
+| Command               | Description                                |
+| --------------------- | ------------------------------------------ |
+| `pnpm docker:build`   | Build production Docker image locally      |
+| `pnpm docker:run`     | Run container (standalone)                 |
+| `pnpm docker:up`      | Start via Docker Compose (pulls from GHCR) |
+| `pnpm docker:down`    | Stop Docker Compose services               |
+| `pnpm docker:dev`     | Dev mode with hot reload in Docker         |
+| `pnpm docker:update`  | Pull latest image + restart                |
+
+### Keeping Up to Date
+
+**Git Clone users:**
+
+```bash
+pnpm run update          # pulls latest, installs deps, rebuilds
+pnpm run update -- --skip-build  # pull + install only
+```
+
+**Docker users:**
+
+```bash
+pnpm docker:update       # pulls latest image, restarts container
+```
+
+**Docker auto-update (hands-free):**
+
+```bash
+# Enable Watchtower — auto-pulls new images every 5 minutes
+docker compose --profile auto-update up -d
+```
 
 ---
 

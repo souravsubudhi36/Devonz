@@ -68,7 +68,7 @@ function SetupGuide({ onBack }: { onBack: () => void }) {
         <CardHeader className="pb-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center ring-1 ring-purple-500/30">
-              <div className="i-ph:server w-6 h-6 text-purple-500" />
+              <div className="i-ph:hard-drive w-6 h-6 text-purple-500" />
             </div>
             <div className="flex-1">
               <h3 className="text-xl font-semibold text-bolt-elements-textPrimary">Ollama Setup</h3>
@@ -627,7 +627,7 @@ function SetupGuide({ onBack }: { onBack: () => void }) {
                 </div>
                 <div className="p-3 rounded-lg bg-bolt-elements-background-depth-3">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="i-ph:server w-4 h-4 text-red-500" />
+                    <div className="i-ph:hard-drive w-4 h-4 text-red-500" />
                     <span className="font-medium text-bolt-elements-textPrimary">Together AI</span>
                   </div>
                   <p className="text-xs text-bolt-elements-textSecondary">Fast inference with open-source models</p>

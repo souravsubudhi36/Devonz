@@ -28,15 +28,33 @@ export function checkRateLimit(request: Request, endpoint: string): { allowed: b
   const clientIP = getClientIP(request);
   const key = `${clientIP}:${endpoint}`;
 
-  // Find matching rate limit rule
-  const rule = Object.entries(RATE_LIMITS).find(([pattern]) => {
+  // Find matching rate limit rule (prefer specific over wildcard)
+  const entries = Object.entries(RATE_LIMITS);
+
+  // Check exact matches first
+  const exactMatch = entries.find(([pattern]) => pattern === endpoint);
+
+  // Then check prefix patterns (e.g. '/api/github-*')
+  const prefixMatch = entries.find(([pattern]) => {
+    if (pattern.endsWith('-*')) {
+      const basePattern = pattern.slice(0, -1);
+      return endpoint.startsWith(basePattern);
+    }
+
+    return false;
+  });
+
+  // Then check wildcard patterns (e.g. '/api/*')
+  const wildcardMatch = entries.find(([pattern]) => {
     if (pattern.endsWith('/*')) {
       const basePattern = pattern.slice(0, -2);
       return endpoint.startsWith(basePattern);
     }
 
-    return endpoint === pattern;
+    return false;
   });
+
+  const rule = exactMatch || prefixMatch || wildcardMatch;
 
   if (!rule) {
     return { allowed: true }; // No rate limit for this endpoint

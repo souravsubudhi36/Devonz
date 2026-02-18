@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useStore } from '@nanostores/react';
 import { classNames } from '~/utils/classNames';
 import { Dialog, DialogRoot, DialogClose, DialogTitle, DialogButton } from '~/components/ui/Dialog';
 import { IconButton } from '~/components/ui/IconButton';
-import { useMCPStore } from '~/lib/stores/mcp';
+import { mcpStore, initializeMCP, checkMCPServersAvailabilities } from '~/lib/stores/mcp';
 import McpServerList from '~/components/@settings/tabs/mcp/McpServerList';
 
 export function McpTools() {
-  const isInitialized = useMCPStore((state) => state.isInitialized);
-  const serverTools = useMCPStore((state) => state.serverTools);
-  const initialize = useMCPStore((state) => state.initialize);
-  const checkServersAvailabilities = useMCPStore((state) => state.checkServersAvailabilities);
+  const { isInitialized, serverTools } = useStore(mcpStore);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +16,7 @@ export function McpTools() {
 
   useEffect(() => {
     if (!isInitialized) {
-      initialize();
+      initializeMCP();
     }
   }, [isInitialized]);
 
@@ -27,7 +25,7 @@ export function McpTools() {
     setError(null);
 
     try {
-      await checkServersAvailabilities();
+      await checkMCPServersAvailabilities();
     } catch (e) {
       setError(`Failed to check server availability: ${e instanceof Error ? e.message : String(e)}`);
     } finally {

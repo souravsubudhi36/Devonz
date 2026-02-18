@@ -15,6 +15,7 @@ import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 import type { DesignScheme } from '~/types/design-scheme';
 import { MCPService } from '~/lib/services/mcpService';
 import { StreamRecoveryManager } from '~/lib/.server/llm/stream-recovery';
+import { withSecurity } from '~/lib/security';
 import {
   getAgentToolSetWithoutExecute,
   shouldUseAgentMode,
@@ -27,9 +28,10 @@ import {
   isAgentToolName,
 } from '~/lib/services/agentChatIntegration';
 
-export async function action(args: ActionFunctionArgs) {
-  return chatAction(args);
-}
+export const action = withSecurity(chatAction, {
+  allowedMethods: ['POST'],
+  rateLimit: false,
+});
 
 const logger = createScopedLogger('api.chat');
 

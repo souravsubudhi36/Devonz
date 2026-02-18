@@ -1,4 +1,5 @@
-import { json, type LoaderFunction, type LoaderFunctionArgs } from '@remix-run/node';
+import { json, type LoaderFunctionArgs } from '@remix-run/node';
+import { withSecurity } from '~/lib/security';
 
 /**
  * Diagnostic API for troubleshooting connection issues
@@ -11,7 +12,7 @@ interface AppContext {
   };
 }
 
-export const loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs & { context: AppContext }) => {
+async function diagnosticsLoader({ request, context }: LoaderFunctionArgs & { context: AppContext }) {
   // Get environment variables
   const envVars = {
     hasGithubToken: Boolean(process.env.GITHUB_ACCESS_TOKEN || context.env?.GITHUB_ACCESS_TOKEN),
@@ -139,4 +140,9 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
       headers: corsStatus.headers,
     },
   );
-};
+}
+
+export const loader = withSecurity(diagnosticsLoader as any, {
+  allowedMethods: ['GET'],
+  rateLimit: false,
+});

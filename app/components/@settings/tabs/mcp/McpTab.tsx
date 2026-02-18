@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useStore } from '@nanostores/react';
 import { classNames } from '~/utils/classNames';
 import type { MCPConfig } from '~/lib/services/mcpService';
 import { toast } from 'react-toastify';
-import { useMCPStore } from '~/lib/stores/mcp';
+import { mcpStore, initializeMCP, updateMCPSettings, checkMCPServersAvailabilities } from '~/lib/stores/mcp';
 import McpServerList from '~/components/@settings/tabs/mcp/McpServerList';
 
 const EXAMPLE_MCP_CONFIG: MCPConfig = {
@@ -27,12 +28,7 @@ const EXAMPLE_MCP_CONFIG: MCPConfig = {
 };
 
 export default function McpTab() {
-  const settings = useMCPStore((state) => state.settings);
-  const isInitialized = useMCPStore((state) => state.isInitialized);
-  const serverTools = useMCPStore((state) => state.serverTools);
-  const initialize = useMCPStore((state) => state.initialize);
-  const updateSettings = useMCPStore((state) => state.updateSettings);
-  const checkServersAvailabilities = useMCPStore((state) => state.checkServersAvailabilities);
+  const { settings, isInitialized, serverTools } = useStore(mcpStore);
 
   const [isSaving, setIsSaving] = useState(false);
   const [mcpConfigText, setMCPConfigText] = useState('');
@@ -43,7 +39,7 @@ export default function McpTab() {
 
   useEffect(() => {
     if (!isInitialized) {
-      initialize().catch((err) => {
+      initializeMCP().catch((err) => {
         setError(`Failed to initialize MCP settings: ${err instanceof Error ? err.message : String(err)}`);
         toast.error('Failed to load MCP configuration');
       });
@@ -78,7 +74,7 @@ export default function McpTab() {
     setIsSaving(true);
 
     try {
-      await updateSettings({
+      await updateMCPSettings({
         mcpConfig: parsedConfig,
         maxLLMSteps,
       });
@@ -107,7 +103,7 @@ export default function McpTab() {
     setError(null);
 
     try {
-      await checkServersAvailabilities();
+      await checkMCPServersAvailabilities();
     } catch (e) {
       setError(`Failed to check server availability: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
