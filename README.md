@@ -1,401 +1,288 @@
+<div align="center">
+
 # Devonz
 
-Devonz is an AI-powered development agent that helps you build full-stack applications through natural language conversation. Originally built upon [bolt.diy](https://github.com/stackblitz-labs/bolt.diy), Devonz focuses on speed, efficiency, and a streamlined development experience and have evolved the project into a powerful AI coding agent.
+**AI-powered full-stack development agent — describe what you want, watch it build.**
+
+[![GitHub Stars](https://img.shields.io/github/stars/zebbern/Devonz?style=flat&logo=github&label=Stars)](https://github.com/zebbern/Devonz)
+[![Docker Build](https://img.shields.io/github/actions/workflow/status/zebbern/Devonz/docker-publish.yml?branch=main&label=Docker%20Build&logo=docker)](https://github.com/zebbern/Devonz/actions/workflows/docker-publish.yml)
+[![Node](https://img.shields.io/badge/Node-18.18%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 ![Devonz Screenshot](https://github.com/user-attachments/assets/e4c3067d-2539-4b5e-abab-d129d90b51dc)
+
+</div>
+
+---
+
+## Quick Start
+
+**Docker** (recommended):
+
+```bash
+docker compose up -d
+# Open http://localhost:5173
+```
+
+**From source**:
+
+```bash
+git clone https://github.com/zebbern/Devonz.git && cd Devonz
+pnpm install
+pnpm run dev
+# Open http://localhost:5173
+```
+
+> First load can take up to 2 minutes while dependencies compile.
+
+---
+
+## Why Devonz?
+
+- **19 AI providers** — OpenAI, Anthropic, Google, Groq, Ollama, and 14 more. Swap models mid-conversation.
+- **Full dev environment in the browser** — editor, terminal, live preview, all powered by WebContainers.
+- **One-click deploy** — push to GitHub, GitLab, Netlify, or Vercel directly from the UI.
+- **MCP tools** — extend the agent with Model Context Protocol servers for specialized workflows.
+- **Auto-fix** — terminal error detection catches failures and patches them automatically.
 
 ---
 
 ## Table of Contents
 
-| Section                                 | Description                        |
-| --------------------------------------- | ---------------------------------- |
-| [Key Features](#key-features)           | Core capabilities and highlights   |
-| [Tech Stack](#tech-stack)               | Technologies used in the project   |
-| [Installation](#installation)           | Getting started guide              |
-| [Configuration](#configuration)         | Environment variables and settings |
-| [AI Providers](#supported-ai-providers) | All 19 supported AI providers      |
-| [Project Structure](#project-structure) | Codebase organization              |
-| [Available Scripts](#available-scripts) | Development and build commands     |
-| [Settings](#settings--features)         | App settings and features          |
-| [Contributing](#contributing)           | How to contribute                  |
+- [Features](#features)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Docker](#docker)
+- [Scripts](#scripts)
+- [Keeping Up to Date](#keeping-up-to-date)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
-## Key Features
+## Features
 
-### AI-Powered Development
+**AI & Code Generation**
+- Natural language to full-stack apps (Node.js-based)
+- 19 LLM providers with hot-swappable model selection
+- MCP (Model Context Protocol) tool integration
+- Automatic error detection and auto-fix from terminal output
+- Attach images to prompts for visual context
 
-| Feature                      | Description                                                                 |
-| ---------------------------- | --------------------------------------------------------------------------- |
-| Natural Language Building    | Describe what you want to build, and Devonz creates it                      |
-| Multi-Provider Support       | 19 AI providers including OpenAI, Anthropic, Google, Groq, Ollama, and more |
-| Model Context Protocol (MCP) | Extend Devonz capabilities with MCP tools                                   |
-| Auto-Fix                     | Automatic error detection and fixing with terminal error detector           |
+**Development Environment**
+- In-browser code editor (CodeMirror) with syntax highlighting
+- Integrated terminal (xterm.js) with full shell access
+- Real-time application preview
+- Diff view for AI-generated changes
+- File locking to prevent conflicts during generation
 
-### Development Environment
-
-| Feature                | Description                                           |
-| ---------------------- | ----------------------------------------------------- |
-| In-Browser Development | Full development environment powered by WebContainers |
-| Real-time Preview      | Instant preview of your applications                  |
-| Terminal Access        | Full terminal access within the browser               |
-| Code Editor            | Integrated CodeMirror editor with syntax highlighting |
-
-### Deployment Options
-
-| Platform | Description                          |
-| -------- | ------------------------------------ |
-| GitHub   | Push directly to GitHub repositories |
-| GitLab   | Deploy to GitLab projects            |
-| Netlify  | One-click deployment to Netlify      |
-| Vercel   | Deploy to Vercel with ease           |
-
-### Integrations
-
-| Integration      | Description                                                     |
-| ---------------- | --------------------------------------------------------------- |
-| Supabase         | Database and authentication API routes (requires configuration) |
-| Git              | Built-in Git support for version control                        |
-| Template Gallery | Pre-built templates for popular frameworks                      |
-
----
-
-## Tech Stack
-
-| Category      | Technology                                                |
-| ------------- | --------------------------------------------------------- |
-| Framework     | [Remix](https://remix.run/) + [Vite](https://vitejs.dev/) |
-| Language      | TypeScript                                                |
-| Styling       | UnoCSS + Tailwind CSS                                     |
-| UI Components | Radix UI, Headless UI                                     |
-| Animation     | Framer Motion                                             |
-| AI SDK        | Vercel AI SDK                                             |
-| Editor        | CodeMirror                                                |
-| Terminal      | xterm.js                                                  |
-| WebContainers | StackBlitz WebContainer API                               |
+**Deployment & Integrations**
+- GitHub / GitLab push and repo management
+- Netlify and Vercel one-click deploy
+- Supabase database integration
+- Git version control built-in
+- Template gallery for popular frameworks
 
 ---
 
 ## Installation
 
-### Prerequisites
+<details>
+<summary><strong>From Source (Node.js)</strong></summary>
 
-| Requirement | Version              |
-| ----------- | -------------------- |
-| Node.js     | 18.18.0 or higher    |
-| pnpm        | Latest (recommended) |
-
-### Quick Start
-
-> **Note**: The first load can take up to 2 minutes before you see the main chat interface. Please be patient while all dependencies are compiled.
-
-1. **Clone the Repository**:
-
-   ```bash
-   git clone https://github.com/zebbern/Devonz.git
-   cd Devonz
-   ```
-
-2. **Install Dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-3. **Start Development Server**:
-
-   ```bash
-   pnpm run dev
-   ```
-
-4. **Open in Browser**: Navigate to `http://localhost:5173`
-
-### Docker
-
-Run Devonz in a Docker container without installing Node.js locally:
+**Prerequisites**: Node.js 18.18+ and pnpm (latest)
 
 ```bash
-# Build the image
-pnpm docker:build
-# or: docker build -t devonz .
-
-# Run with your API keys
-pnpm docker:run
-# or: docker run --rm -p 5173:5173 --env-file .env.local devonz
-
-# Using Docker Compose
-pnpm docker:up     # start in background
-pnpm docker:down   # stop
-
-# Development mode (hot reload)
-pnpm docker:dev
+git clone https://github.com/zebbern/Devonz.git
+cd Devonz
+pnpm install
+pnpm run dev
 ```
 
-Open `http://localhost:5173` after the container starts.
+Open [http://localhost:5173](http://localhost:5173).
+
+</details>
+
+<details>
+<summary><strong>Docker</strong></summary>
+
+No Node.js required. Just Docker.
+
+```bash
+# Option 1: Docker Compose (pulls from GHCR)
+docker compose up -d
+
+# Option 2: Build locally
+docker build -t devonz .
+docker run --rm -p 5173:5173 --env-file .env.local devonz
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+</details>
 
 ---
 
 ## Configuration
 
-### Environment Variables
-
-Create a `.env.local` file in the project root:
+Copy the example env file and add your API keys:
 
 ```bash
-# AI Provider API Keys
+cp .env.example .env.local
+```
+
+```bash
+# AI Provider API Keys (add any you use)
 OPENAI_API_KEY=your_openai_key
 ANTHROPIC_API_KEY=your_anthropic_key
 GOOGLE_GENERATIVE_AI_API_KEY=your_google_key
-GROQ_API_KEY=your_groq_key
 
-# Local Provider URLs
+# Local Provider URLs (optional)
 OLLAMA_BASE_URL=http://127.0.0.1:11434
-LMSTUDIO_BASE_URL=http://127.0.0.1:1234
 
-# Deployment Integrations (Optional)
+# Deployment Tokens (optional)
 GITHUB_ACCESS_TOKEN=your_github_token
 NETLIFY_AUTH_TOKEN=your_netlify_token
-VERCEL_ACCESS_TOKEN=your_vercel_token
 ```
 
-### In-App Configuration
+You can also configure providers in-app: **Settings (gear icon) → Providers tab**.
 
-1. Click the **Settings icon** in the sidebar
-2. Navigate to **Providers** tab
-3. Configure your preferred AI providers:
-   - **Cloud Providers**: OpenAI, Anthropic, Google, Groq, OpenRouter, etc.
-   - **Local Providers**: Ollama, LM Studio, OpenAI-compatible endpoints
+See [.env.example](.env.example) for all available variables.
 
 ---
 
-## Supported AI Providers
+## Docker
 
-### Cloud Providers
+```bash
+pnpm docker:build          # Build image locally
+pnpm docker:run            # Run standalone container
+pnpm docker:up             # Start via Docker Compose
+pnpm docker:down           # Stop services
+pnpm docker:dev            # Dev mode with hot reload
+pnpm docker:update         # Pull latest image + restart
+```
 
-| Provider       | Models                           | Features              |
-| -------------- | -------------------------------- | --------------------- |
-| OpenAI         | GPT-4o, GPT-4 Turbo, GPT-3.5     | Chat, Vision          |
-| Anthropic      | Claude 3.5 Sonnet, Claude 3 Opus | Chat, Vision          |
-| Google         | Gemini Pro, Gemini Ultra         | Chat, Vision          |
-| Groq           | LLaMA 3, Mixtral                 | Fast inference        |
-| OpenRouter     | 100+ models                      | Model aggregation     |
-| Mistral        | Mistral Large, Codestral         | Chat, Code            |
-| Cohere         | Command R+                       | Chat, RAG             |
-| Deepseek       | Deepseek Coder                   | Code generation       |
-| Amazon Bedrock | Claude, Titan                    | Enterprise            |
-| Together       | Open source models               | Chat, Code            |
-| Perplexity     | Online models                    | Web search            |
-| HuggingFace    | Open source models               | Community models      |
-| xAI            | Grok                             | Chat                  |
-| GitHub         | Copilot models                   | GitHub AI             |
-| Hyperbolic     | Various models                   | Specialized inference |
-| Moonshot       | Moonshot models                  | Chinese LLM           |
+**Auto-update with Watchtower** (polls GHCR every 5 minutes):
 
-### Local Providers
+```bash
+docker compose --profile auto-update up -d
+```
 
-| Provider    | Description                                          |
-| ----------- | ---------------------------------------------------- |
-| Ollama      | Run open-source models locally with model management |
-| LM Studio   | Local model inference with GUI                       |
-| OpenAI-like | Any OpenAI-compatible API endpoint                   |
+---
+
+## Scripts
+
+```bash
+# Development
+pnpm run dev               # Start dev server
+pnpm run build             # Production build
+pnpm run start             # Run production build
+pnpm run preview           # Build + preview locally
+
+# Quality
+pnpm test                  # Run test suite
+pnpm test:watch            # Tests in watch mode
+pnpm run typecheck         # TypeScript type check
+pnpm run lint              # ESLint check
+pnpm run lint:fix          # Auto-fix lint issues
+
+# Utilities
+pnpm run clean             # Clean build artifacts
+pnpm run update            # Pull latest + install + rebuild
+```
+
+---
+
+## Keeping Up to Date
+
+**Git clone users:**
+
+```bash
+pnpm run update                    # pulls, installs deps, rebuilds
+pnpm run update -- --skip-build    # pull + install only
+```
+
+**Docker users:**
+
+```bash
+pnpm docker:update                 # pulls latest image, restarts
+```
+
+**Hands-free (Watchtower):**
+
+```bash
+docker compose --profile auto-update up -d
+```
 
 ---
 
 ## Project Structure
+
+<details>
+<summary>Expand file tree</summary>
 
 ```
 bolt.diy/
 ├── app/
 │   ├── components/         # React components
 │   │   ├── @settings/      # Settings panel (14 tabs)
-│   │   ├── auth/           # Authentication components
 │   │   ├── chat/           # Chat interface
-│   │   ├── deploy/         # Deployment (GitHub, GitLab, Netlify, Vercel)
+│   │   ├── deploy/         # Deployment integrations
 │   │   ├── editor/         # Code editor
 │   │   ├── git/            # Git integration
 │   │   ├── header/         # App header
 │   │   ├── sidebar/        # Sidebar navigation
 │   │   ├── ui/             # Shared UI components
 │   │   └── workbench/      # Development workbench
-│   ├── lib/                # Core libraries
-│   │   ├── api/            # API utilities
+│   ├── lib/
 │   │   ├── hooks/          # React hooks
-│   │   ├── modules/        # Feature modules (llm with 19 providers)
+│   │   ├── modules/        # Feature modules (LLM providers)
 │   │   ├── services/       # API services
 │   │   ├── stores/         # State management (nanostores)
 │   │   └── utils/          # Utility functions
-│   ├── routes/             # Remix routes (39 API endpoints + pages)
+│   ├── routes/             # Remix routes (39 API + page routes)
 │   ├── styles/             # Global styles
-│   └── types/              # TypeScript types
-├── docs/                   # Documentation (mkdocs)
-├── public/                 # Static assets
-├── scripts/                # Build scripts
-└── supabase/               # Supabase folder (requires configuration)
+│   └── types/              # TypeScript type definitions
+├── docs/                   # Extended documentation
+├── scripts/                # Build & update scripts
+└── supabase/               # Supabase configuration
 ```
+
+</details>
 
 ---
 
-## Available Scripts
+## Tech Stack
 
-### Development
-
-| Command            | Description               |
-| ------------------ | ------------------------- |
-| `pnpm run dev`     | Start development server  |
-| `pnpm run build`   | Build for production      |
-| `pnpm run start`   | Run production build      |
-| `pnpm run preview` | Build and preview locally |
-
-### Testing and Quality
-
-| Command              | Description              |
-| -------------------- | ------------------------ |
-| `pnpm test`          | Run tests                |
-| `pnpm test:watch`    | Run tests in watch mode  |
-| `pnpm run typecheck` | TypeScript type checking |
-| `pnpm run lint`      | ESLint check             |
-| `pnpm run lint:fix`  | Auto-fix linting issues  |
-
-### Utilities
-
-| Command            | Description            |
-| ------------------ | ---------------------- |
-| `pnpm run clean`   | Clean build artifacts  |
-| `pnpm run prepare` | Set up husky git hooks |
-
-### Docker Scripts
-
-| Command               | Description                                |
-| --------------------- | ------------------------------------------ |
-| `pnpm docker:build`   | Build production Docker image locally      |
-| `pnpm docker:run`     | Run container (standalone)                 |
-| `pnpm docker:up`      | Start via Docker Compose (pulls from GHCR) |
-| `pnpm docker:down`    | Stop Docker Compose services               |
-| `pnpm docker:dev`     | Dev mode with hot reload in Docker         |
-| `pnpm docker:update`  | Pull latest image + restart                |
-
-### Keeping Up to Date
-
-**Git Clone users:**
-
-```bash
-pnpm run update          # pulls latest, installs deps, rebuilds
-pnpm run update -- --skip-build  # pull + install only
-```
-
-**Docker users:**
-
-```bash
-pnpm docker:update       # pulls latest image, restarts container
-```
-
-**Docker auto-update (hands-free):**
-
-```bash
-# Enable Watchtower — auto-pulls new images every 5 minutes
-docker compose --profile auto-update up -d
-```
-
----
-
-## Settings and Features
-
-### Settings Tabs
-
-| Tab            | Description                              |
-| -------------- | ---------------------------------------- |
-| Profile        | User profile management                  |
-| Providers      | AI provider configuration (19 providers) |
-| Features       | Enable/disable features                  |
-| MCP            | Model Context Protocol tools             |
-| GitHub         | GitHub integration settings              |
-| GitLab         | GitLab integration settings              |
-| Netlify        | Netlify deployment settings              |
-| Vercel         | Vercel deployment settings               |
-| Supabase       | Database integration settings            |
-| Event Logs     | Application logs                         |
-| Data           | Import/export data                       |
-| Notifications  | Notification preferences                 |
-| Project Memory | Project context storage                  |
-| Settings       | General settings                         |
-
-### MCP (Model Context Protocol)
-
-Devonz supports MCP tools for extending AI capabilities:
-
-| Feature            | Description                                |
-| ------------------ | ------------------------------------------ |
-| Custom MCP Servers | Configure custom MCP servers               |
-| Specialized Tools  | Add specialized tools for your workflow    |
-| External Services  | Extend AI reasoning with external services |
-
----
-
-## Updating
-
-### Git-based Updates
-
-```bash
-# Save local changes
-git stash
-
-# Pull latest updates
-git pull
-
-# Update dependencies
-pnpm install
-
-# Restore local changes
-git stash pop
-```
-
-### Clean Install
-
-```bash
-# Remove dependencies
-rm -rf node_modules pnpm-lock.yaml
-
-# Clear cache
-pnpm store prune
-
-# Reinstall
-pnpm install
-```
+**Remix** + **Vite** + **TypeScript** · **UnoCSS** · **Radix UI** · **Framer Motion** · **Vercel AI SDK** · **CodeMirror** · **xterm.js** · **WebContainers**
 
 ---
 
 ## Contributing
 
-We welcome contributions! Here's how to get started:
-
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit changes: `git commit -m 'feat: add my feature'`
+4. Push: `git push origin feature/my-feature`
 5. Open a Pull Request
+
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
 ## Acknowledgments
 
-| Credit                                                  | Description                        |
-| ------------------------------------------------------- | ---------------------------------- |
-| [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) | Original project foundation        |
-| [StackBlitz WebContainers](https://webcontainers.io/)   | In-browser development environment |
-| [Vercel AI SDK](https://sdk.vercel.ai/)                 | AI capabilities                    |
-
----
-
-## Links
-
-| Link             | URL                                                                    |
-| ---------------- | ---------------------------------------------------------------------- |
-| Repository       | [https://github.com/zebbern/Devonz](https://github.com/zebbern/Devonz) |
-| Original Project | [bolt.diy](https://github.com/stackblitz-labs/bolt.diy)                |
+- [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) — original project foundation
+- [StackBlitz WebContainers](https://webcontainers.io/) — in-browser dev environment
+- [Vercel AI SDK](https://sdk.vercel.ai/) — AI capabilities
 
 ---
 
 <div align="center">
   <strong>Build anything with AI. Just describe what you want.</strong>
+  <br><br>
+  <a href="https://github.com/zebbern/Devonz">GitHub</a> ·
+  <a href="https://github.com/zebbern/Devonz/issues">Issues</a> ·
+  <a href="docs/">Documentation</a>
 </div>
