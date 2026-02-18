@@ -562,6 +562,9 @@ export class WorkbenchStore {
 
           this.deployAlert.set(alert);
         },
+        () => {
+          this.clearAlert();
+        },
       ),
     });
   }
