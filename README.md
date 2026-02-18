@@ -2,9 +2,8 @@
 
 # Devonz
 
-**AI-powered full-stack development agent — describe what you want, watch it build.**
+**AI-powered full-stack development agent :-: describe what you want, watch it build.**
 
-[![GitHub Stars](https://img.shields.io/github/stars/zebbern/Devonz?style=flat&logo=github&label=Stars)](https://github.com/zebbern/Devonz)
 [![Docker Build](https://img.shields.io/github/actions/workflow/status/zebbern/Devonz/docker-publish.yml?branch=main&label=Docker%20Build&logo=docker)](https://github.com/zebbern/Devonz/actions/workflows/docker-publish.yml)
 [![Node](https://img.shields.io/badge/Node-18.18%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -14,6 +13,18 @@
 </div>
 
 ---
+
+<div align="center">
+
+[Features](#features) - [Installation](#installation) - [Configuration](#configuration)
+
+[Docker](#docker) - [Scripts](#scripts) - [Keeping Up to Date](#keeping-up-to-date)
+
+[Project Structure](#project-structure)
+
+[Contributing](#contributing) - [Acknowledgments](#acknowledgments)
+
+</div>
 
 ## Quick Start
 
@@ -44,20 +55,9 @@ pnpm run dev
 - **One-click deploy** — push to GitHub, GitLab, Netlify, or Vercel directly from the UI.
 - **MCP tools** — extend the agent with Model Context Protocol servers for specialized workflows.
 - **Auto-fix** — terminal error detection catches failures and patches them automatically.
-
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Docker](#docker)
-- [Scripts](#scripts)
-- [Keeping Up to Date](#keeping-up-to-date)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [Acknowledgments](#acknowledgments)
+- **Image context** — attach screenshots or design files to prompts for visual understanding.
+- **Template gallery** — start from popular frameworks and boilerplates, then customize with AI.
+- **State-of-the-art AI SDK** — built on the Vercel AI SDK for best-in-class LLM performance and reliability.
 
 ---
 

@@ -9,6 +9,7 @@ import { chatId } from '~/lib/persistence/useChatHistory';
 import { getLocalStorage } from '~/lib/persistence/localStorage';
 import type { GitHubConnection } from '~/types/GitHub';
 import { createScopedLogger } from '~/utils/logger';
+import { formatBuildFailureOutput } from './deployUtils';
 
 const logger = createScopedLogger('GitHubDeploy');
 
@@ -69,10 +70,12 @@ export function useGitHubDeploy() {
       // Then run it
       await artifact.runner.runAction(actionData);
 
-      if (!artifact.runner.buildOutput) {
+      const buildOutput = artifact.runner.buildOutput;
+
+      if (!buildOutput || buildOutput.exitCode !== 0) {
         // Notify that build failed
         deployArtifact.runner.handleDeployAction('building', 'failed', {
-          error: 'Build failed. Check the terminal for details.',
+          error: formatBuildFailureOutput(buildOutput?.output),
           source: 'github',
         });
         throw new Error('Build failed');

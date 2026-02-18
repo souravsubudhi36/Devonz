@@ -9,16 +9,19 @@ export class LLMManager {
   private static _instance: LLMManager;
   private _providers: Map<string, BaseProvider> = new Map();
   private _modelList: ModelInfo[] = [];
-  private readonly _env: Env = {};
+  private _env: Record<string, string> = {};
 
-  private constructor(_env: Env) {
+  private constructor(_env: Record<string, string>) {
     this._registerProvidersFromDirectory();
     this._env = _env;
   }
 
-  static getInstance(env: Env = {}): LLMManager {
+  static getInstance(env: Record<string, string> = {}): LLMManager {
     if (!LLMManager._instance) {
       LLMManager._instance = new LLMManager(env);
+    } else if (Object.keys(env).length > 0) {
+      // Update env on subsequent calls so Cloudflare Workers get fresh bindings
+      LLMManager._instance._env = env;
     }
 
     return LLMManager._instance;
@@ -93,7 +96,7 @@ export class LLMManager {
   async updateModelList(options: {
     apiKeys?: Record<string, string>;
     providerSettings?: Record<string, IProviderSetting>;
-    serverEnv?: Env;
+    serverEnv?: Record<string, string>;
   }): Promise<ModelInfo[]> {
     const { apiKeys, providerSettings, serverEnv } = options;
 
@@ -174,10 +177,10 @@ export class LLMManager {
     const staticModels = Array.from(this._providers.values()).flatMap((p) => p.staticModels || []);
     const dynamicModelsFlat = dynamicModels.flat();
     const dynamicModelKeys = dynamicModelsFlat.map((d) => `${d.name}-${d.provider}`);
-    const filteredStaticModesl = staticModels.filter((m) => !dynamicModelKeys.includes(`${m.name}-${m.provider}`));
+    const filteredStaticModels = staticModels.filter((m) => !dynamicModelKeys.includes(`${m.name}-${m.provider}`));
 
     // Combine static and dynamic models
-    const modelList = [...dynamicModelsFlat, ...filteredStaticModesl];
+    const modelList = [...dynamicModelsFlat, ...filteredStaticModels];
     modelList.sort((a, b) => a.name.localeCompare(b.name));
     this._modelList = modelList;
 
@@ -191,7 +194,7 @@ export class LLMManager {
     options: {
       apiKeys?: Record<string, string>;
       providerSettings?: Record<string, IProviderSetting>;
-      serverEnv?: Env;
+      serverEnv?: Record<string, string>;
     },
   ): Promise<ModelInfo[]> {
     const provider = this._providers.get(providerArg.name);
