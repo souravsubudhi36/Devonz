@@ -133,7 +133,6 @@ Validated with Zod. Returns a data stream with:
 | `/api/system/diagnostics` | GET | System diagnostics (memory, CPU, etc.) |
 | `/api/system/disk-info` | GET | Disk usage information |
 | `/api/system/git-info` | GET | Git installation and version info |
-| `/api/update` | GET | Check for application updates |
 | `/api/bug-report` | POST | Submit bug reports |
 | `/api/version-check` | GET | Compares local commit hash against latest GitHub commit to detect available updates |
 
