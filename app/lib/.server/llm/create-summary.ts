@@ -1,11 +1,20 @@
 import { generateText, type CoreTool, type GenerateTextResult, type Message } from 'ai';
+import { createHash } from 'node:crypto';
 import type { IProviderSetting } from '~/types/model';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { extractCurrentContext, extractPropertiesFromMessage, simplifyBoltActions } from './utils';
 import { createScopedLogger } from '~/utils/logger';
-import { LLMManager } from '~/lib/modules/llm/manager';
+import { resolveModel } from './resolve-model';
 
 const logger = createScopedLogger('create-summary');
+
+/**
+ * In-memory cache for summaries keyed by a hash of sliced message content.
+ * Prevents redundant LLM calls when the same messages are reprocessed
+ * (e.g. rapid re-sends or continuation requests with identical history).
+ */
+const summaryCache = new Map<string, { summary: string; timestamp: number }>();
+const SUMMARY_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 export async function createSummary(props: {
   messages: Message[];
@@ -40,33 +49,17 @@ export async function createSummary(props: {
   });
 
   const provider = PROVIDER_LIST.find((p) => p.name === currentProvider) || DEFAULT_PROVIDER;
-  const staticModels = LLMManager.getInstance().getStaticModelListFromProvider(provider);
-  let modelDetails = staticModels.find((m) => m.name === currentModel);
+  const resolvedModel = await resolveModel({
+    provider,
+    currentModel,
+    apiKeys,
+    providerSettings,
+    serverEnv,
+    logger,
+  });
 
-  if (!modelDetails) {
-    const modelsList = [
-      ...(provider.staticModels || []),
-      ...(await LLMManager.getInstance().getModelListFromProvider(provider, {
-        apiKeys,
-        providerSettings,
-        serverEnv,
-      })),
-    ];
-
-    if (!modelsList.length) {
-      throw new Error(`No models found for provider ${provider.name}`);
-    }
-
-    modelDetails = modelsList.find((m) => m.name === currentModel);
-
-    if (!modelDetails) {
-      // Fallback to first model
-      logger.warn(
-        `MODEL [${currentModel}] not found in provider [${provider.name}]. Falling back to first model. ${modelsList[0].name}`,
-      );
-      modelDetails = modelsList[0];
-    }
-  }
+  // Use resolved model name (may differ from requested if fallback occurred)
+  currentModel = resolvedModel.name;
 
   let slicedMessages = processedMessages;
   const { summary } = extractCurrentContext(processedMessages);
@@ -98,6 +91,27 @@ ${summary.summary}`;
     Array.isArray(message.content)
       ? (message.content.find((item) => item.type === 'text')?.text as string) || ''
       : message.content;
+
+  // --- Hash-based cache: skip LLM call if sliced messages + old summary are identical ---
+  const cacheInput = (summaryText || '') + slicedMessages.map((m) => `${m.role}:${extractTextContent(m)}`).join('|');
+  const cacheKey = createHash('sha256').update(cacheInput).digest('hex');
+
+  // Evict stale entries
+  for (const [key, entry] of summaryCache) {
+    if (Date.now() - entry.timestamp > SUMMARY_CACHE_TTL_MS) {
+      summaryCache.delete(key);
+    }
+  }
+
+  const cached = summaryCache.get(cacheKey);
+
+  if (cached) {
+    logger.info(`Summary cache HIT — skipping LLM call (hash: ${cacheKey.slice(0, 8)}…)`);
+
+    return cached.summary;
+  }
+
+  logger.info(`Summary cache MISS — calling LLM (hash: ${cacheKey.slice(0, 8)}…)`);
 
   // select files from the list of code file from the project that might be useful for the current request from the user
   const resp = await generateText({
@@ -188,6 +202,9 @@ Please provide a summary of the chat till now including the hitorical summary of
   });
 
   const response = resp.text;
+
+  // Store in cache for future identical requests
+  summaryCache.set(cacheKey, { summary: response, timestamp: Date.now() });
 
   if (onFinish) {
     onFinish(resp);

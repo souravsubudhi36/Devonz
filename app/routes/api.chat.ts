@@ -201,8 +201,18 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           messageSliceId = processedMessages.length - 3;
         }
 
-        if (filePaths.length > 0 && contextOptimization) {
+        const shouldOptimizeContext = filePaths.length > 0 && contextOptimization && processedMessages.length > 3;
+
+        if (!shouldOptimizeContext && filePaths.length > 0 && contextOptimization) {
+          logger.info(
+            `Skipping context optimization for short chat (${processedMessages.length} messages ≤ 3) — using all files`,
+          );
+          filteredFiles = files;
+        }
+
+        if (shouldOptimizeContext) {
           logger.debug('Generating Chat Summary');
+          const summaryStart = performance.now();
           dataStream.writeData({
             type: 'progress',
             label: 'summary',
@@ -244,8 +254,11 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             chatId: processedMessages.slice(-1)?.[0]?.id,
           } as ContextAnnotation);
 
+          logger.info(`⏱ createSummary took ${(performance.now() - summaryStart).toFixed(0)}ms`);
+
           // Update context buffer
           logger.debug('Updating Context Buffer');
+          const contextStart = performance.now();
           dataStream.writeData({
             type: 'progress',
             label: 'context',
@@ -300,7 +313,10 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             message: 'Code Files Selected',
           } satisfies ProgressAnnotation);
 
-          // logger.debug('Code Files Selected');
+          logger.info(`⏱ selectContext took ${(performance.now() - contextStart).toFixed(0)}ms`);
+          logger.info(
+            `⏱ Total context optimization: ${(performance.now() - summaryStart).toFixed(0)}ms`,
+          );
         }
 
         // Merge MCP tools with agent tools when agent mode is enabled
@@ -448,6 +464,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           message: 'Generating Response',
         } satisfies ProgressAnnotation);
 
+        const streamStart = performance.now();
+
         const result = await streamText({
           messages: [...processedMessages],
           env: context.cloudflare?.env,
@@ -485,6 +503,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             }
           }
           streamRecovery.stop();
+          logger.info(`⏱ streamText completed in ${(performance.now() - streamStart).toFixed(0)}ms`);
         })();
         result.mergeIntoDataStream(dataStream);
       },

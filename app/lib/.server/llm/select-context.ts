@@ -5,7 +5,7 @@ import { IGNORE_PATTERNS, type FileMap } from './constants';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROVIDER_LIST } from '~/utils/constants';
 import { createFilesContext, extractCurrentContext, extractPropertiesFromMessage, simplifyBoltActions } from './utils';
 import { createScopedLogger } from '~/utils/logger';
-import { LLMManager } from '~/lib/modules/llm/manager';
+import { resolveModel } from './resolve-model';
 
 // Common patterns to ignore, similar to .gitignore
 
@@ -48,33 +48,17 @@ export async function selectContext(props: {
   });
 
   const provider = PROVIDER_LIST.find((p) => p.name === currentProvider) || DEFAULT_PROVIDER;
-  const staticModels = LLMManager.getInstance().getStaticModelListFromProvider(provider);
-  let modelDetails = staticModels.find((m) => m.name === currentModel);
+  const resolvedModel = await resolveModel({
+    provider,
+    currentModel,
+    apiKeys,
+    providerSettings,
+    serverEnv,
+    logger,
+  });
 
-  if (!modelDetails) {
-    const modelsList = [
-      ...(provider.staticModels || []),
-      ...(await LLMManager.getInstance().getModelListFromProvider(provider, {
-        apiKeys,
-        providerSettings,
-        serverEnv,
-      })),
-    ];
-
-    if (!modelsList.length) {
-      throw new Error(`No models found for provider ${provider.name}`);
-    }
-
-    modelDetails = modelsList.find((m) => m.name === currentModel);
-
-    if (!modelDetails) {
-      // Fallback to first model
-      logger.warn(
-        `MODEL [${currentModel}] not found in provider [${provider.name}]. Falling back to first model. ${modelsList[0].name}`,
-      );
-      modelDetails = modelsList[0];
-    }
-  }
+  // Use resolved model name (may differ from requested if fallback occurred)
+  currentModel = resolvedModel.name;
 
   const { codeContext } = extractCurrentContext(processedMessages);
 
@@ -222,7 +206,9 @@ export async function selectContext(props: {
   // Merge surviving context files with newly included files
   const mergedFiles: FileMap = { ...contextFiles, ...filteredFiles };
   const totalFiles = Object.keys(mergedFiles).length;
-  logger.info(`Total files: ${totalFiles} (${Object.keys(contextFiles).length} existing, ${Object.keys(filteredFiles).length} new)`);
+  logger.info(
+    `Total files: ${totalFiles} (${Object.keys(contextFiles).length} existing, ${Object.keys(filteredFiles).length} new)`,
+  );
 
   if (totalFiles === 0) {
     logger.warn('No files selected for context — returning empty context');
