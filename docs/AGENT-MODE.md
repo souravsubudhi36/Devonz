@@ -147,7 +147,7 @@ Configurable via the Settings UI or programmatically:
 interface AgentModeSettings {
   enabled: boolean;                  // Toggle agent mode
   autoApproveFileCreation: boolean;  // Skip approval for new files (default: true)
-  autoApproveFileModification: boolean; // Skip approval for file edits (default: false)
+  autoApproveFileModification: boolean; // Skip approval for file edits (default: true)
   autoApproveCommands: boolean;      // Skip approval for shell commands (default: false)
   maxIterations: number;             // Max iterations per session (default: 25)
 }
