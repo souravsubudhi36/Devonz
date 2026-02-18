@@ -13,6 +13,7 @@ import { usePreviewStore } from '~/lib/stores/previews';
 import { WORK_DIR } from '~/utils/constants';
 import { takeDelayedSnapshot } from '~/lib/persistence/snapshotUtils';
 import { createScopedLogger } from '~/utils/logger';
+import { rewriteUnsupportedCommand } from '~/utils/command-rewriter';
 import {
   stagingStore,
   pendingCount,
@@ -293,18 +294,22 @@ export const StagedChangesPanel = memo(() => {
     await shell.ready();
 
     for (const cmd of commands) {
+      // Rewrite unsupported runtime commands for WebContainer
+      const rewriteResult = rewriteUnsupportedCommand(cmd.command);
+      const commandToRun = rewriteResult.wasRewritten ? rewriteResult.command : cmd.command;
+
       try {
         if (cmd.type === 'start') {
           /*
            * Start commands (like 'npm run dev') are long-running processes
            * Don't await them - just fire and forget
            */
-          shell.executeCommand(`staged-${cmd.id}`, cmd.command).catch((error) => {
-            logger.error(`Start command failed: ${cmd.command}`, error);
+          shell.executeCommand(`staged-${cmd.id}`, commandToRun).catch((error) => {
+            logger.error(`Start command failed: ${commandToRun}`, error);
           });
         } else {
           // Shell commands (like 'npm install') should be awaited
-          await shell.executeCommand(`staged-${cmd.id}`, cmd.command);
+          await shell.executeCommand(`staged-${cmd.id}`, commandToRun);
         }
       } catch (error) {
         logger.error(`Failed to execute command: ${cmd.command}`, error);

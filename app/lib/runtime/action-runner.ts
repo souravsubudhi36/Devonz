@@ -13,6 +13,7 @@ import type {
   PlanTaskData,
 } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
+import { rewriteUnsupportedCommand } from '~/utils/command-rewriter';
 import { unreachable } from '~/utils/unreachable';
 import type { ActionCallbackData } from './message-parser';
 import type { BoltShell } from '~/utils/shell';
@@ -319,6 +320,13 @@ export class ActionRunner {
       unreachable('Shell terminal not found');
     }
 
+    // Rewrite unsupported runtime commands (e.g. Python → Node.js) for WebContainer
+    const rewriteResult = rewriteUnsupportedCommand(action.content);
+
+    if (rewriteResult.wasRewritten) {
+      action.content = rewriteResult.command;
+    }
+
     // Pre-validate command for common issues
     const validationResult = await this.#validateShellCommand(action.content);
 
@@ -373,6 +381,13 @@ export class ActionRunner {
 
     if (!shell || !shell.terminal || !shell.process) {
       unreachable('Shell terminal not found');
+    }
+
+    // Rewrite unsupported runtime commands for WebContainer
+    const startRewrite = rewriteUnsupportedCommand(action.content);
+
+    if (startRewrite.wasRewritten) {
+      action.content = startRewrite.command;
     }
 
     const resp = await shell.executeCommand(this.runnerId.get(), action.content, () => {
