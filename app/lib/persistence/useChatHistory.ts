@@ -25,6 +25,15 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('ChatHistory');
 
+/**
+ * Module-level guard to prevent multiple auto-rebuild invocations.
+ * React strict mode (dev) double-mounts components, causing restoreSnapshot
+ * to fire multiple times. Each executeCommand sends Ctrl+C first, which
+ * would interrupt the previous npm install. This flag ensures only the
+ * first invocation proceeds.
+ */
+let autoRebuildScheduled = false;
+
 export interface ChatHistoryItem {
   id: string;
   urlId?: string;
@@ -247,6 +256,73 @@ export function useChatHistory() {
     // Create dirs first, then files
     await Promise.all(dirPromises);
     await Promise.all(filePromises);
+
+    /*
+     * Auto-rebuild: After restoring files from snapshot, detect package.json
+     * and automatically run install + dev server so the preview works immediately.
+     * This is fire-and-forget — it waits for the terminal to be ready, then runs.
+     */
+    const packageJsonEntry = Object.entries(validSnapshot.files).find(
+      ([key]) => key.endsWith('/package.json') || key === '/package.json',
+    );
+
+    if (packageJsonEntry && !autoRebuildScheduled) {
+      autoRebuildScheduled = true;
+
+      const [, packageJsonFile] = packageJsonEntry;
+
+      // Parse package.json to detect the correct dev command
+      let devCommand = 'npm run dev';
+
+      if (packageJsonFile?.type === 'file' && packageJsonFile.content) {
+        try {
+          const pkg = JSON.parse(packageJsonFile.content);
+
+          if (pkg.scripts) {
+            if (pkg.scripts.dev) {
+              devCommand = 'npm run dev';
+            } else if (pkg.scripts.start) {
+              devCommand = 'npm start';
+            } else if (pkg.scripts.serve) {
+              devCommand = 'npm run serve';
+            }
+          }
+        } catch {
+          // Use default dev command if parsing fails
+        }
+      }
+
+      // Fire-and-forget: wait for terminal → install → start dev server
+      (async () => {
+        try {
+          const shell = workbenchStore.boltTerminal;
+          await shell.ready();
+
+          logger.info('Auto-rebuild: Installing dependencies...');
+          const installResult = await shell.executeCommand('auto-rebuild-install', 'npm install');
+
+          if (installResult && installResult.exitCode !== 0) {
+            logger.error('Auto-rebuild: npm install failed with exit code', installResult.exitCode);
+            autoRebuildScheduled = false;
+
+            return;
+          }
+
+          logger.info('Auto-rebuild: Starting dev server...');
+
+          // Don't await dev server — it's a long-running process
+          shell.executeCommand('auto-rebuild-dev', devCommand);
+
+          // Reset flag after a delay so future restores can trigger rebuild
+          setTimeout(() => {
+            autoRebuildScheduled = false;
+          }, 5000);
+        } catch (error) {
+          logger.error('Auto-rebuild failed:', error);
+          autoRebuildScheduled = false;
+        }
+      })();
+    }
   }, []);
 
   return {
