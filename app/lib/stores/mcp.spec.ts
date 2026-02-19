@@ -13,6 +13,7 @@ describe('mcpStore', () => {
       settings: {
         maxLLMSteps: 5,
         mcpConfig: { mcpServers: {} },
+        autoApproveServers: [],
       },
       serverTools: {},
       error: null,
@@ -30,6 +31,7 @@ describe('mcpStore', () => {
       const state = mcpStore.get();
       expect(state.settings.maxLLMSteps).toBe(5);
       expect(state.settings.mcpConfig.mcpServers).toEqual({});
+      expect(state.settings.autoApproveServers).toEqual([]);
     });
 
     it('should have empty serverTools', () => {
@@ -64,6 +66,7 @@ describe('mcpStore', () => {
             testServer: { type: 'stdio', command: 'test', args: [], env: {} },
           },
         },
+        autoApproveServers: ['testServer'],
       };
       mcpStore.setKey('settings', newSettings);
       expect(mcpStore.get().settings.maxLLMSteps).toBe(10);
@@ -104,9 +107,10 @@ describe('mcpStore', () => {
     it('should skip if already updating', async () => {
       mcpStore.setKey('isUpdatingConfig', true);
 
-      const newSettings = {
+      const newSettings: MCPSettings = {
         maxLLMSteps: 10,
         mcpConfig: { mcpServers: {} },
+        autoApproveServers: [],
       };
 
       await updateMCPSettings(newSettings);
@@ -121,9 +125,10 @@ describe('mcpStore', () => {
         json: async () => ({}),
       });
 
-      const newSettings = {
+      const newSettings: MCPSettings = {
         maxLLMSteps: 10,
         mcpConfig: { mcpServers: {} },
+        autoApproveServers: [],
       };
 
       let wasUpdating = false;
@@ -149,9 +154,10 @@ describe('mcpStore', () => {
         statusText: 'Internal Server Error',
       });
 
-      const newSettings = {
+      const newSettings: MCPSettings = {
         maxLLMSteps: 10,
         mcpConfig: { mcpServers: {} },
+        autoApproveServers: [],
       };
 
       await expect(updateMCPSettings(newSettings)).rejects.toThrow();

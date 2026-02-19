@@ -1,6 +1,6 @@
 import type { ToolInvocationUIPart } from '@ai-sdk/ui-utils';
 import { AnimatePresence, motion } from 'framer-motion';
-import { memo, useMemo, useState, useEffect } from 'react';
+import { memo, useMemo, useState, useEffect, useRef } from 'react';
 import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
 import DOMPurify from 'dompurify';
 import { classNames } from '~/utils/classNames';
@@ -15,6 +15,7 @@ import { logger } from '~/utils/logger';
 import { themeStore, type Theme } from '~/lib/stores/theme';
 import { useStore } from '@nanostores/react';
 import type { ToolCallAnnotation } from '~/types/context';
+import { mcpStore } from '~/lib/stores/mcp';
 
 /**
  * DOMPurify configuration for sanitizing Shiki syntax-highlighted HTML output.
@@ -222,71 +223,183 @@ interface ToolResultsListProps {
   theme: Theme;
 }
 
+/** Maximum collapsed height for long tool results (px) */
+const RESULT_COLLAPSED_MAX_HEIGHT = 200;
+
+/** Line count threshold before showing collapse/expand controls */
+const RESULT_LINE_THRESHOLD = 10;
+
+interface ToolResultItemProps {
+  tool: ToolInvocationUIPart;
+  annotation: ToolCallAnnotation | undefined;
+  theme: Theme;
+}
+
+/**
+ * Individual tool result display with collapsible long JSON,
+ * line count indicator, and copy-to-clipboard functionality.
+ */
+const ToolResultItem = memo(({ tool, annotation, theme }: ToolResultItemProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const resultContainerRef = useRef<HTMLDivElement>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+
+  const { toolInvocation } = tool;
+
+  const resultStr = useMemo(() => {
+    if (toolInvocation.state !== 'result') {
+      return '';
+    }
+
+    try {
+      return JSON.stringify(toolInvocation.result, null, 2);
+    } catch {
+      return String(toolInvocation.result);
+    }
+  }, [toolInvocation]);
+
+  const lineCount = useMemo(() => resultStr.split('\n').length, [resultStr]);
+  const isLongResult = lineCount > RESULT_LINE_THRESHOLD;
+
+  // Detect whether the result container overflows the collapsed max-height
+  useEffect(() => {
+    if (resultContainerRef.current && isLongResult) {
+      setIsOverflowing(resultContainerRef.current.scrollHeight > RESULT_COLLAPSED_MAX_HEIGHT);
+    }
+  }, [resultStr, isLongResult]);
+
+  // Guard — parent already filters for results but keeps TS happy
+  if (toolInvocation.state !== 'result') {
+    return null;
+  }
+
+  const { toolName } = toolInvocation;
+
+  const isErrorResult = [TOOL_NO_EXECUTE_FUNCTION, TOOL_EXECUTION_DENIED, TOOL_EXECUTION_ERROR].includes(
+    toolInvocation.result,
+  );
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(resultStr);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      logger.error('Failed to copy result to clipboard');
+    }
+  };
+
+  return (
+    <motion.li
+      variants={toolVariants}
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.2, ease: cubicEasingFn }}
+    >
+      <div className="flex items-center gap-1.5 text-xs mb-1">
+        {isErrorResult ? (
+          <div className="text-lg text-bolt-elements-icon-error">
+            <div className="i-ph:x"></div>
+          </div>
+        ) : (
+          <div className="text-lg text-bolt-elements-icon-success">
+            <div className="i-ph:check"></div>
+          </div>
+        )}
+        <div className="text-bolt-elements-textSecondary text-xs">Server:</div>
+        <div className="text-bolt-elements-textPrimary font-semibold">{annotation?.serverName}</div>
+      </div>
+
+      <div className="ml-6 mb-2">
+        <div className="text-bolt-elements-textSecondary text-xs mb-1">
+          Tool: <span className="text-bolt-elements-textPrimary font-semibold">{toolName}</span>
+        </div>
+        <div className="text-bolt-elements-textSecondary text-xs mb-1">
+          Description:{' '}
+          <span className="text-bolt-elements-textPrimary font-semibold">{annotation?.toolDescription}</span>
+        </div>
+        <div className="text-bolt-elements-textSecondary text-xs mb-1">Parameters:</div>
+        <div className="bg-bolt-elements-bg-depth-1 p-3 rounded-md">
+          <JsonCodeBlock className="mb-0" code={JSON.stringify(toolInvocation.args)} theme={theme} />
+        </div>
+
+        {/* Result header with line count and copy button */}
+        <div className="flex items-center justify-between mt-3 mb-1">
+          <div className="text-bolt-elements-textSecondary text-xs">
+            Result
+            {lineCount > 1 && <span className="ml-1.5 text-bolt-elements-textTertiary">({lineCount} lines)</span>}
+          </div>
+          <button
+            onClick={handleCopy}
+            className={classNames(
+              'flex items-center gap-1 px-1.5 py-0.5 text-xs rounded transition-colors',
+              copied ? 'text-green-400' : 'text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary',
+            )}
+            title="Copy result to clipboard"
+          >
+            <div className={copied ? 'i-ph:check' : 'i-ph:copy'} />
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+
+        {/* Result code block with collapse/expand for long outputs */}
+        <div className="bg-bolt-elements-bg-depth-1 p-3 rounded-md relative">
+          <div
+            ref={resultContainerRef}
+            className="overflow-hidden transition-[max-height] duration-300 ease-in-out"
+            style={{
+              maxHeight: !isExpanded && isLongResult ? `${RESULT_COLLAPSED_MAX_HEIGHT}px` : 'none',
+            }}
+          >
+            <JsonCodeBlock className="mb-0" code={resultStr} theme={theme} />
+          </div>
+
+          {/* Fade overlay when collapsed and content overflows */}
+          {isLongResult && !isExpanded && isOverflowing && (
+            <div
+              className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none rounded-b-md"
+              style={{
+                background:
+                  theme === 'dark'
+                    ? 'linear-gradient(to bottom, transparent, #1a1a1a)'
+                    : 'linear-gradient(to bottom, transparent, #f5f5f5)',
+              }}
+            />
+          )}
+
+          {/* Show more / Show less toggle */}
+          {isLongResult && (
+            <button
+              onClick={() => setIsExpanded((prev) => !prev)}
+              className="w-full mt-1 py-1 text-xs text-center text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary transition-colors"
+            >
+              {isExpanded ? (
+                <span className="flex items-center justify-center gap-1">
+                  <div className="i-ph:caret-up text-sm" />
+                  Show less
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-1">
+                  <div className="i-ph:caret-down text-sm" />
+                  Show more ({lineCount} lines)
+                </span>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+    </motion.li>
+  );
+});
+
 const ToolResultsList = memo(({ toolInvocations, toolCallAnnotations, theme }: ToolResultsListProps) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
       <ul className="list-none space-y-4">
         {toolInvocations.map((tool, index) => {
-          const toolCallState = tool.toolInvocation.state;
-
-          if (toolCallState !== 'result') {
-            return null;
-          }
-
-          const { toolName, toolCallId } = tool.toolInvocation;
-
-          const annotation = toolCallAnnotations.find((annotation) => {
-            return annotation.toolCallId === toolCallId;
-          });
-
-          const isErrorResult = [TOOL_NO_EXECUTE_FUNCTION, TOOL_EXECUTION_DENIED, TOOL_EXECUTION_ERROR].includes(
-            tool.toolInvocation.result,
-          );
-
-          return (
-            <motion.li
-              key={index}
-              variants={toolVariants}
-              initial="hidden"
-              animate="visible"
-              transition={{
-                duration: 0.2,
-                ease: cubicEasingFn,
-              }}
-            >
-              <div className="flex items-center gap-1.5 text-xs mb-1">
-                {isErrorResult ? (
-                  <div className="text-lg text-bolt-elements-icon-error">
-                    <div className="i-ph:x"></div>
-                  </div>
-                ) : (
-                  <div className="text-lg text-bolt-elements-icon-success">
-                    <div className="i-ph:check"></div>
-                  </div>
-                )}
-                <div className="text-bolt-elements-textSecondary text-xs">Server:</div>
-                <div className="text-bolt-elements-textPrimary font-semibold">{annotation?.serverName}</div>
-              </div>
-
-              <div className="ml-6 mb-2">
-                <div className="text-bolt-elements-textSecondary text-xs mb-1">
-                  Tool: <span className="text-bolt-elements-textPrimary font-semibold">{toolName}</span>
-                </div>
-                <div className="text-bolt-elements-textSecondary text-xs mb-1">
-                  Description:{' '}
-                  <span className="text-bolt-elements-textPrimary font-semibold">{annotation?.toolDescription}</span>
-                </div>
-                <div className="text-bolt-elements-textSecondary text-xs mb-1">Parameters:</div>
-                <div className="bg-bolt-elements-bg-depth-1 p-3 rounded-md">
-                  <JsonCodeBlock className="mb-0" code={JSON.stringify(tool.toolInvocation.args)} theme={theme} />
-                </div>
-                <div className="text-bolt-elements-textSecondary text-xs mt-3 mb-1">Result:</div>
-                <div className="bg-bolt-elements-bg-depth-1 p-3 rounded-md">
-                  <JsonCodeBlock className="mb-0" code={JSON.stringify(tool.toolInvocation.result)} theme={theme} />
-                </div>
-              </div>
-            </motion.li>
-          );
+          const annotation = toolCallAnnotations.find((a) => a.toolCallId === tool.toolInvocation.toolCallId);
+          return <ToolResultItem key={index} tool={tool} annotation={annotation} theme={theme} />;
         })}
       </ul>
     </motion.div>
@@ -302,6 +415,9 @@ interface ToolCallsListProps {
 
 const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResult }: ToolCallsListProps) => {
   const [expanded, setExpanded] = useState<{ [id: string]: boolean }>({});
+  const autoApprovedRef = useRef<Set<string>>(new Set());
+  const { settings } = useStore(mcpStore);
+  const autoApproveServers = settings.autoApproveServers || [];
 
   // OS detection for shortcut display
   const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
@@ -315,6 +431,34 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
     });
     setExpanded(expandedState);
   }, [toolInvocations]);
+
+  // Auto-approve tool calls from trusted servers
+  useEffect(() => {
+    if (autoApproveServers.length === 0) {
+      return;
+    }
+
+    toolInvocations.forEach((inv) => {
+      if (inv.toolInvocation.state !== 'call') {
+        return;
+      }
+
+      const { toolCallId } = inv.toolInvocation;
+
+      // Skip if already auto-approved to prevent infinite loops
+      if (autoApprovedRef.current.has(toolCallId)) {
+        return;
+      }
+
+      const annotation = toolCallAnnotations.find((a) => a.toolCallId === toolCallId);
+
+      if (annotation && autoApproveServers.includes(annotation.serverName)) {
+        autoApprovedRef.current.add(toolCallId);
+        logger.debug(`Auto-approving tool "${inv.toolInvocation.toolName}" from server "${annotation.serverName}"`);
+        addToolResult({ toolCallId, result: TOOL_EXECUTION_APPROVAL.APPROVE });
+      }
+    });
+  }, [toolInvocations, toolCallAnnotations, autoApproveServers, addToolResult]);
 
   // Keyboard shortcut logic
   useEffect(() => {
@@ -371,6 +515,7 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
 
           const { toolName, toolCallId } = tool.toolInvocation;
           const annotation = toolCallAnnotations.find((annotation) => annotation.toolCallId === toolCallId);
+          const isAutoApproving = annotation && autoApproveServers.includes(annotation.serverName);
 
           return (
             <motion.li
@@ -391,39 +536,48 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
                     </span>
                   </div>
                   <div className="flex items-center justify-end gap-2 ml-auto">
-                    <button
-                      className={classNames(
-                        'h-10 px-2.5 py-1.5 rounded-lg text-xs h-auto',
-                        'bg-transparent',
-                        'text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary',
-                        'transition-all duration-200',
-                        'flex items-center gap-2',
-                      )}
-                      onClick={() =>
-                        addToolResult({
-                          toolCallId,
-                          result: TOOL_EXECUTION_APPROVAL.REJECT,
-                        })
-                      }
-                    >
-                      Cancel <span className="opacity-70 text-xs ml-1">{isMac ? '⌘⌫' : 'Ctrl+Backspace'}</span>
-                    </button>
-                    <button
-                      className={classNames(
-                        'h-10 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-normal rounded-lg transition-colors',
-                        'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
-                        'text-accent-500 hover:text-bolt-elements-textPrimary',
-                        'disabled:opacity-50 disabled:cursor-not-allowed',
-                      )}
-                      onClick={() =>
-                        addToolResult({
-                          toolCallId,
-                          result: TOOL_EXECUTION_APPROVAL.APPROVE,
-                        })
-                      }
-                    >
-                      Run tool <span className="opacity-70 text-xs ml-1">{isMac ? '⌘↵' : 'Ctrl+Enter'}</span>
-                    </button>
+                    {isAutoApproving ? (
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-green-400">
+                        <div className="i-svg-spinners:90-ring-with-bg w-3 h-3 animate-spin" />
+                        Auto-approving...
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          className={classNames(
+                            'h-10 px-2.5 py-1.5 rounded-lg text-xs h-auto',
+                            'bg-transparent',
+                            'text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary',
+                            'transition-all duration-200',
+                            'flex items-center gap-2',
+                          )}
+                          onClick={() =>
+                            addToolResult({
+                              toolCallId,
+                              result: TOOL_EXECUTION_APPROVAL.REJECT,
+                            })
+                          }
+                        >
+                          Cancel <span className="opacity-70 text-xs ml-1">{isMac ? '⌘⌫' : 'Ctrl+Backspace'}</span>
+                        </button>
+                        <button
+                          className={classNames(
+                            'h-10 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-normal rounded-lg transition-colors',
+                            'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
+                            'text-accent-500 hover:text-bolt-elements-textPrimary',
+                            'disabled:opacity-50 disabled:cursor-not-allowed',
+                          )}
+                          onClick={() =>
+                            addToolResult({
+                              toolCallId,
+                              result: TOOL_EXECUTION_APPROVAL.APPROVE,
+                            })
+                          }
+                        >
+                          Run tool <span className="opacity-70 text-xs ml-1">{isMac ? '⌘↵' : 'Ctrl+Enter'}</span>
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

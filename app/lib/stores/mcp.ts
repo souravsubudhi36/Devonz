@@ -10,6 +10,7 @@ const isBrowser = typeof window !== 'undefined';
 export type MCPSettings = {
   mcpConfig: MCPConfig;
   maxLLMSteps: number;
+  autoApproveServers: string[];
 };
 
 const defaultSettings: MCPSettings = {
@@ -17,6 +18,7 @@ const defaultSettings: MCPSettings = {
   mcpConfig: {
     mcpServers: {},
   },
+  autoApproveServers: [],
 };
 
 export interface MCPStoreState {

@@ -33,6 +33,7 @@ export default function McpTab() {
   const [isSaving, setIsSaving] = useState(false);
   const [mcpConfigText, setMCPConfigText] = useState('');
   const [maxLLMSteps, setMaxLLMSteps] = useState(1);
+  const [autoApproveServers, setAutoApproveServers] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isCheckingServers, setIsCheckingServers] = useState(false);
   const [expandedServer, setExpandedServer] = useState<string | null>(null);
@@ -49,6 +50,7 @@ export default function McpTab() {
   useEffect(() => {
     setMCPConfigText(JSON.stringify(settings.mcpConfig, null, 2));
     setMaxLLMSteps(settings.maxLLMSteps);
+    setAutoApproveServers(settings.autoApproveServers || []);
     setError(null);
   }, [settings]);
 
@@ -77,6 +79,7 @@ export default function McpTab() {
       await updateMCPSettings({
         mcpConfig: parsedConfig,
         maxLLMSteps,
+        autoApproveServers,
       });
       toast.success('MCP configuration saved');
 
@@ -115,6 +118,12 @@ export default function McpTab() {
     setExpandedServer(expandedServer === serverName ? null : serverName);
   };
 
+  const toggleAutoApprove = (serverName: string) => {
+    setAutoApproveServers((prev) =>
+      prev.includes(serverName) ? prev.filter((s) => s !== serverName) : [...prev, serverName],
+    );
+  };
+
   const serverEntries = useMemo(() => Object.entries(serverTools), [serverTools]);
 
   return (
@@ -147,6 +156,8 @@ export default function McpTab() {
           expandedServer={expandedServer}
           serverEntries={serverEntries}
           toggleServerExpanded={toggleServerExpanded}
+          autoApproveServers={autoApproveServers}
+          onToggleAutoApprove={toggleAutoApprove}
         />
       </section>
 

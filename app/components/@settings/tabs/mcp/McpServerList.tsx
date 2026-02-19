@@ -1,6 +1,7 @@
 import type { MCPServer } from '~/lib/services/mcpService';
 import McpStatusBadge from '~/components/@settings/tabs/mcp/McpStatusBadge';
 import McpServerListItem from '~/components/@settings/tabs/mcp/McpServerListItem';
+import { classNames } from '~/utils/classNames';
 
 type McpServerListProps = {
   serverEntries: [string, MCPServer][];
@@ -8,6 +9,8 @@ type McpServerListProps = {
   checkingServers: boolean;
   onlyShowAvailableServers?: boolean;
   toggleServerExpanded: (serverName: string) => void;
+  autoApproveServers?: string[];
+  onToggleAutoApprove?: (serverName: string) => void;
 };
 
 export default function McpServerList({
@@ -16,6 +19,8 @@ export default function McpServerList({
   checkingServers,
   onlyShowAvailableServers = false,
   toggleServerExpanded,
+  autoApproveServers = [],
+  onToggleAutoApprove,
 }: McpServerListProps) {
   if (serverEntries.length === 0) {
     return <p className="text-sm text-bolt-elements-textSecondary">No MCP servers configured</p>;
@@ -31,6 +36,7 @@ export default function McpServerList({
         const isAvailable = mcpServer.status === 'available';
         const isExpanded = expandedServer === serverName;
         const serverTools = isAvailable ? Object.entries(mcpServer.tools) : [];
+        const isAutoApproved = autoApproveServers.includes(serverName);
 
         return (
           <div key={serverName} className="flex flex-col p-2 rounded-md bg-bolt-elements-background-depth-1">
@@ -58,7 +64,26 @@ export default function McpServerList({
                 </div>
               </div>
 
-              <div className="ml-2 flex-shrink-0">
+              <div className="ml-2 flex-shrink-0 flex items-center gap-2">
+                {isAvailable && onToggleAutoApprove && (
+                  <button
+                    onClick={() => onToggleAutoApprove(serverName)}
+                    className={classNames(
+                      'flex items-center gap-1 px-2 py-0.5 rounded text-xs transition-colors',
+                      isAutoApproved
+                        ? 'bg-green-500/15 text-green-400 hover:bg-green-500/25'
+                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textTertiary hover:text-bolt-elements-textSecondary',
+                    )}
+                    title={
+                      isAutoApproved
+                        ? 'Auto-approve enabled — tools run without confirmation'
+                        : 'Click to enable auto-approve for this server'
+                    }
+                  >
+                    <div className={`${isAutoApproved ? 'i-ph:check-circle-fill' : 'i-ph:circle'} w-3 h-3`} />
+                    Auto
+                  </button>
+                )}
                 {checkingServers ? (
                   <McpStatusBadge status="checking" />
                 ) : (
