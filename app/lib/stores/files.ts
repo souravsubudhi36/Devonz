@@ -18,7 +18,6 @@ import {
   getLockedFoldersForChat,
   isPathInLockedFolder,
   migrateLegacyLocks,
-  clearCache,
 } from '~/lib/persistence/lockedFiles';
 import { getCurrentChatId } from '~/utils/fileLocks';
 
@@ -162,7 +161,7 @@ export class FilesStore {
       const lockedFolders = lockedItems.filter((item) => item.isFolder);
 
       if (lockedItems.length === 0) {
-        logger.info(`No locked items found for chat ID: ${currentChatId}`);
+        logger.debug(`No locked items found for chat ID: ${currentChatId}`);
         return;
       }
 
@@ -647,17 +646,10 @@ export class FilesStore {
       this.#loadLockedFiles(currentChatId);
     }, 2000);
 
-    /**
-     * Set up a less frequent periodic check to ensure locks remain applied.
-     * This is now less critical since we have the storage event listener.
+    /*
+     * No periodic setInterval needed — the storage event listener in lockedFiles.ts
+     * handles cross-tab sync, and URL change listeners handle chat navigation.
      */
-    setInterval(() => {
-      // Clear the cache to force a fresh read from localStorage
-      clearCache();
-
-      const latestChatId = getCurrentChatId();
-      this.#loadLockedFiles(latestChatId);
-    }, 30000); // Reduced from 10s to 30s
   }
 
   /**
