@@ -205,6 +205,80 @@ export class MCPService {
     return Object.assign(client, { serverName });
   }
 
+  /**
+   * Sanitizes a JSON schema for cross-provider compatibility.
+   *
+   * Some LLM providers (notably Google Gemini) do NOT support advanced JSON Schema
+   * constructs like `anyOf`, `oneOf`, `allOf`, or `additionalProperties` in function
+   * declarations. When unsupported constructs are present, the provider may silently
+   * drop ALL function declarations, causing the model to never call tools.
+   *
+   * This method converts union types (`anyOf`/`oneOf`) to the first non-null variant
+   * and strips `additionalProperties` to ensure schemas work with all providers.
+   */
+  private _sanitizeJsonSchema(schema: Record<string, unknown>): Record<string, unknown> {
+    if (!schema || typeof schema !== 'object') {
+      return schema;
+    }
+
+    const result: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(schema)) {
+      // Strip additionalProperties — unsupported by Google Gemini function calling
+      if (key === 'additionalProperties') {
+        continue;
+      }
+
+      // Convert anyOf / oneOf union to the first non-null variant
+      if ((key === 'anyOf' || key === 'oneOf') && Array.isArray(value)) {
+        const nonNullSchemas = (value as Record<string, unknown>[]).filter(
+          (s) => !(typeof s === 'object' && s?.type === 'null'),
+        );
+
+        if (nonNullSchemas.length >= 1) {
+          // Merge the first non-null schema into the parent object
+          const merged = this._sanitizeJsonSchema(nonNullSchemas[0]);
+          Object.assign(result, merged);
+        }
+
+        continue;
+      }
+
+      // Flatten allOf by merging all schemas into the parent
+      if (key === 'allOf' && Array.isArray(value)) {
+        for (const subSchema of value as Record<string, unknown>[]) {
+          const merged = this._sanitizeJsonSchema(subSchema);
+          Object.assign(result, merged);
+        }
+
+        continue;
+      }
+
+      // Recursively sanitize nested property schemas
+      if (key === 'properties' && typeof value === 'object' && value !== null) {
+        result[key] = Object.fromEntries(
+          Object.entries(value as Record<string, unknown>).map(([propKey, propValue]) => [
+            propKey,
+            typeof propValue === 'object' && propValue !== null
+              ? this._sanitizeJsonSchema(propValue as Record<string, unknown>)
+              : propValue,
+          ]),
+        );
+        continue;
+      }
+
+      // Recursively sanitize array item schemas
+      if (key === 'items' && typeof value === 'object' && value !== null) {
+        result[key] = this._sanitizeJsonSchema(value as Record<string, unknown>);
+        continue;
+      }
+
+      result[key] = value;
+    }
+
+    return result;
+  }
+
   private _registerTools(serverName: string, tools: ToolSet) {
     for (const [toolName, tool] of Object.entries(tools)) {
       if (this._tools[toolName]) {
@@ -215,8 +289,32 @@ export class MCPService {
         }
       }
 
-      this._tools[toolName] = tool;
-      this._toolsWithoutExecute[toolName] = { ...tool, execute: undefined };
+      // Sanitize tool parameters schema for cross-provider compatibility
+      const sanitizedTool = { ...tool };
+
+      if (tool.parameters && typeof tool.parameters === 'object' && 'jsonSchema' in tool.parameters) {
+        const params = tool.parameters as { jsonSchema: Record<string, unknown> };
+        const originalSchema = JSON.stringify(params.jsonSchema);
+        const sanitizedSchema = this._sanitizeJsonSchema(params.jsonSchema);
+        const sanitizedStr = JSON.stringify(sanitizedSchema);
+
+        if (originalSchema !== sanitizedStr) {
+          logger.info(
+            `Sanitized schema for tool "${toolName}" from server "${serverName}" ` +
+              `(removed unsupported constructs for cross-provider compatibility)`,
+          );
+          logger.debug(`Original schema: ${originalSchema}`);
+          logger.debug(`Sanitized schema: ${sanitizedStr}`);
+        }
+
+        sanitizedTool.parameters = {
+          ...tool.parameters,
+          jsonSchema: sanitizedSchema,
+        };
+      }
+
+      this._tools[toolName] = sanitizedTool;
+      this._toolsWithoutExecute[toolName] = { ...sanitizedTool, execute: undefined };
       this._toolNamesToServerNames.set(toolName, serverName);
     }
   }

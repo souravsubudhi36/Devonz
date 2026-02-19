@@ -36,7 +36,7 @@ export default function McpServerList({
         const isAvailable = mcpServer.status === 'available';
         const isExpanded = expandedServer === serverName;
         const serverTools = isAvailable ? Object.entries(mcpServer.tools) : [];
-        const isAutoApproved = true; // Auto-approve is always enabled for all MCP servers
+        const isAutoApproved = _autoApproveServers.includes(serverName);
 
         return (
           <div key={serverName} className="flex flex-col p-2 rounded-md bg-bolt-elements-background-depth-1">

@@ -631,4 +631,202 @@ describe('MCPService', () => {
       expect((service as any)._toolNamesToServerNames.get('shared-tool')).toBe('server-2');
     });
   });
+
+  describe('schema sanitization (_sanitizeJsonSchema)', () => {
+    // Helper to access the private method
+    function sanitize(schema: Record<string, unknown>): Record<string, unknown> {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (service as any)._sanitizeJsonSchema(schema);
+    }
+
+    it('should pass through simple schemas unchanged', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          count: { type: 'number' },
+        },
+        required: ['name'],
+      };
+      expect(sanitize(schema)).toEqual(schema);
+    });
+
+    it('should remove additionalProperties', () => {
+      const schema = {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        required: ['name'],
+        additionalProperties: false,
+      };
+      const result = sanitize(schema);
+      expect(result).not.toHaveProperty('additionalProperties');
+      expect(result).toEqual({
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        required: ['name'],
+      });
+    });
+
+    it('should convert anyOf with string|array to first type (string)', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          repoName: {
+            anyOf: [{ type: 'string' }, { items: { type: 'string' }, type: 'array' }],
+          },
+        },
+        required: ['repoName'],
+        additionalProperties: false,
+      };
+      const result = sanitize(schema);
+      expect(result).toEqual({
+        type: 'object',
+        properties: {
+          repoName: { type: 'string' },
+        },
+        required: ['repoName'],
+      });
+    });
+
+    it('should handle anyOf with nullable type by picking first non-null', () => {
+      const schema = {
+        anyOf: [{ type: 'null' }, { type: 'string' }],
+      };
+      const result = sanitize(schema);
+      expect(result).toEqual({ type: 'string' });
+    });
+
+    it('should convert oneOf to first non-null variant', () => {
+      const schema = {
+        oneOf: [{ type: 'number' }, { type: 'string' }],
+      };
+      const result = sanitize(schema);
+      expect(result).toEqual({ type: 'number' });
+    });
+
+    it('should flatten allOf by merging all schemas', () => {
+      const schema = {
+        allOf: [{ type: 'object', properties: { a: { type: 'string' } } }, { required: ['a'] }],
+      };
+      const result = sanitize(schema);
+      expect(result).toEqual({
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        required: ['a'],
+      });
+    });
+
+    it('should recursively sanitize nested properties', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          config: {
+            type: 'object',
+            properties: {
+              value: {
+                anyOf: [{ type: 'string' }, { type: 'number' }],
+              },
+            },
+            additionalProperties: false,
+          },
+        },
+      };
+      const result = sanitize(schema);
+      expect(result).toEqual({
+        type: 'object',
+        properties: {
+          config: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+            },
+          },
+        },
+      });
+    });
+
+    it('should recursively sanitize array items schema', () => {
+      const schema = {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+          },
+          additionalProperties: false,
+        },
+      };
+      const result = sanitize(schema);
+      expect(result).toEqual({
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+          },
+        },
+      });
+    });
+
+    it('should handle DeepWiki ask_question schema (real-world case)', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          repoName: {
+            anyOf: [{ type: 'string' }, { items: { type: 'string' }, type: 'array' }],
+          },
+          question: { type: 'string' },
+        },
+        required: ['repoName', 'question'],
+        additionalProperties: false,
+      };
+      const result = sanitize(schema);
+      expect(result).toEqual({
+        type: 'object',
+        properties: {
+          repoName: { type: 'string' },
+          question: { type: 'string' },
+        },
+        required: ['repoName', 'question'],
+      });
+    });
+
+    it('should handle null/undefined input gracefully', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(sanitize(null as any)).toBeNull();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(sanitize(undefined as any)).toBeUndefined();
+    });
+
+    it('should apply sanitization during _registerTools', () => {
+      const mockTool = {
+        description: 'DeepWiki ask',
+        parameters: {
+          jsonSchema: {
+            type: 'object',
+            properties: {
+              repoName: {
+                anyOf: [{ type: 'string' }, { items: { type: 'string' }, type: 'array' }],
+              },
+              question: { type: 'string' },
+            },
+            required: ['repoName', 'question'],
+            additionalProperties: false,
+          },
+        },
+        execute: vi.fn(),
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (service as any)._registerTools('deepwiki', { ask_question: mockTool } as unknown as ToolSet);
+
+      const registered = service.toolsWithoutExecute['ask_question'];
+      expect(registered).toBeDefined();
+
+      const schema = (registered.parameters as { jsonSchema: Record<string, unknown> }).jsonSchema;
+      expect(schema).not.toHaveProperty('additionalProperties');
+      expect((schema as any).properties.repoName).toEqual({ type: 'string' });
+      expect((schema as any).properties.repoName).not.toHaveProperty('anyOf');
+    });
+  });
 });

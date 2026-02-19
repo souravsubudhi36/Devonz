@@ -14,6 +14,7 @@ import { cubicEasingFn } from '~/utils/easings';
 import { logger } from '~/utils/logger';
 import { themeStore, type Theme } from '~/lib/stores/theme';
 import { useStore } from '@nanostores/react';
+import { mcpStore } from '~/lib/stores/mcp';
 import type { ToolCallAnnotation } from '~/types/context';
 
 /**
@@ -415,6 +416,8 @@ interface ToolCallsListProps {
 const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResult }: ToolCallsListProps) => {
   const [expanded, setExpanded] = useState<{ [id: string]: boolean }>({});
   const autoApprovedRef = useRef<Set<string>>(new Set());
+  const { settings } = useStore(mcpStore);
+  const autoApproveServers = settings.autoApproveServers || [];
 
   // OS detection for shortcut display
   const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
@@ -429,7 +432,7 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
     setExpanded(expandedState);
   }, [toolInvocations]);
 
-  // Auto-approve all MCP tool calls by default
+  // Auto-approve MCP tool calls for servers in the auto-approve list
   useEffect(() => {
     toolInvocations.forEach((inv) => {
       if (inv.toolInvocation.state !== 'call') {
@@ -444,14 +447,19 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
       }
 
       const annotation = toolCallAnnotations.find((a) => a.toolCallId === toolCallId);
+      const serverName = annotation?.serverName ?? '';
+
+      // Only auto-approve if the server is in the auto-approve list
+      if (!autoApproveServers.includes(serverName)) {
+        return;
+      }
 
       autoApprovedRef.current.add(toolCallId);
 
-      const serverName = annotation?.serverName ?? 'unknown';
       logger.debug(`Auto-approving tool "${inv.toolInvocation.toolName}" from server "${serverName}"`);
       addToolResult({ toolCallId, result: TOOL_EXECUTION_APPROVAL.APPROVE });
     });
-  }, [toolInvocations, toolCallAnnotations, addToolResult]);
+  }, [toolInvocations, toolCallAnnotations, addToolResult, autoApproveServers]);
 
   // Keyboard shortcut logic
   useEffect(() => {
@@ -508,7 +516,8 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
 
           const { toolName, toolCallId } = tool.toolInvocation;
           const annotation = toolCallAnnotations.find((annotation) => annotation.toolCallId === toolCallId);
-          const isAutoApproving = true; // All MCP tools are auto-approved by default
+          const serverName = annotation?.serverName ?? '';
+          const isAutoApproving = autoApproveServers.includes(serverName);
 
           return (
             <motion.li
