@@ -15,17 +15,14 @@ const ThoughtBox = ({ title, children }: PropsWithChildren<{ title: string }>) =
   }, []);
 
   return (
-    <div className="bg-bolt-elements-background-depth-2 shadow-md rounded-lg border border-bolt-elements-borderColor">
+    <div className="bg-bolt-elements-background-depth-2 shadow-sm rounded-lg border border-bolt-elements-borderColor">
       {/* Header — always visible, never scrolls away */}
       <div
         onClick={handleToggle}
-        className="p-4 flex items-center gap-4 rounded-lg text-bolt-elements-textSecondary font-medium leading-5 text-sm cursor-pointer select-none"
+        className="px-3 py-2 flex items-center gap-2 rounded-lg text-bolt-elements-textSecondary font-medium text-xs cursor-pointer select-none"
       >
-        <div className="i-ph:brain-thin text-2xl flex-shrink-0" />
-        <div>
-          <span>{title}</span>{' '}
-          {!isExpanded && <span className="text-bolt-elements-textTertiary">- Click to expand</span>}
-        </div>
+        <div className="i-ph:brain-thin text-lg flex-shrink-0" />
+        <span>{title}</span>
       </div>
 
       {/* Content — scrollable when expanded, fully hidden when collapsed */}
@@ -33,7 +30,7 @@ const ThoughtBox = ({ title, children }: PropsWithChildren<{ title: string }>) =
         ref={contentRef}
         className={`
           transition-all duration-300
-          ${isExpanded ? 'max-h-96 overflow-y-auto opacity-100 p-4 pt-0' : 'max-h-0 overflow-hidden opacity-0'}
+          ${isExpanded ? 'max-h-80 overflow-y-auto opacity-100 px-3 pb-3' : 'max-h-0 overflow-hidden opacity-0'}
         `}
       >
         {children}

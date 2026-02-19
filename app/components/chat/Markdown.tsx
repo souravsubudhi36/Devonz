@@ -84,7 +84,7 @@ export const Markdown = memo(
           }
 
           if (className?.includes('__boltThought__')) {
-            return <ThoughtBox title="Thought process">{children}</ThoughtBox>;
+            return <ThoughtBox title="Thinking...">{children}</ThoughtBox>;
           }
 
           if (className?.includes('__boltQuickAction__') || dataProps?.dataBoltQuickAction) {
