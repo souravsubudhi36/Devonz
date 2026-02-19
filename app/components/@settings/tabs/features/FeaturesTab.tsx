@@ -127,11 +127,13 @@ export default function FeaturesTab() {
     contextOptimizationEnabled,
     eventLogs,
     autoSwitchToFile,
+    enableThinking,
     setAutoSelectTemplate,
     enableLatestBranch,
     enableContextOptimization,
     setEventLogs,
     setAutoSwitchToFile,
+    setEnableThinking,
     setPromptId,
     promptId,
   } = useSettings();
@@ -259,11 +261,24 @@ export default function FeaturesTab() {
           break;
         }
 
+        case 'enableThinkingToggle': {
+          setEnableThinking(enabled);
+          toast.success(`Extended Thinking ${enabled ? 'enabled' : 'disabled'}`);
+          break;
+        }
+
         default:
           break;
       }
     },
-    [enableLatestBranch, setAutoSelectTemplate, enableContextOptimization, setEventLogs, setAutoSwitchToFile],
+    [
+      enableLatestBranch,
+      setAutoSelectTemplate,
+      enableContextOptimization,
+      setEventLogs,
+      setAutoSwitchToFile,
+      setEnableThinking,
+    ],
   );
 
   const features = {
@@ -308,6 +323,15 @@ export default function FeaturesTab() {
         enabled: autoSwitchToFile,
         tooltip:
           'When enabled, the editor will automatically switch to show each file as the AI edits it. When disabled, you can stay in preview mode while the AI works.',
+      },
+      {
+        id: 'enableThinkingToggle',
+        title: 'Extended Thinking',
+        description: 'Enable extended thinking for Anthropic Claude and Google Gemini models',
+        icon: 'i-ph:brain',
+        enabled: enableThinking,
+        tooltip:
+          'When enabled, supported models will use extended thinking/reasoning for deeper analysis. Uses ~25% of output token budget for thinking.',
       },
     ],
     beta: [

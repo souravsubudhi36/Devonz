@@ -9,6 +9,7 @@ import {
   enableContextOptimizationStore,
   tabConfigurationStore,
   autoSwitchToFileStore,
+  enableThinkingStore,
   resetTabConfiguration as resetTabConfig,
   updateProviderSettings as updateProviderSettingsStore,
   updateLatestBranch,
@@ -17,6 +18,7 @@ import {
   updateEventLogs,
   updatePromptId,
   updateAutoSwitchToFile,
+  updateEnableThinking,
 } from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
@@ -62,6 +64,8 @@ export interface UseSettingsReturn {
   enableContextOptimization: (enabled: boolean) => void;
   autoSwitchToFile: boolean;
   setAutoSwitchToFile: (enabled: boolean) => void;
+  enableThinking: boolean;
+  setEnableThinking: (enabled: boolean) => void;
 
   // Tab configuration
   tabConfiguration: TabWindowConfig;
@@ -78,6 +82,7 @@ export function useSettings(): UseSettingsReturn {
   const isLatestBranch = useStore(latestBranchStore);
   const autoSelectTemplate = useStore(autoSelectStarterTemplate);
   const autoSwitchToFile = useStore(autoSwitchToFileStore);
+  const enableThinking = useStore(enableThinkingStore);
   const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
   const contextOptimizationEnabled = useStore(enableContextOptimizationStore);
   const tabConfiguration = useStore(tabConfigurationStore);
@@ -150,6 +155,11 @@ export function useSettings(): UseSettingsReturn {
     logStore.logSystem(`Auto-switch to file during AI edits ${enabled ? 'enabled' : 'disabled'}`);
   }, []);
 
+  const setEnableThinking = useCallback((enabled: boolean) => {
+    updateEnableThinking(enabled);
+    logStore.logSystem(`Extended thinking ${enabled ? 'enabled' : 'disabled'}`);
+  }, []);
+
   const setTheme = useCallback(
     (theme: Settings['theme']) => {
       saveSettings({ theme });
@@ -206,6 +216,8 @@ export function useSettings(): UseSettingsReturn {
     enableContextOptimization,
     autoSwitchToFile,
     setAutoSwitchToFile,
+    enableThinking,
+    setEnableThinking,
     setTheme,
     setLanguage,
     setNotifications,

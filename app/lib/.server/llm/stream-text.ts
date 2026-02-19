@@ -1,5 +1,11 @@
 import { convertToCoreMessages, streamText as _streamText, type Message } from 'ai';
-import { MAX_TOKENS, PROVIDER_COMPLETION_LIMITS, isReasoningModel, type FileMap } from './constants';
+import {
+  MAX_TOKENS,
+  PROVIDER_COMPLETION_LIMITS,
+  isReasoningModel,
+  getThinkingProviderOptions,
+  type FileMap,
+} from './constants';
 import { getFineTunedPrompt } from '~/lib/common/prompts/new-prompt';
 import { AGENT_MODE_FULL_SYSTEM_PROMPT } from '~/lib/agent/prompts';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, MODIFICATIONS_TAG_NAME, PROVIDER_LIST, WORK_DIR } from '~/utils/constants';
@@ -64,6 +70,7 @@ export async function streamText(props: {
   providerSettings?: Record<string, IProviderSetting>;
   promptId?: string;
   contextOptimization?: boolean;
+  enableThinking?: boolean;
   contextFiles?: FileMap;
   summary?: string;
   messageSliceId?: number;
@@ -84,6 +91,7 @@ export async function streamText(props: {
     chatMode,
     designScheme,
   } = props;
+  const enableThinking = props.enableThinking ?? false;
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
   let processedMessages = messages.map((message) => {
@@ -240,6 +248,22 @@ ${projectMemoryContent}
   // Use maxCompletionTokens for reasoning models (o1, GPT-5), maxTokens for traditional models
   const tokenParams = isReasoning ? { maxCompletionTokens: safeMaxTokens } : { maxTokens: safeMaxTokens };
 
+  // Build providerOptions for extended thinking (Anthropic / Google)
+  let thinkingProviderOptions: ReturnType<typeof getThinkingProviderOptions> | undefined;
+
+  if (enableThinking) {
+    thinkingProviderOptions = getThinkingProviderOptions(provider.name, modelDetails.name, safeMaxTokens);
+
+    if (thinkingProviderOptions) {
+      logger.info(
+        `Extended thinking enabled for ${provider.name}/${modelDetails.name}:`,
+        JSON.stringify(thinkingProviderOptions),
+      );
+    } else {
+      logger.info(`Extended thinking requested but not supported for ${provider.name}/${modelDetails.name}`);
+    }
+  }
+
   // Filter out unsupported parameters for reasoning models
   const filteredOptions =
     isReasoning && options
@@ -318,6 +342,9 @@ ${codeContext}
 
     // Set temperature to 1 for reasoning models (required by OpenAI API)
     ...(isReasoning ? { temperature: 1 } : {}),
+
+    // Inject provider-specific thinking options (Anthropic thinking / Google thinkingConfig)
+    ...(thinkingProviderOptions ? { providerOptions: thinkingProviderOptions } : {}),
   };
 
   // DEBUG: Log final streaming parameters

@@ -1,4 +1,4 @@
-import { memo, Fragment } from 'react';
+import { memo, Fragment, useState } from 'react';
 import { Markdown } from './Markdown';
 import type { JSONValue } from 'ai';
 import Popover from '~/components/ui/Popover';
@@ -17,6 +17,39 @@ import type {
 } from '@ai-sdk/ui-utils';
 import { ToolInvocations } from './ToolInvocations';
 import type { ToolCallAnnotation } from '~/types/context';
+
+/**
+ * Collapsible block that displays AI reasoning / thinking content.
+ * Renders as a styled <details> element with a brain icon header.
+ */
+const ThinkingBlock = memo(({ reasoningParts }: { reasoningParts: ReasoningUIPart[] }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const combinedText = reasoningParts.map((p) => p.reasoning).join('\n');
+
+  if (!combinedText.trim()) {
+    return null;
+  }
+
+  return (
+    <div className="mb-3 rounded-lg border border-bolt-elements-borderColor overflow-hidden">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-bolt-elements-textSecondary bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3 transition-colors"
+      >
+        <div className="i-ph:brain w-4 h-4 text-purple-400" />
+        <span>Thinking</span>
+        <div
+          className={`i-ph:caret-right w-3 h-3 ml-auto transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
+        />
+      </button>
+      {isOpen && (
+        <div className="px-3 py-2 text-xs text-bolt-elements-textSecondary bg-bolt-elements-background-depth-1 border-t border-bolt-elements-borderColor max-h-64 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+          {combinedText}
+        </div>
+      )}
+    </div>
+  );
+});
 
 interface AssistantMessageProps {
   content: string;
@@ -96,6 +129,7 @@ export const AssistantMessage = memo(
       | undefined;
 
     const toolInvocations = parts?.filter((part) => part.type === 'tool-invocation');
+    const reasoningParts = parts?.filter((part) => part.type === 'reasoning') as ReasoningUIPart[] | undefined;
     const toolCallAnnotations = filteredAnnotations.filter(
       (annotation) => annotation.type === 'toolCall',
     ) as ToolCallAnnotation[];
@@ -180,6 +214,9 @@ export const AssistantMessage = memo(
             </div>
           )}
         </div>
+
+        {/* Reasoning / Thinking Display */}
+        {reasoningParts && reasoningParts.length > 0 && <ThinkingBlock reasoningParts={reasoningParts} />}
 
         {/* Message Content */}
         <div className="text-bolt-elements-textPrimary text-sm leading-relaxed">

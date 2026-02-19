@@ -14,13 +14,11 @@
 
 <div align="center">
 
-[Features](#features) - [Installation](#installation) - [Configuration](#configuration)
+[Features](#features) ━━ [Installation](#installation) ━━ [Configuration](#configuration)
 
-[Docker](#docker) - [Scripts](#scripts) - [Keeping Up to Date](#keeping-up-to-date)
+[Docker](#docker) ━━ [Scripts](#scripts) ━━ [Keeping Up to Date](#keeping-up-to-date) 
 
-[Project Structure](#project-structure)
-
-[Contributing](#contributing) - [Acknowledgments](#acknowledgments)
+[Project Structure](#project-structure) ━━ [Contributing](#contributing) ━━ [Acknowledgments](#acknowledgments)
 
 </div>
 

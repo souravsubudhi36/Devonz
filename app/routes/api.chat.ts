@@ -68,6 +68,7 @@ const chatRequestSchema = z.object({
   files: z.any().optional(),
   promptId: z.string().optional(),
   contextOptimization: z.boolean().default(false),
+  enableThinking: z.boolean().default(false),
   chatMode: z.enum(['discuss', 'build']).default('build'),
   designScheme: designSchemeSchema,
   supabase: supabaseConnectionSchema,
@@ -134,25 +135,36 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     );
   }
 
-  const { messages, files, promptId, contextOptimization, supabase, chatMode, designScheme, maxLLMSteps, agentMode } =
-    parsed.data as {
-      messages: Messages;
-      files: FileMap | undefined;
-      promptId?: string;
-      contextOptimization: boolean;
-      chatMode: 'discuss' | 'build';
-      designScheme?: DesignScheme;
-      supabase?: {
-        isConnected: boolean;
-        hasSelectedProject: boolean;
-        credentials?: {
-          anonKey?: string;
-          supabaseUrl?: string;
-        };
+  const {
+    messages,
+    files,
+    promptId,
+    contextOptimization,
+    enableThinking,
+    supabase,
+    chatMode,
+    designScheme,
+    maxLLMSteps,
+    agentMode,
+  } = parsed.data as {
+    messages: Messages;
+    files: FileMap | undefined;
+    promptId?: string;
+    contextOptimization: boolean;
+    enableThinking: boolean;
+    chatMode: 'discuss' | 'build';
+    designScheme?: DesignScheme;
+    supabase?: {
+      isConnected: boolean;
+      hasSelectedProject: boolean;
+      credentials?: {
+        anonKey?: string;
+        supabaseUrl?: string;
       };
-      maxLLMSteps: number;
-      agentMode?: boolean;
     };
+    maxLLMSteps: number;
+    agentMode?: boolean;
+  };
 
   // Determine if agent mode should be active for this request
   const useAgentMode = shouldUseAgentMode({ agentMode });
@@ -212,6 +224,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
         if (shouldOptimizeContext) {
           logger.debug('Generating Chat Summary');
+
           const summaryStart = performance.now();
           dataStream.writeData({
             type: 'progress',
@@ -258,6 +271,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
           // Update context buffer
           logger.debug('Updating Context Buffer');
+
           const contextStart = performance.now();
           dataStream.writeData({
             type: 'progress',
@@ -314,9 +328,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           } satisfies ProgressAnnotation);
 
           logger.info(`⏱ selectContext took ${(performance.now() - contextStart).toFixed(0)}ms`);
-          logger.info(
-            `⏱ Total context optimization: ${(performance.now() - summaryStart).toFixed(0)}ms`,
-          );
+          logger.info(`⏱ Total context optimization: ${(performance.now() - summaryStart).toFixed(0)}ms`);
         }
 
         // Merge MCP tools with agent tools when agent mode is enabled
@@ -432,6 +444,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               providerSettings,
               promptId,
               contextOptimization,
+              enableThinking,
               contextFiles: filteredFiles,
               chatMode,
               designScheme,
@@ -475,6 +488,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           providerSettings,
           promptId,
           contextOptimization,
+          enableThinking,
           contextFiles: filteredFiles,
           chatMode,
           designScheme,

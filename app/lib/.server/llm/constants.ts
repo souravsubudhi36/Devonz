@@ -1,3 +1,4 @@
+import type { JSONValue } from 'ai';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('LLMConstants');
@@ -39,11 +40,57 @@ export const PROVIDER_COMPLETION_LIMITS: Record<string, number> = {
  * These models use internal reasoning tokens and have different API parameter requirements
  */
 export function isReasoningModel(modelName: string): boolean {
-  const result = /^(o1|o3|gpt-5)/i.test(modelName);
+  const result =
+    /^(o1|o3|gpt-5)/i.test(modelName) ||
+    /deepseek[-_]?r1/i.test(modelName) ||
+    /qwq/i.test(modelName) ||
+    /kimi[-_]?thinking/i.test(modelName);
 
   logger.debug(`REGEX TEST: "${modelName}" matches reasoning pattern: ${result}`);
 
   return result;
+}
+
+/**
+ * Determines if a model supports extended thinking via providerOptions.
+ * Returns the appropriate providerOptions object for the given provider/model,
+ * or undefined if the model/provider doesn't support extended thinking.
+ */
+export function getThinkingProviderOptions(
+  providerName: string,
+  modelName: string,
+  maxOutputTokens: number,
+): Record<string, Record<string, JSONValue>> | undefined {
+  const budgetTokens = Math.max(1024, Math.min(Math.floor(maxOutputTokens * 0.25), 32000));
+
+  if (providerName === 'Anthropic') {
+    // Claude 3.5 Sonnet, Claude 4 Opus, Claude 4 Sonnet support extended thinking
+    if (/claude/i.test(modelName)) {
+      logger.info(`Enabling Anthropic extended thinking for ${modelName} (budget: ${budgetTokens} tokens)`);
+
+      return {
+        anthropic: {
+          thinking: { type: 'enabled', budgetTokens },
+        },
+      };
+    }
+  }
+
+  if (providerName === 'Google') {
+    // Gemini 2.5 Pro/Flash and thinking models support thinkingConfig
+    if (/gemini-2\.5|gemini-2\.0-flash-thinking/i.test(modelName)) {
+      logger.info(`Enabling Google thinking for ${modelName} (budget: ${budgetTokens} tokens)`);
+
+      return {
+        google: {
+          thinkingConfig: { thinkingBudget: budgetTokens },
+        },
+      };
+    }
+  }
+
+  // DeepSeek R1, QWQ, Kimi thinking — thinking is built into the model, no providerOptions needed
+  return undefined;
 }
 
 // limits the number of model responses that can be returned in a single request

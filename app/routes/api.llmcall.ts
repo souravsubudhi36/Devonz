@@ -4,7 +4,12 @@ import type { IProviderSetting, ProviderInfo } from '~/types/model';
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { PROVIDER_LIST } from '~/utils/constants';
-import { MAX_TOKENS, PROVIDER_COMPLETION_LIMITS, isReasoningModel } from '~/lib/.server/llm/constants';
+import {
+  MAX_TOKENS,
+  PROVIDER_COMPLETION_LIMITS,
+  isReasoningModel,
+  getThinkingProviderOptions,
+} from '~/lib/.server/llm/constants';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
@@ -243,6 +248,14 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
       const finalParams = isReasoning
         ? { ...baseParams, temperature: 1 } // Set to 1 for reasoning models (only supported value)
         : { ...baseParams, temperature: 0 };
+
+      // Add thinking providerOptions if the model supports it
+      const thinkingOptions = getThinkingProviderOptions(provider.name, modelDetails.name, dynamicMaxTokens);
+
+      if (thinkingOptions) {
+        (finalParams as Record<string, unknown>).providerOptions = thinkingOptions;
+        logger.info(`Extended thinking enabled for ${provider.name}/${modelDetails.name} in llmcall`);
+      }
 
       // DEBUG: Log final parameters
       logger.info(
