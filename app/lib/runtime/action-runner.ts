@@ -152,6 +152,30 @@ export class ActionRunner {
     });
   }
 
+  /**
+   * Add an action as already completed during session restore.
+   * This shows the action in the UI with a completed status
+   * without executing it (no file writes, no shell commands).
+   */
+  restoreAction(data: ActionCallbackData) {
+    const { actionId, messageId } = data;
+
+    const actions = this.actions.get();
+
+    if (actions[actionId]) {
+      return; // Already exists
+    }
+
+    this.actions.setKey(actionId, {
+      ...data.action,
+      status: data.action.type === 'start' ? 'running' : 'complete',
+      executed: true,
+      messageId,
+      abort: () => {},
+      abortSignal: new AbortController().signal,
+    });
+  }
+
   async runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     const { actionId } = data;
     const action = this.actions.get()[actionId];

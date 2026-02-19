@@ -592,6 +592,22 @@ export class WorkbenchStore {
     this.addToExecutionQueue(() => this._addAction(data));
   }
 
+  /**
+   * Restore an action from a previous session.
+   * Adds it as completed for display without executing it.
+   */
+  restoreAction(data: ActionCallbackData) {
+    const { artifactId } = data;
+    const artifact = this.#getArtifact(artifactId);
+
+    if (!artifact) {
+      logger.warn('restoreAction: Artifact not found:', artifactId);
+      return;
+    }
+
+    artifact.runner.restoreAction(data);
+  }
+
   async _addAction(data: ActionCallbackData) {
     const { artifactId } = data;
 
