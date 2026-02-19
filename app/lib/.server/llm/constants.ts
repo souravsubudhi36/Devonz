@@ -83,7 +83,7 @@ export function getThinkingProviderOptions(
 
       return {
         google: {
-          thinkingConfig: { thinkingBudget: budgetTokens },
+          thinkingConfig: { thinkingBudget: budgetTokens, includeThoughts: true },
         },
       };
     }

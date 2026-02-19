@@ -452,7 +452,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               messageSliceId,
             });
 
-            result.mergeIntoDataStream(dataStream);
+            result.mergeIntoDataStream(dataStream, { sendReasoning: enableThinking });
 
             (async () => {
               for await (const part of result.fullStream) {
@@ -519,7 +519,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           streamRecovery.stop();
           logger.info(`⏱ streamText completed in ${(performance.now() - streamStart).toFixed(0)}ms`);
         })();
-        result.mergeIntoDataStream(dataStream);
+        result.mergeIntoDataStream(dataStream, { sendReasoning: enableThinking });
       },
       onError: (error: unknown) => {
         // Provide more specific error messages for common issues
