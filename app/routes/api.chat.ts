@@ -36,11 +36,13 @@ export const action = withSecurity(chatAction, {
 const logger = createScopedLogger('api.chat');
 
 // Zod schema for chat request validation
-const messageSchema = z.object({
-  id: z.string().optional(),
-  role: z.enum(['user', 'assistant', 'system']),
-  content: z.string(),
-});
+const messageSchema = z
+  .object({
+    id: z.string().optional(),
+    role: z.enum(['user', 'assistant', 'system']),
+    content: z.string(),
+  })
+  .passthrough(); // Preserve 'parts' and other AI SDK fields for MCP tool invocations
 
 const designSchemeSchema = z
   .object({

@@ -378,7 +378,7 @@ export class MCPService {
     const lastMessage = messages[messages.length - 1];
     const parts = lastMessage.parts;
 
-    if (!parts) {
+    if (!parts || parts.length === 0) {
       return messages;
     }
 
@@ -410,11 +410,13 @@ export class MCPService {
                 messages: convertToCoreMessages(messages),
                 toolCallId,
               });
+              logger.debug(`tool "${toolName}" returned successfully`);
             } catch (error) {
               logger.error(`error while calling tool "${toolName}":`, error);
               result = TOOL_EXECUTION_ERROR;
             }
           } else {
+            logger.warn(`tool "${toolName}" has no execute function`);
             result = TOOL_NO_EXECUTE_FUNCTION;
           }
         } else if (toolInvocation.result === TOOL_EXECUTION_APPROVAL.REJECT) {
