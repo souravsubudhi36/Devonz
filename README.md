@@ -1,6 +1,6 @@
 <div align="center">
 
-# Devonz
+<img width="236" height="79" alt="devonz" src="https://github.com/user-attachments/assets/30c464d9-39a9-4c0d-85f8-64473cfa774c" />
 
 **AI-powered full-stack development agent :-: describe what you want, watch it build.**
 
@@ -11,8 +11,6 @@
 ![Devonz Screenshot](https://github.com/user-attachments/assets/e4c3067d-2539-4b5e-abab-d129d90b51dc)
 
 </div>
-
----
 
 <div align="center">
 
